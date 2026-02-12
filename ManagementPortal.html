@@ -366,25 +366,25 @@
     // On load: default to guest (read-only) mode
     let isAuthed = false;
     try { isAuthed = localStorage.getItem(AUTH_KEY) === '1'; } catch (e) {}
-    if (!isAuthed) {
-      setReadOnlyMode(true);
-      window.addEventListener('DOMContentLoaded', function() {
-        let btn = document.getElementById('signInManageBtn');
-        if (btn) {
-          btn.style.display = '';
-          btn.onclick = showGoogleLogin;
-        }
-        let badge = document.getElementById('readOnlyBadge');
-        if (badge) badge.style.display = 'block';
-      });
-    } else {
-      setReadOnlyMode(false);
-      window.addEventListener('DOMContentLoaded', function() {
-        let btn = document.getElementById('signInManageBtn');
-        if (btn) btn.style.display = 'none';
-        let badge = document.getElementById('readOnlyBadge');
-        if (badge) badge.style.display = 'none';
-      });
+      if (!isAuthed) { // Check if user is authenticated
+        setReadOnlyMode(true); // Set read-only mode if not authenticated
+        window.addEventListener('DOMContentLoaded', function() { // Wait for DOM to load
+          let btn = document.getElementById('signInManageBtn'); // Get sign-in button
+          if (btn) {
+            btn.style.display = ''; // Show sign-in button
+            btn.onclick = showGoogleLogin; // Set click event to show login
+          }
+          let badge = document.getElementById('readOnlyBadge'); // Get read-only badge
+          if (badge) badge.style.display = 'block'; // Show read-only badge
+        });
+      } else { // If user is authenticated
+        setReadOnlyMode(false); // Set editable mode
+        window.addEventListener('DOMContentLoaded', function() { // Wait for DOM to load
+          let btn = document.getElementById('signInManageBtn'); // Get sign-in button
+          if (btn) btn.style.display = 'none'; // Hide sign-in button
+          let badge = document.getElementById('readOnlyBadge'); // Get read-only badge
+          if (badge) badge.style.display = 'none'; // Hide read-only badge
+        });
     }
   </script>
   
@@ -3178,3 +3178,5 @@
   </script>
 </body>
 </html>
+
+
