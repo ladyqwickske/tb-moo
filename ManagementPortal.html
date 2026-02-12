@@ -1125,7 +1125,7 @@
       return { success: true, data: result }; // Default
     }
 
-    function switchTab(tabId) {
+    window.switchTab = function(tabId) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(tabId)?.classList.add('active');
@@ -2058,7 +2058,7 @@
       function showTable() { document.getElementById('memberLoading').style.display='none'; document.getElementById('memberError').style.display='none'; document.getElementById('membersTable').style.display='table'; document.getElementById('memberEmpty').style.display='none'; }
       function showEmpty() { document.getElementById('memberLoading').style.display='none'; document.getElementById('memberError').style.display='none'; document.getElementById('membersTable').style.display='none'; document.getElementById('memberEmpty').style.display='block'; }
       return { init, loadMembers, switchTab, submitMightEntry, submitAddMember, submitNameChange, submitRemoveMember };
-    })();
+    // ...existing code...
 
     // Troops Tab
     const TroopsTab = (() => {
