@@ -6,17 +6,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to MOO Portal</title>
   <style>
-    body { font-family: 'Google Sans', Arial, sans-serif; background: #f8f9fa; color: #202124; text-align: center; padding: 60px; }
-    .container { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: inline-block; padding: 40px 32px; }
-    h1 { color: #1a73e8; margin-bottom: 0.2em; }
-    h2 { color: #444; font-weight: 400; margin-top: 0; margin-bottom: 1.5em; font-size: 1.3em; }
-    .portal-links { display: flex; justify-content: center; gap: 48px; margin: 32px 0; }
-    .portal-link img { max-width: 220px; max-height: 220px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-    .portal-link img:hover { transform: scale(1.06); box-shadow: 0 4px 24px rgba(26,115,232,0.18); }
-    .portal-label { margin-top: 16px; font-size: 1.3em; color: #1a73e8; font-weight: 600; letter-spacing: 0.5px; }
+    body {
+      font-family: 'Google Sans', Arial, sans-serif;
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #f3f3f3;
+      text-align: center;
+      padding: 32px 8px 60px 8px;
+      min-height: 100vh;
+      background-attachment: fixed;
+    }
+    .container {
+      background: rgba(30, 34, 40, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      display: inline-block;
+      padding: 32px 16px;
+      margin: 0 auto;
+      max-width: 98vw;
+    }
+    h1 {
+      color: #ffb300;
+      margin-bottom: 0.2em;
+      letter-spacing: 1px;
+      font-size: 2.1em;
+      text-shadow: 0 2px 8px #000a;
+    }
+    h2 {
+      color: #e0e0e0;
+      font-weight: 400;
+      margin-top: 0;
+      margin-bottom: 1.5em;
+      font-size: 1.1em;
+      text-shadow: 0 1px 4px #0008;
+    }
+    .portal-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 32px 0;
+      flex-wrap: wrap;
+    }
+    .portal-link img {
+      max-width: 180px;
+      max-height: 180px;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      background: #222;
+      padding: 8px;
+    }
+    .portal-link img:hover {
+      transform: scale(1.06);
+      box-shadow: 0 4px 24px #ffb30055;
+      background: #333;
+    }
+    .portal-label {
+      margin-top: 16px;
+      font-size: 1.15em;
+      color: #ffb300;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 4px #0008;
+    }
     @media (max-width: 700px) {
-      .portal-links { flex-direction: column; gap: 24px; }
-      .portal-link img { max-width: 90vw; }
+      .portal-links {
+        flex-direction: column;
+        gap: 24px;
+      }
+      .portal-link img {
+        max-width: 80vw;
+        max-height: 32vw;
+      }
+      .container {
+        padding: 16px 2vw;
+      }
+      h1 {
+        font-size: 1.3em;
+      }
     }
   </style>
 </head>
