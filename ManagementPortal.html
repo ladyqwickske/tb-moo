@@ -285,18 +285,78 @@
   </style>
 </head>
 <body>
+  <!-- Google Sign-In integration -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
-    // Read-only mode detection from sessionStorage (set by RouterPortal.html)
-    const READ_ONLY_MODE = sessionStorage.getItem('portalReadOnlyMode') === 'true';
-    console.log('[INFO] READ_ONLY_MODE from sessionStorage:', READ_ONLY_MODE, 'type:', typeof READ_ONLY_MODE);
-    
-    // Apply read-only class immediately if enabled
-    if (READ_ONLY_MODE) {
-      document.documentElement.classList.add('read-only-mode');
-      if (document.body) document.body.classList.add('read-only-mode');
-      console.log('[INFO] Portal loaded in READ-ONLY mode');
+    // --- Google Sign-In for edit access ---
+    const BACKEND_VERIFY_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?action=verifyGoogleLogin'; // TODO: Replace with your deployed Apps Script URL
+    const AUTH_KEY = 'moo_portal_google_auth';
+
+    function setReadOnlyMode(enabled) {
+      if (enabled) {
+        document.documentElement.classList.add('read-only-mode');
+        if (document.body) document.body.classList.add('read-only-mode');
+        console.log('[INFO] Portal loaded in READ-ONLY mode');
+      } else {
+        document.documentElement.classList.remove('read-only-mode');
+        if (document.body) document.body.classList.remove('read-only-mode');
+        console.log('[INFO] Portal loaded in EDITABLE mode');
+      }
+    }
+
+    function showGoogleLogin() {
+      const loginDiv = document.createElement('div');
+      loginDiv.id = 'login-overlay';
+      loginDiv.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
+      loginDiv.innerHTML = `
+        <div style="background:white;padding:32px 24px;border-radius:12px;box-shadow:0 4px 24px #0002;display:flex;flex-direction:column;align-items:center;gap:16px;min-width:300px;">
+          <h2 style="margin-bottom:8px;color:#1a73e8;">Sign in to Edit</h2>
+          <div id="g_id_onload"
+            data-client_id="47674606892-0m90hd0cd01kijo69ssuqtn1j3igp32i.apps.googleusercontent.com"
+            data-callback="onGoogleSignIn"
+            data-auto_prompt="false"
+            data-ux_mode="popup"
+            ></div>
+          <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
+          <div id="login-error" style="color:#d93025;font-size:13px;display:none;"></div>
+        </div>
+      `;
+      document.body.appendChild(loginDiv);
+    }
+
+    window.onGoogleSignIn = async function(response) {
+      const idToken = response.credential;
+      try {
+        const res = await fetch(BACKEND_VERIFY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken })
+        });
+        const data = await res.json();
+        if (data.success && data.allowed) {
+          localStorage.setItem(AUTH_KEY, '1');
+          document.getElementById('login-overlay').remove();
+          setReadOnlyMode(false);
+        } else {
+          setReadOnlyMode(true);
+          document.getElementById('login-error').textContent = data.error || 'Access denied: not an authorized user.';
+          document.getElementById('login-error').style.display = 'block';
+        }
+      } catch (err) {
+        setReadOnlyMode(true);
+        document.getElementById('login-error').textContent = 'Login failed. Please try again.';
+        document.getElementById('login-error').style.display = 'block';
+      }
+    };
+
+    // On load: check auth
+    let isAuthed = false;
+    try { isAuthed = localStorage.getItem(AUTH_KEY) === '1'; } catch (e) {}
+    if (!isAuthed) {
+      setReadOnlyMode(true);
+      window.addEventListener('DOMContentLoaded', showGoogleLogin);
     } else {
-      console.log('[INFO] Portal loaded in EDITABLE mode');
+      setReadOnlyMode(false);
     }
   </script>
   
