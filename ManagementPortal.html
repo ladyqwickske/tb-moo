@@ -1085,10 +1085,20 @@
     let eventsInitialized = false;
     
     // Update UI based on read-only mode
-    if (READ_ONLY_MODE) {
-      document.getElementById('navBrand').innerHTML = '<img src="moo-portal.png" alt="MOO"> MOO View-Only Portal';
-      document.getElementById('readOnlyBadge').style.display = 'block';
+    function updateReadOnlyUI() {
+      if (document.documentElement.classList.contains('read-only-mode')) {
+        const navBrand = document.getElementById('navBrand');
+        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="MOO"> MOO View-Only Portal';
+        const badge = document.getElementById('readOnlyBadge');
+        if (badge) badge.style.display = 'block';
+      } else {
+        const navBrand = document.getElementById('navBrand');
+        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="MOO"> MOO Management';
+        const badge = document.getElementById('readOnlyBadge');
+        if (badge) badge.style.display = 'none';
+      }
     }
+    window.addEventListener('DOMContentLoaded', updateReadOnlyUI);
     let membersInitialized = false;
     let troopsInitialized = false;
     let progressInitialized = false;
@@ -1125,23 +1135,46 @@
       if (tabId === 'events') {
         if (!eventsInitialized) {
           eventsInitialized = true;
-          EventsTab.init();
+          if (typeof EventsTab !== 'undefined' && EventsTab && typeof EventsTab.init === 'function') {
+            EventsTab.init();
+          }
         } else {
-          EventsTab.switchTab('manageTab');
-          EventsTab.loadEvents();
+          if (typeof EventsTab !== 'undefined' && EventsTab && typeof EventsTab.switchTab === 'function') {
+            EventsTab.switchTab('manageTab');
+            if (typeof EventsTab.loadEvents === 'function') EventsTab.loadEvents();
+          }
         }
       }
-      if (tabId === 'members' && !membersInitialized) { membersInitialized = true; MembersTab.init(); }
+      if (tabId === 'members' && !membersInitialized) {
+        membersInitialized = true;
+        if (typeof MembersTab !== 'undefined' && MembersTab && typeof MembersTab.init === 'function') {
+          MembersTab.init();
+        }
+      }
       if (tabId === 'troops') {
         if (!troopsInitialized) {
           troopsInitialized = true;
-          TroopsTab.init();
+          if (typeof TroopsTab !== 'undefined' && TroopsTab && typeof TroopsTab.init === 'function') {
+            TroopsTab.init();
+          }
         } else {
-          TroopsTab.switchSubTab('summary');
+          if (typeof TroopsTab !== 'undefined' && TroopsTab && typeof TroopsTab.switchSubTab === 'function') {
+            TroopsTab.switchSubTab('summary');
+          }
         }
       }
-      if (tabId === 'progress' && !progressInitialized) { progressInitialized = true; ProgressTab.init(); }
-      if (tabId === 'compensation' && !compensationInitialized) { compensationInitialized = true; CompensationTab.init(); }
+      if (tabId === 'progress' && !progressInitialized) {
+        progressInitialized = true;
+        if (typeof ProgressTab !== 'undefined' && ProgressTab && typeof ProgressTab.init === 'function') {
+          ProgressTab.init();
+        }
+      }
+      if (tabId === 'compensation' && !compensationInitialized) {
+        compensationInitialized = true;
+        if (typeof CompensationTab !== 'undefined' && CompensationTab && typeof CompensationTab.init === 'function') {
+          CompensationTab.init();
+        }
+      }
     }
 
     // Dashboard
