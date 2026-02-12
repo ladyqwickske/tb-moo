@@ -310,18 +310,32 @@
       loginDiv.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
       loginDiv.innerHTML = `
         <div style="background:white;padding:32px 24px;border-radius:12px;box-shadow:0 4px 24px #0002;display:flex;flex-direction:column;align-items:center;gap:16px;min-width:300px;">
-          <h2 style="margin-bottom:8px;color:#1a73e8;">Sign in to Edit</h2>
-          <div id="g_id_onload"
-            data-client_id="47674606892-0m90hd0cd01kijo69ssuqtn1j3igp32i.apps.googleusercontent.com"
-            data-callback="onGoogleSignIn"
-            data-auto_prompt="false"
-            data-ux_mode="popup"
+          <h2 style=\"margin-bottom:8px;color:#1a73e8;\">Sign in to Edit</h2>
+          <div id=\"g_id_onload\"
+            data-client_id=\"47674606892-0m90hd0cd01kijo69ssuqtn1j3igp32i.apps.googleusercontent.com\"
+            data-callback=\"onGoogleSignIn\"
+            data-auto_prompt=\"false\"
+            data-ux_mode=\"popup\"
             ></div>
-          <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
-          <div id="login-error" style="color:#d93025;font-size:13px;display:none;"></div>
+          <div class=\"g_id_signin\" data-type=\"standard\" data-size=\"large\" data-theme=\"outline\" data-text=\"sign_in_with\" data-shape=\"rectangular\" data-logo_alignment=\"left\"></div>
+          <button id=\"guest-btn\" style=\"margin-top:8px;padding:8px 20px;border:none;background:#f1f3f4;color:#1a73e8;font-size:15px;font-weight:600;border-radius:6px;cursor:pointer;transition:background 0.2s;\">Continue as Guest</button>
+          <div id=\"login-error\" style=\"color:#d93025;font-size:13px;display:none;\"></div>
         </div>
       `;
       document.body.appendChild(loginDiv);
+      // Add guest button logic
+      setTimeout(() => {
+        const guestBtn = document.getElementById('guest-btn');
+        if (guestBtn) {
+          guestBtn.onclick = function() {
+            // Remove overlay and set read-only mode
+            document.getElementById('login-overlay').remove();
+            setReadOnlyMode(true);
+            // Remove any previous auth
+            try { localStorage.removeItem(AUTH_KEY); } catch (e) {}
+          };
+        }
+      }, 0);
     }
 
     window.onGoogleSignIn = async function(response) {
@@ -349,12 +363,23 @@
       }
     };
 
-    // On load: check auth
+    // On load: default to guest (read-only) mode
     let isAuthed = false;
     try { isAuthed = localStorage.getItem(AUTH_KEY) === '1'; } catch (e) {}
     if (!isAuthed) {
       setReadOnlyMode(true);
-      window.addEventListener('DOMContentLoaded', showGoogleLogin);
+      // Show a 'Sign in to Manage' button in the nav bar
+      window.addEventListener('DOMContentLoaded', function() {
+        let nav = document.querySelector('.tab-nav-container');
+        if (nav && !document.getElementById('signInManageBtn')) {
+          const btn = document.createElement('button');
+          btn.id = 'signInManageBtn';
+          btn.textContent = '🔑 Sign in to Manage';
+          btn.style = 'margin-left:16px;padding:8px 18px;background:#1a73e8;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;';
+          btn.onclick = showGoogleLogin;
+          nav.appendChild(btn);
+        }
+      });
     } else {
       setReadOnlyMode(false);
     }
