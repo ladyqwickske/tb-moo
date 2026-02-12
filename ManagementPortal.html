@@ -368,20 +368,23 @@
     try { isAuthed = localStorage.getItem(AUTH_KEY) === '1'; } catch (e) {}
     if (!isAuthed) {
       setReadOnlyMode(true);
-      // Show a 'Sign in to Manage' button in the nav bar
       window.addEventListener('DOMContentLoaded', function() {
-        let nav = document.querySelector('.tab-nav-container');
-        if (nav && !document.getElementById('signInManageBtn')) {
-          const btn = document.createElement('button');
-          btn.id = 'signInManageBtn';
-          btn.textContent = '🔑 Sign in to Manage';
-          btn.style = 'margin-left:16px;padding:8px 18px;background:#1a73e8;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;';
+        let btn = document.getElementById('signInManageBtn');
+        if (btn) {
+          btn.style.display = '';
           btn.onclick = showGoogleLogin;
-          nav.appendChild(btn);
         }
+        let badge = document.getElementById('readOnlyBadge');
+        if (badge) badge.style.display = 'block';
       });
     } else {
       setReadOnlyMode(false);
+      window.addEventListener('DOMContentLoaded', function() {
+        let btn = document.getElementById('signInManageBtn');
+        if (btn) btn.style.display = 'none';
+        let badge = document.getElementById('readOnlyBadge');
+        if (badge) badge.style.display = 'none';
+      });
     }
   </script>
   
@@ -397,7 +400,10 @@
         <button class="tab-btn" onclick="switchTab('compensation')">💰 Compensation</button>
         <button class="tab-btn" onclick="switchTab('points')">📋 Points Reference</button>
       </div>
-      <div id="readOnlyBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0; margin-left: auto;">
+        <button id="signInManageBtn" style="display:none;margin-left:0;padding:8px 18px;background:#1a73e8;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;">🔑 Sign in to Manage</button>
+        <div id="readOnlyBadge" style="display: none; margin-top: 6px; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
+      </div>
     </div>
   </nav>
 
@@ -968,8 +974,8 @@
         </div>
       </div>
 
-      <div style="background: linear-gradient(135deg, #1a73e8 0%, #1765c1 100%); color: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-        <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; font-weight: 600; margin-bottom: 12px;">Grand Total Compensation</div>
+      <div style="background: linear-gradient(135deg, #1a73e8 0%, #1765c1 100%); color: white; border-radius: 8px; padding: 24px; text-align: center;">
+        <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; font-weight: 600; margin-bottom: 12px;">GRAND TOTAL</div>
         <div id="resultGrandTotal" style="font-size: 40px; font-weight: 700; margin-bottom: 16px;">0</div>
         <div style="font-size: 12px; opacity: 0.95; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px;">
           Saved to sheet: <span id="resultSheetName" style="font-weight: 600;"></span>
@@ -1473,7 +1479,7 @@
         const evt = eventsData.find(e=>e.eventName===eventName); if (!evt) { alert('Event not found.'); return; }
         if (evt.participationMethod!=='chest-based') { alert('Participation calculation applies to chest-based events only.'); return; }
         const status = document.createElement('div'); status.className='status'; status.textContent=`⏳ Calculating participation for "${evt.eventName}"...`; status.style.cssText='position:fixed; top:20px; right:20px; background:#fff; padding:14px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); z-index:1000; min-width:300px;'; document.body.appendChild(status);
-        google.script.run.withSuccessHandler((result)=>{ if (result && result.success) { status.textContent='✓ '+result.message; status.classList.add('ok'); status.style.background='#d4edda'; status.style.color='#155724'; selectedEvent=evt; currentParticipationEventName=evt.eventName; loadChestParticipationData(evt.eventName); } else { status.textContent='✕ '+(result?.message||'Failed to calculate.'); status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; } setTimeout(()=>status.remove(),5000); }).withFailureHandler((error)=>{ status.textContent=`✕ Error: ${error.message}`; status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; setTimeout(()=>status.remove(),5000); }).calculateChestParticipation(evt.eventName, evt.startDate, evt.endDate, evt.eventType);
+        google.script.run.withSuccessHandler((result)=>{ if (result && result.success) { status.textContent='✓ '+result.message; status.classList.add('ok'); status.style.background='#d4edda'; status.style.color='#155724'; loadEvents(); setTimeout(()=>status.remove(),5000); } else { status.textContent='✕ '+(result?.message||'Failed to recalc.'); status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; setTimeout(()=>status.remove(),5000); } }).withFailureHandler((error)=>{ status.textContent=`✕ Error: ${error.message}`; status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; setTimeout(()=>status.remove(),5000); }).calculateChestParticipation(evt.eventName, evt.startDate, evt.endDate, evt.eventType);
       }
       function viewEventParticipation(eventName) {
         const evt = eventsData.find(e=>e.eventName===eventName); if (!evt) { alert('Event not found.'); return; }
@@ -1703,7 +1709,7 @@
           const row=document.createElement('tr'); row.innerHTML=`<td class="event-name">${escapeHtml(p.memberName)}</td><td>${p.value1??0}</td><td style="text-align:center;">${icon}</td>`; tbody.appendChild(row);
         });
       }
-      function sortTable(column) { if (currentSortColumn===column) currentSortDirection = currentSortDirection==='asc'?'desc':'asc'; else { currentSortColumn=column; currentSortDirection='asc'; } applyChestFiltersAndSort(); document.querySelectorAll('#events .sortable').forEach(th=>th.classList.remove('asc','desc')); const clicked=Array.from(document.querySelectorAll('#events .sortable')).find(th=>th.getAttribute('onclick')?.includes(column)); if (clicked) clicked.classList.add(currentSortDirection); }
+      function sortTable(column) { if (currentSort.column===column) currentSort.direction = currentSort.direction==='asc'?'desc':'asc'; else { currentSort.column=column; currentSort.direction='asc'; } applyChestFiltersAndSort(); document.querySelectorAll('#events .sortable').forEach(th=>th.classList.remove('asc','desc')); const clicked=Array.from(document.querySelectorAll('#events .sortable')).find(th=>th.getAttribute('onclick')?.includes(column)); if (clicked) clicked.classList.add(currentSort.direction); }
       function deleteEvent(eventName) { if (!confirm(`Are you sure you want to delete "${eventName}"?`)) return; google.script.run.withSuccessHandler((result)=>{ if (result && result.success) loadEvents(); else alert(result?.message||'Failed to delete event.'); }).withFailureHandler((error)=>alert(`Error: ${error.message}`)).deleteEvent(eventName); }
       function recalculateAllChestEvents() { if (!confirm('This will recalculate participation for all chest-based events from the ChestData sheet. Continue?')) return; const status=document.createElement('div'); status.className='status'; status.textContent='⏳ Recalculating all chest-based events...'; status.style.cssText='position:fixed; top:20px; right:20px; background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); z-index:1000; min-width:300px;'; document.body.appendChild(status); google.script.run.withSuccessHandler((result)=>{ if (result && result.success) { status.textContent='✓ '+result.message; status.classList.add('ok'); status.style.background='#d4edda'; status.style.color='#155724'; loadEvents(); setTimeout(()=>status.remove(),5000); } else { status.textContent='✕ '+(result?.message||'Failed to recalc.'); status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; setTimeout(()=>status.remove(),5000); } }).withFailureHandler((error)=>{ status.textContent=`✕ Error: ${error.message}`; status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; setTimeout(()=>status.remove(),5000); }).recalculateAllChestEvents(); }
       function loadChestTypes() { google.script.run.withSuccessHandler((result)=>{ const norm=normalizeResponse(result); if (norm.success) { availableChestTypes=norm.chestTypes||norm.data||[]; renderChestTypesList(); } else { console.error('Failed to load chest types:', norm.error); } }).withFailureHandler((error)=>console.error('Failed to load chest types:',error)).getAvailableChestTypes(); }
@@ -1966,7 +1972,7 @@
       function escapeHtml(text) { if (!text) return ''; const div=document.createElement('div'); div.textContent=text; return div.innerHTML; }
       function sortTableProxy(column){ sortTable(column); }
       return { init, switchTab, loadEvents, recalculateAllChestEvents, calculateChestParticipation, onChestEventSelected, onManualEventSelected, submitManualEntry, calculateManualNonParticipants, submitCreateEvent, sortTable: sortTableProxy, sortManualTable, updateEventTypeMethod, submitAddEventType, renderEventTypesTable, cancelEditEventType, addTroopTargetRow, removeTroopTargetRow };
-    })();
+    // ...existing code...
 
     // Members Tab
     const MembersTab = (() => {
@@ -1994,7 +2000,10 @@
       function filterMembers(searchTerm) { const term=searchTerm.toLowerCase().trim(); filteredData = term ? membersData.filter(m=>m.name.toLowerCase().includes(term)) : [...membersData]; renderTable(); if (filteredData.length===0) showEmpty(); else showTable(); }
       function sortTable(column) { if (currentSort.column===column) currentSort.direction = currentSort.direction==='asc'?'desc':'asc'; else { currentSort.column=column; currentSort.direction='asc'; }
         filteredData.sort((a,b)=>{ let aVal,bVal; switch(column){ case 'name': aVal=a.name.toLowerCase(); bVal=b.name.toLowerCase(); break; case 'joinDate': aVal=new Date(a.joinDate); bVal=new Date(b.joinDate); break; case 'startMight': aVal=a.startMight||0; bVal=b.startMight||0; break; case 'latestMight': aVal=a.latestMight||0; bVal=b.latestMight||0; break; case 'latestMightDate': aVal=a.latestMightDate?new Date(a.latestMightDate):new Date(0); bVal=b.latestMightDate?new Date(b.latestMightDate):new Date(0); break; case 'growth': aVal=(a.startMight&&a.latestMight&&a.startMight>0)?((a.latestMight-a.startMight)/a.startMight)*100:-Infinity; bVal=(b.startMight&&b.latestMight&&b.startMight>0)?((b.latestMight-b.startMight)/b.startMight)*100:-Infinity; break; case 'recentGrowth': aVal=a.recentGrowthPercent||0; bVal=b.recentGrowthPercent||0; break; default: aVal=0; bVal=0; }
-          if (aVal<bVal) return currentSort.direction==='asc'?-1:1; if (aVal>bVal) return currentSort.direction==='asc'?1:-1; return 0; });
+          if (aVal<bVal) return currentSort.direction==='asc'?-1:1;
+          if (aVal>bVal) return currentSort.direction==='asc'?1:-1;
+          return 0;
+        });
         document.querySelectorAll('#members th.sortable').forEach(th=>th.classList.remove('sorted-asc','sorted-desc')); const currentTh=document.querySelector(`#members th[data-column="${column}"]`); if (currentTh) currentTh.classList.add(`sorted-${currentSort.direction}`); renderTable(); }
       function renderTable() {
         const tbody=document.getElementById('membersTableBody'); tbody.innerHTML='';
@@ -2506,7 +2515,7 @@
           const start = new Date(today);
           start.setDate(start.getDate() - start.getDay());
           const end = new Date(start);
-          end.setDate(end.getDate() + 6);
+          end.setDate(start.getDate() + 6);
           periodLabel = `Viewing: This Week (Sun–Sat): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
         } else if (period === 'prevweek') {
           const start = new Date(today);
@@ -2648,6 +2657,7 @@
       return { init, clearCacheAndRefresh, setPeriod };
     })();
 
+    // Compensation Tab
     const CompensationTab = (() => {
       // Silver values per unit by troop type
       const TROOP_VALUES = {
@@ -3016,7 +3026,7 @@
 
                 <div style="background: linear-gradient(135deg, #1a73e8 0%, #1765c1 100%); color: white; border-radius: 8px; padding: 20px; text-align: center;">
                   <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">GRAND TOTAL</div>
-                  <div style="font-size: 36px; font-weight: 700;">${result.grandTotal.toLocaleString()} silver</div>
+                  <div style="font-size: 36px, font-weight: 700;">${result.grandTotal.toLocaleString()} silver</div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
@@ -3168,5 +3178,3 @@
   </script>
 </body>
 </html>
-
-
