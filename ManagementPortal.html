@@ -49,38 +49,63 @@
     .card-value { font-size: 28px; font-weight: 700; color: #ffb300; margin-bottom: 4px; text-shadow: 0 2px 8px #000a; }
     .card-label { font-size: 12px; color: #e0e0e0; text-transform: uppercase; letter-spacing: 0.5px; }
     .player-list { background: #232526; border-radius: 8px; padding: 0; box-shadow: 0 1px 6px rgba(0,0,0,0.25); margin-bottom: 16px; overflow: auto; max-height: 70vh; border: 1px solid #444; }
-    .chest-table { display: table; width: 100%; border-collapse: collapse; }
-    .table-header { display: table-row; background: #f8f9fa; border-bottom: 2px solid #e8eaed; }
-    .header-cell { display: table-cell; padding: 12px 8px; font-weight: 600; font-size: 11px; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-right: 1px solid #e8eaed; white-space: nowrap; position: sticky; top: 0; background: #f8f9fa; z-index: 2; }
-    .header-cell:first-child { text-align: center; position: sticky; left: 0; z-index: 3; min-width: 45px; max-width: 50px; width: 50px; background: #f8f9fa; }
-    .header-cell:nth-child(2) { text-align: left; position: sticky; left: 50px; z-index: 3; min-width: 150px; background: #f8f9fa; }
+    .chest-table { display: table; width: 100%; border-collapse: collapse; background: #232526; border-radius: 8px; overflow: hidden; }
+    .table-header { display: table-row; background: #232526; border-bottom: 2px solid #444; }
+    .header-cell { display: table-cell; padding: 12px 8px; font-weight: 600; font-size: 11px; color: #ffb300; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-right: 1px solid #444; white-space: nowrap; position: sticky; top: 0; background: #232526; z-index: 2; }
+    .header-cell:first-child { text-align: center; position: sticky; left: 0; z-index: 3; min-width: 45px; max-width: 50px; width: 50px; background: #232526; }
+    .header-cell:nth-child(2) { text-align: left; position: sticky; left: 50px; z-index: 3; min-width: 150px; background: #232526; }
     .header-cell.rank-col { min-width: 45px !important; max-width: 50px !important; width: 50px !important; padding: 12px 4px; text-align: center !important; }
     .cell.rank-col { min-width: 45px !important; max-width: 50px !important; width: 50px !important; padding: 12px 4px; text-align: center !important; }
-    .type-total-header { cursor: pointer; user-select: none; background: #e8eaed; font-weight: 600; }
-    .type-total-header:hover { background: #dadce0; }
+    .type-total-header { cursor: pointer; user-select: none; background: #33343a; font-weight: 600; color: #ffb300; }
+    .type-total-header:hover { background: #444; }
     .toggle-icon { display: inline-block; width: 16px; text-align: center; margin-right: 4px; transition: transform 0.15s; }
     .type-total-header.expanded .toggle-icon { transform: rotate(90deg); }
-    .level-header { background: #f1f3f4; display: none; }
+    .level-header { background: #33343a; display: none; color: #ffb300; }
     .level-header.visible { display: table-cell; }
-    .player-row { display: table-row; border-bottom: 1px solid #e8eaed; }
-    .player-row:hover { background: #f8f9fa; }
-    .cell { display: table-cell; padding: 12px 8px; border-right: 1px solid #e8eaed; text-align: center; font-size: 13px; vertical-align: middle; white-space: nowrap; }
-    .cell:first-child { text-align: center; font-weight: 500; position: sticky; left: 0; background: white; z-index: 1; min-width: 45px; max-width: 50px; width: 50px; }
-    .cell:nth-child(2) { text-align: left; font-weight: 500; position: sticky; left: 50px; background: white; z-index: 1; min-width: 150px; }
-    .player-row:hover .cell:first-child, .player-row:hover .cell:nth-child(2) { background: #f8f9fa; }
-    .level-cell { background: #fafbfc; display: none; font-size: 12px; }
+    .player-row { display: table-row; border-bottom: 1px solid #444; background: #232526; }
+    .player-row:hover { background: #33343a; }
+    .cell { display: table-cell; padding: 12px 8px; border-right: 1px solid #444; text-align: center; font-size: 13px; vertical-align: middle; white-space: nowrap; color: #e0e0e0; background: #232526; }
+    .cell:first-child { text-align: center; font-weight: 500; position: sticky; left: 0; background: #232526; z-index: 1; min-width: 45px; max-width: 50px; width: 50px; }
+    .cell:nth-child(2) { text-align: left; font-weight: 500; position: sticky; left: 50px; background: #232526; z-index: 1; min-width: 150px; }
+    .player-row:hover .cell:first-child, .player-row:hover .cell:nth-child(2) { background: #33343a; }
+    .level-cell { background: #33343a; display: none; font-size: 12px; color: #ffb300; }
     .level-cell.visible { display: table-cell; }
-    .count-zero { color: #dadce0; }
-    .player-red { color: #d93025; font-weight: 500; }
-    .player-orange { color: #f57c00; font-weight: 500; }
-    .player-green { color: #1b5e20; font-weight: 600; }
-    .date-filter { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); margin-bottom: 16px; }
-    .date-filter-label { font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #5f6368; }
+    .count-zero { color: #444; }
+    .player-red { color: #ff5252; font-weight: 500; }
+    .player-orange { color: #ffb300; font-weight: 500; }
+    .player-green { color: #8bc34a; font-weight: 600; }
+    .date-filter {
+      background: #232526;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+      margin-bottom: 16px;
+      border: 1px solid #444;
+    }
+    .date-filter-label { font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #ffb300; }
     .date-preset-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-    .preset-btn { padding: 6px 12px; background: #f8f9fa; border: 1px solid #dadce0; border-radius: 4px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
-    .preset-btn:hover { background: #e8eaed; }
-    .preset-btn.active { background: #1a73e8; color: white; border-color: #1a73e8; }
-    .date-range-display { margin-top: 12px; padding: 8px 12px; background: #e8f0fe; border-radius: 4px; font-size: 13px; color: #1967d2; font-weight: 500; }
+    .preset-btn {
+      padding: 6px 12px;
+      background: #232526;
+      border: 1px solid #444;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #e0e0e0;
+    }
+    .preset-btn:hover { background: #333; color: #ffb300; border-color: #ffb300; }
+    .preset-btn.active { background: #ffb300; color: #232526; border-color: #ffb300; }
+    .date-range-display {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #33343a;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #ffb300;
+      font-weight: 500;
+      border: 1px solid #444;
+    }
 
     /* Events Tab */
     #events .header, #members .header, #progress .header, #troops .header { background: white; color: #202124; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); border: 1px solid #e8eaed; }
@@ -656,31 +681,6 @@
   <div id="progress" class="tab-content">
     <div class="header"><h1>📊 Progress Dashboard</h1><p>Track member participation, growth, and activity</p></div>
     <div class="period-tabs" style="display:flex; gap:8px; margin-bottom:20px; border-bottom:2px solid #e8eaed; padding-bottom:12px;">
-      <button class="period-btn active" onclick="ProgressTab.setPeriod('week')" data-period="week" style="padding:8px 16px; border:none; background:none; cursor:pointer; font-weight:600; color:#1a73e8; border-bottom:3px solid #1a73e8;">📅 This Week</button>
-      <button class="period-btn" onclick="ProgressTab.setPeriod('prevweek')" data-period="prevweek" style="padding:8px 16px; border:none; background:none; cursor:pointer; font-weight:600; color:#5f6368;">⬅️ Previous Week</button>
-      <button class="period-btn" onclick="ProgressTab.setPeriod('month')" data-period="month" style="padding:8px 16px; border:none; background:none; cursor:pointer; font-weight:600; color:#5f6368;">📆 This Month</button>
-      <button class="period-btn" onclick="ProgressTab.setPeriod('2months')" data-period="2months" style="padding:8px 16px; border:none; background:none; cursor:pointer; font-weight:600; color:#5f6368;">📊 Last 2 Months</button>
-    </div>
-    <div class="date-range-display" id="progressPeriodDisplay" style="margin-bottom:16px; padding:8px 12px; background:#e8f0fe; border-radius:4px; font-size:13px; color:#1967d2; font-weight:500;">Viewing: This Week (Sun–Sat)</div>
-    <div class="summary-cards">
-      <div class="summary-card"><h3>Total Members</h3><div class="value" id="progTotalMembers">-</div></div>
-      <div class="summary-card"><h3>Average Growth</h3><div class="value" id="progAverageGrowth">-</div><div class="subtitle">Per member</div></div>
-      <div class="summary-card"><h3>Event Participation Rate</h3><div class="value" id="progEventParticipationRate">-</div><div class="subtitle">Members participating</div></div>
-      <div class="summary-card"><h3>Top Event Participation</h3><div class="value" id="progTopEventName">-</div><div class="stats" id="progTopEventStats">-</div></div>
-    </div>
-    <div class="highlight-cards">
-      <div class="highlight-card"><h3>🏆 Most Active Member</h3><div class="member-name" id="progMostActiveName">-</div><div class="stats" id="progMostActiveStats">-</div></div>
-      <div class="highlight-card green"><h3>📈 Fastest Growing</h3><div class="member-name" id="progFastestGrowingName">-</div><div class="stats" id="progFastestGrowingStats">-</div></div>
-      <div class="highlight-card orange"><h3>💪 Highest Might</h3><div class="member-name" id="progHighestMightName">-</div><div class="stats" id="progHighestMightStats">-</div></div>
-    </div>
-    <div class="controls"><div class="search-box"><input type="text" id="progSearchInput" placeholder="🔍 Search by member name..."></div><button class="btn" onclick="ProgressTab.clearCacheAndRefresh()">🔄 Refresh Data</button></div>
-    <div class="table-container">
-      <div id="progLoading" class="loading"><div class="spinner"></div><p>Loading progress data...</p></div>
-      <table id="progressTable" style="display:none;"><thead><tr id="progressTableHeader"><th data-column="name">Member Name</th><th data-column="chestCount">Chests</th><th data-column="latestMight">Latest Might</th><th data-column="growthPercent">Growth %</th></tr></thead><tbody id="progressTableBody"></tbody></table>
-      <div id="progEmpty" class="loading" style="display:none;">Start tracking member progress by recording might values</div>
-    </div>
-  </div>
-
   <div id="compensation" class="tab-content">
     <h1>💰 Compensation Calculator</h1>
     <p style="color: #5f6368; margin-bottom: 16px;">Calculate compensation for illegal attacks and save the calculation for future reference</p>
