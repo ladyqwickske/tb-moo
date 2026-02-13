@@ -148,8 +148,16 @@
     #events .tab, #members .tab, #troops .tab { flex: 1; padding: 12px 20px; text-align: center; cursor: pointer; border: none; background: none; font-size: 14px; font-weight: 600; color: #5f6368; transition: all 0.2s; border-bottom: 3px solid transparent; }
     #events .tab:hover, #members .tab:hover, #troops .tab:hover { background: #fff; color: #1a73e8; }
     #events .tab.active, #members .tab.active, #troops .tab.active { background: white; color: #1a73e8; border-bottom-color: #1a73e8; }
-    #events .tab-content, #members .tab-content, #troops .tab-content { display: none; padding: 16px; }
-    #events .tab-content.active, #members .tab-content.active, #troops .tab-content.active { display: block; }
+    #events .tab-content, #members .tab-content, #troops .tab-content, #progress .tab-content, #compensation .tab-content, #points .tab-content {
+      display: none;
+      padding: 16px;
+      background: rgba(30, 34, 40, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      margin: 0 auto;
+      max-width: 1400px;
+    }
+    #events .tab-content.active, #members .tab-content.active, #troops .tab-content.active, #progress .tab-content.active, #compensation .tab-content.active, #points .tab-content.active { display: block; }
     #events .form-grid, #members .form-grid, #troops .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px; }
     #events label, #members label, #troops label { display: block; font-size: 12px; font-weight: 600; color: #5f6368; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
     #events select, #events input[type="date"], #events input[type="number"], #events input[type="text"],
@@ -499,7 +507,7 @@
   </div>
 
   <div id="events" class="tab-content">
-    <div class="header"><h1>🎯 Event Management</h1><p>Track clan events and member participation</p></div>
+    <div class="header"><h1><img src="pages/events.png" alt="Events" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Event Management</h1><p>Track clan events and member participation</p></div>
     <div class="tabs-container">
       <div class="tabs">
         <button class="tab active" onclick="EventsTab.switchTab('manageTab', event)">📋 Manage Events</button>
@@ -591,7 +599,7 @@
   </div>
 
   <div id="members" class="tab-content">
-    <div class="header"><h1>👥 Member Management</h1><p>View and manage clan members</p></div>
+    <div class="header"><h1><img src="pages/members.png" alt="Members" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Member Management</h1><p>View and manage clan members</p></div>
     <div class="stats-cards" id="memberStatsCards">
       <div class="stat-card"><h3>Total Members</h3><div class="value" id="memberTotal">-</div></div>
       <div class="stat-card"><h3>Total Might</h3><div class="value" id="memberTotalMight">-</div></div>
@@ -640,7 +648,7 @@
   <!-- TROOPS TAB -->
   <div id="troops" class="tab-content">
     <div class="header">
-      <h1>⚔️ Troop Level Tracker</h1>
+      <h1><img src="pages/troops.png" alt="Troops" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Troop Level Tracker</h1>
       <p>Track and manage troop levels (G, M, S, E) and crypt levels for each member</p>
     </div>
 
@@ -711,10 +719,10 @@
   </div>
 
   <div id="progress" class="tab-content">
-    <div class="header"><h1>📊 Progress Dashboard</h1><p>Track member participation, growth, and activity</p></div>
+    <div class="header"><h1><img src="pages/progress.png" alt="Progress" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Progress Dashboard</h1><p>Track member participation, growth, and activity</p></div>
     <div class="period-tabs" style="display:flex; gap:8px; margin-bottom:20px; border-bottom:2px solid #e8eaed; padding-bottom:12px;">
   <div id="compensation" class="tab-content">
-    <h1>💰 Compensation Calculator</h1>
+    <h1><img src="pages/compensation.png" alt="Compensation" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Compensation Calculator</h1>
     <p style="color: #5f6368; margin-bottom: 16px;">Calculate compensation for illegal attacks and save the calculation for future reference</p>
     
     <!-- QUICK ADD SECTION -->
@@ -1058,7 +1066,7 @@
   </div>
 
   <div id="points" class="tab-content">
-    <h1>📋 Points Reference</h1>
+    <h1><img src="pages/points.png" alt="Points Reference" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Points Reference</h1>
     <p style="color: #5f6368; margin-bottom: 16px;">Reference table for all chest types and their corresponding point values</p>
     <div class="points-reference-table">
       <table class="points-table">
