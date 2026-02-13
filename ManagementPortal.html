@@ -10,32 +10,45 @@
   <script src="portal-shim.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Google Sans', 'Roboto', Arial, sans-serif; background: #f8f9fa; color: #202124; }
+    body {
+      font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #f3f3f3;
+      text-align: center;
+      padding: 32px 8px 60px 8px;
+      min-height: 100vh;
+      background-attachment: fixed;
+    }
 
     /* Top Tabs */
-    .tab-nav { background: white; border-bottom: 1px solid #e8eaed; box-shadow: 0 2px 4px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 1000; }
+    .tab-nav {
+      background: rgba(30, 34, 40, 0.95);
+      border-bottom: 1px solid #444;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      position: sticky; top: 0; z-index: 1000;
+    }
     .tab-nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; padding: 0 16px; }
-    .nav-brand { font-size: 18px; font-weight: 600; color: #1a73e8; padding: 16px 0; margin-right: 32px; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .nav-brand { font-size: 20px; font-weight: 700; color: #ffb300; padding: 16px 0; margin-right: 32px; white-space: nowrap; display: flex; align-items: center; gap: 8px; text-shadow: 0 2px 8px #000a; }
     .nav-brand img { height: 32px; width: auto; }
     .tab-buttons { display: flex; gap: 4px; flex: 1; overflow-x: auto; }
-    .tab-btn { padding: 16px 20px; background: none; border: none; color: #5f6368; font-size: 14px; font-weight: 500; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; cursor: pointer; }
-    .tab-btn:hover { color: #1a73e8; background: #f8f9fa; }
-    .tab-btn.active { color: #1a73e8; border-bottom-color: #1a73e8; }
+    .tab-btn { padding: 16px 20px; background: none; border: none; color: #e0e0e0; font-size: 14px; font-weight: 500; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; cursor: pointer; }
+    .tab-btn:hover { color: #ffb300; background: #232526; }
+    .tab-btn.active { color: #ffb300; border-bottom-color: #ffb300; }
 
     /* Tab Content */
-    .tab-content { display: none; padding: 16px; max-width: 1400px; margin: 0 auto; }
+    .tab-content { display: none; padding: 16px; max-width: 1400px; margin: 0 auto; background: rgba(30, 34, 40, 0.95); border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
     .tab-content.active { display: block; }
-    h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; color: #1a73e8; }
-    h2 { font-size: 18px; font-weight: 500; margin-top: 24px; margin-bottom: 12px; color: #5f6368; }
-    .loading { text-align: center; padding: 32px; color: #5f6368; }
-    .note { font-size: 12px; color: #5f6368; margin-top: 4px; }
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #ffb300; text-shadow: 0 2px 8px #000a; }
+    h2 { font-size: 18px; font-weight: 500; margin-top: 24px; margin-bottom: 12px; color: #e0e0e0; }
+    .loading { text-align: center; padding: 32px; color: #e0e0e0; }
+    .note { font-size: 12px; color: #e0e0e0; margin-top: 4px; }
 
     /* Dashboard */
     .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
-    .card { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); text-align: center; }
-    .card-value { font-size: 28px; font-weight: 600; color: #1a73e8; margin-bottom: 4px; }
-    .card-label { font-size: 12px; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px; }
-    .player-list { background: white; border-radius: 8px; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.12); margin-bottom: 16px; overflow: auto; max-height: 70vh; }
+    .card { background: #232526; border-radius: 8px; padding: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.25); text-align: center; border: 1px solid #444; }
+    .card-value { font-size: 28px; font-weight: 700; color: #ffb300; margin-bottom: 4px; text-shadow: 0 2px 8px #000a; }
+    .card-label { font-size: 12px; color: #e0e0e0; text-transform: uppercase; letter-spacing: 0.5px; }
+    .player-list { background: #232526; border-radius: 8px; padding: 0; box-shadow: 0 1px 6px rgba(0,0,0,0.25); margin-bottom: 16px; overflow: auto; max-height: 70vh; border: 1px solid #444; }
     .chest-table { display: table; width: 100%; border-collapse: collapse; }
     .table-header { display: table-row; background: #f8f9fa; border-bottom: 2px solid #e8eaed; }
     .header-cell { display: table-cell; padding: 12px 8px; font-weight: 600; font-size: 11px; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-right: 1px solid #e8eaed; white-space: nowrap; position: sticky; top: 0; background: #f8f9fa; z-index: 2; }
@@ -1088,7 +1101,7 @@
     function updateReadOnlyUI() {
       if (document.documentElement.classList.contains('read-only-mode')) {
         const navBrand = document.getElementById('navBrand');
-        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="MOO"> MOO View-Only Portal';
+        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="MOO"> Masters Of Oops (MOO)';
         const badge = document.getElementById('readOnlyBadge');
         if (badge) badge.style.display = 'block';
       } else {
@@ -3168,4 +3181,3 @@
   </script>
 </body>
 </html>
-
