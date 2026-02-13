@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MOO Management Portal</title>
+  <title>MOO Portal</title>
   <link rel="icon" href="moo-portal.png" type="image/png">
   <script src="config.js"></script>
   <script src="portal-shim.js"></script>
@@ -37,8 +37,8 @@
     .tab-btn[title]:hover::after { content: attr(title); position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%); background: #232526; color: #ffb300; padding: 6px 12px; border-radius: 4px; font-size: 12px; white-space: nowrap; z-index: 1001; border: 1px solid #444; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
     .tab-btn .tab-icon {
-      width: 36px;
-      height: 36px;
+      width: 52px;
+      height: 52px;
       display: block;
       margin: 0 auto;
       filter: drop-shadow(0 2px 8px #000a);
@@ -434,9 +434,9 @@
   
   <nav class="tab-nav">
     <div class="tab-nav-container">
-      <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO"> MOO Management</div>
+      <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO"> MOO Portal</div>
       <div class="tab-buttons">
-        <button class="tab-btn active" onclick="switchTab('dashboard')" title="Dashboard"><img src="dashboard.png" alt="Dashboard" class="tab-icon"></button>
+        <button class="tab-btn active" onclick="switchTab('dashboard')" title="Dashboard"><img src="chests.png" alt="Dashboard" class="tab-icon"></button>
         <button class="tab-btn" onclick="switchTab('events')" title="Events"><img src="events.png" alt="Events" class="tab-icon"></button>
         <button class="tab-btn" onclick="switchTab('members')" title="Members"><img src="members.png" alt="Members" class="tab-icon"></button>
         <button class="tab-btn" onclick="switchTab('troops')" title="Troops"><img src="troops.png" alt="Troops" class="tab-icon"></button>
@@ -1115,7 +1115,7 @@
         if (badge) badge.style.display = 'block';
       } else {
         const navBrand = document.getElementById('navBrand');
-        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="MOO"> MOO Management';
+        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="MOO"> MOO Portal';
         const badge = document.getElementById('readOnlyBadge');
         if (badge) badge.style.display = 'none';
       }
