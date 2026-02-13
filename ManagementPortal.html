@@ -415,24 +415,30 @@
             try { localStorage.removeItem(AUTH_KEY); } catch (e) {}
           };
         }
-        // Render Google Sign-In button after modal is added to DOM
-        if (window.google && google.accounts && google.accounts.id) {
-          try {
-            google.accounts.id.renderButton(
-              document.getElementById('g_id_signin'),
-              { 
-                type: 'standard', 
-                size: 'large', 
-                theme: 'outline',
-                text: 'signin',
-                shape: 'rectangular',
-                logo_alignment: 'left'
-              }
-            );
-          } catch (e) {
-            console.error('Error rendering Google Sign-In button:', e);
+          // Initialize Google Sign-In library before rendering button
+          if (window.google && google.accounts && google.accounts.id) {
+            try {
+              google.accounts.id.initialize({
+                client_id: '47674606892-0m90hd0cd01kijo69ssuqtn1j3igp32i.apps.googleusercontent.com',
+                callback: onGoogleSignIn,
+                auto_select: false,
+                ux_mode: 'popup'
+              });
+              google.accounts.id.renderButton(
+                document.getElementById('g_id_signin'),
+                { 
+                  type: 'standard', 
+                  size: 'large', 
+                  theme: 'outline',
+                  text: 'signin',
+                  shape: 'rectangular',
+                  logo_alignment: 'left'
+                }
+              );
+            } catch (e) {
+              console.error('Error rendering Google Sign-In button:', e);
+            }
           }
-        }
       }, 100);
     }
 
@@ -500,7 +506,7 @@
   </nav>
 
   <div id="dashboard" class="tab-content active">
-    <h1><img src="moo-dashboard.png" alt="" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Chest Tracker Dashboard</h1>
+    <h1><img src="chests.png" alt="" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Chest Tracker Dashboard</h1>
     <div class="date-filter">
       <div class="date-filter-label">📅 Date Range Filter</div>
       <div class="date-preset-btns">
@@ -766,7 +772,7 @@
     </div>
     </div>
   <div id="compensation" class="tab-content">
-    <div class="header"><h1><img src="compensation.png" alt="Compensation" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Compensation Calculator</h1><p>Calculate compensation for illegal attacks and save the calculation for future reference</p></div>
+    <div class="header"><h1><img src="compensation.png" alt="Compensation" class="tab-icon" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Compensation Calculator</h1><p>Calculate compensation for illegal attacks and save the calculation for future reference</p></div>
     
     <!-- QUICK ADD SECTION -->
     <div style="background: #232526; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); margin-bottom: 16px; border-left: 4px solid #ffb300; border: 1px solid #444;">
@@ -1109,7 +1115,7 @@
   </div>
 
   <div id="points" class="tab-content">
-    <div class="header"><h1><img src="chest_points.png" alt="Points Reference" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Points Reference</h1><p>Reference table for all chest types and their corresponding point values</p></div>
+    <div class="header"><h1><img src="chest_points.png" alt="Points Reference" class="tab-icon" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Points Reference</h1><p>Reference table for all chest types and their corresponding point values</p></div>
     <div class="points-reference-table">
       <table class="points-table">
         <thead>
