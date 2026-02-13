@@ -1181,7 +1181,7 @@
   </div>
 
   <script>
-    const isSidebar = typeof google !== 'undefined' && google.script && google.script.run;
+    const isSidebar = false;
     const expandedTypes = new Set();
     let eventsInitialized = false;
     
@@ -1580,7 +1580,23 @@
         EventsTab.switchTab('createTab');
       }
 
-      function loadMembers() { google.script.run.withSuccessHandler((result)=>{ membersData = result||[]; populateMemberSelects(); }).getMembersList(); }
+      function loadMembers() {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getMembersList' })
+        })
+          .then(res => res.json())
+          .then(result => {
+            membersData = result?.data || result || [];
+            populateMemberSelects();
+          })
+          .catch(error => {
+            console.error('Failed to load members:', error);
+            membersData = [];
+            populateMemberSelects();
+          });
+      }
       function populateMemberSelects() {
         const sorted = [...membersData].sort((a,b)=>a.name.localeCompare(b.name));
         const options = ['<option value="">-- Select member --</option>'].concat(sorted.map(m=>`<option value="${escapeHtml(m.name)}">${escapeHtml(m.name)}</option>`)).join('');
@@ -1682,11 +1698,27 @@
         };
         
         if (isEditing) {
-          callFunction('updateEvent', [editingEventName, eventName, eventType, startDate, endDate])
+          fetch(window.GAS_WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'updateEvent',
+              args: [editingEventName, eventName, eventType, startDate, endDate]
+            })
+          })
+            .then(res => res.json())
             .then(onSuccess)
             .catch(onError);
         } else {
-          callFunction('addEvent', [eventName, eventType, startDate, endDate])
+          fetch(window.GAS_WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'addEvent',
+              args: [eventName, eventType, startDate, endDate]
+            })
+          })
+            .then(res => res.json())
             .then(onSuccess)
             .catch(onError);
         }
@@ -1833,26 +1865,33 @@
           });
       }
       function loadManualParticipationData(eventName) {
-        const loadingIndicator=document.getElementById('manualLoadingIndicator');
-        const participationDiv=document.getElementById('manualParticipationData');
-        const thead=document.getElementById('manualParticipationTableHead');
-        const tbody=document.getElementById('manualParticipationTableBody');
-        participationDiv.style.display='block';
-        thead.innerHTML='';
-        tbody.innerHTML='';
-        loadingIndicator.style.display='block';
-        google.script.run.withSuccessHandler((result)=>{
-          loadingIndicator.style.display='none';
-          if (result && result.success && result.data && result.data.length>0) {
-            renderManualParticipationData(result.data);
-          } else {
-            thead.innerHTML='';
-            tbody.innerHTML='<tr><td colspan="4" style="text-align:center; padding:40px; color:#7f8c8d;"><div style="font-size:48px; margin-bottom:12px;">📝</div><div style="font-size:16px; margin-bottom:8px;">No participation data yet</div><div style="font-size:13px;">Add participation entries using the form above</div></td></tr>';
-          }
-        }).withFailureHandler((error)=>{
-          loadingIndicator.style.display='none';
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#c33;"><div style="font-size:16px; margin-bottom:8px;">Error loading data</div><div style="font-size:13px;">${escapeHtml(error.message||'Unknown error')}</div></td></tr>`;
-        }).getEventParticipation(eventName);
+        const loadingIndicator = document.getElementById('manualLoadingIndicator');
+        const participationDiv = document.getElementById('manualParticipationData');
+        const thead = document.getElementById('manualParticipationTableHead');
+        const tbody = document.getElementById('manualParticipationTableBody');
+        participationDiv.style.display = 'block';
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+        loadingIndicator.style.display = 'block';
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getEventParticipation', eventName })
+        })
+          .then(res => res.json())
+          .then(result => {
+            loadingIndicator.style.display = 'none';
+            if (result && result.success && result.data && result.data.length > 0) {
+              renderManualParticipationData(result.data);
+            } else {
+              thead.innerHTML = '';
+              tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px; color:#7f8c8d;"><div style="font-size:48px; margin-bottom:12px;">📝</div><div style="font-size:16px; margin-bottom:8px;">No participation data yet</div><div style="font-size:13px;">Add participation entries using the form above</div></td></tr>';
+            }
+          })
+          .catch(error => {
+            loadingIndicator.style.display = 'none';
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#c33;"><div style="font-size:16px; margin-bottom:8px;">Error loading data</div><div style="font-size:13px;">${escapeHtml(error.message||'Unknown error')}</div></td></tr>`;
+          });
       }
       function renderChestParticipationData(data) { participationRawData=data; currentSortColumn=null; currentSortDirection='asc'; applyChestFiltersAndSort(); }
       function calculateRankings(data) { const pointsMap=new Map(); data.forEach(p=>{ const pts=Number(p.value1??0); if(!pointsMap.has(pts)) pointsMap.set(pts,[]); pointsMap.get(pts).push(p.memberName); }); const rankMap=new Map(); let currentRank=1; Array.from(pointsMap.keys()).sort((a,b)=>b-a).forEach(pts=>{ const members=pointsMap.get(pts); members.forEach(name=>rankMap.set(name,currentRank)); currentRank+=members.length; }); return rankMap; }
@@ -1960,9 +1999,82 @@
         });
       }
       function sortTable(column) { if (currentSortColumn===column) currentSortDirection = currentSortDirection==='asc'?'desc':'asc'; else { currentSortColumn=column; currentSortDirection='asc'; } applyChestFiltersAndSort(); document.querySelectorAll('#events .sortable').forEach(th=>th.classList.remove('asc','desc')); const clicked=Array.from(document.querySelectorAll('#events .sortable')).find(th=>th.getAttribute('onclick')?.includes(column)); if (clicked) clicked.classList.add(currentSortDirection); }
-      function deleteEvent(eventName) { if (!confirm(`Are you sure you want to delete "${eventName}"?`)) return; google.script.run.withSuccessHandler((result)=>{ if (result && result.success) loadEvents(); else alert(result?.message||'Failed to delete event.'); }).withFailureHandler((error)=>alert(`Error: ${error.message}`)).deleteEvent(eventName); }
-      function recalculateAllChestEvents() { if (!confirm('This will recalculate participation for all chest-based events from the ChestData sheet. Continue?')) return; const status=document.createElement('div'); status.className='status'; status.textContent='⏳ Recalculating all chest-based events...'; status.style.cssText='position:fixed; top:20px; right:20px; background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); z-index:1000; min-width:300px;'; document.body.appendChild(status); google.script.run.withSuccessHandler((result)=>{ if (result && result.success) { status.textContent='✓ '+result.message; status.classList.add('ok'); status.style.background='#d4edda'; status.style.color='#155724'; loadEvents(); setTimeout(()=>status.remove(),5000); } else { status.textContent='✕ '+(result?.message||'Failed to recalc.'); status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; setTimeout(()=>status.remove(),5000); } }).withFailureHandler((error)=>{ status.textContent=`✕ Error: ${error.message}`; status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; setTimeout(()=>status.remove(),5000); }).recalculateAllChestEvents(); }
-      function loadChestTypes() { google.script.run.withSuccessHandler((result)=>{ const norm=normalizeResponse(result); if (norm.success) { availableChestTypes=norm.chestTypes||norm.data||[]; renderChestTypesList(); } else { console.error('Failed to load chest types:', norm.error); } }).withFailureHandler((error)=>console.error('Failed to load chest types:',error)).getAvailableChestTypes(); }
+      function deleteEvent(eventName) {
+        if (!confirm(`Are you sure you want to delete "${eventName}"?`)) return;
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'deleteEvent', eventName })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              loadEvents();
+            } else {
+              alert(result?.message || 'Failed to delete event.');
+            }
+          })
+          .catch(error => {
+            alert(`Error: ${error.message}`);
+          });
+      }
+      function recalculateAllChestEvents() {
+        if (!confirm('This will recalculate participation for all chest-based events from the ChestData sheet. Continue?')) return;
+        const status = document.createElement('div');
+        status.className = 'status';
+        status.textContent = '⏳ Recalculating all chest-based events...';
+        status.style.cssText = 'position:fixed; top:20px; right:20px; background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); z-index:1000; min-width:300px;';
+        document.body.appendChild(status);
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'recalculateAllChestEvents' })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              status.textContent = '✓ ' + result.message;
+              status.classList.add('ok');
+              status.style.background = '#d4edda';
+              status.style.color = '#155724';
+              loadEvents();
+              setTimeout(() => status.remove(), 5000);
+            } else {
+              status.textContent = '✕ ' + (result?.message || 'Failed to recalc.');
+              status.classList.add('err');
+              status.style.background = '#f8d7da';
+              status.style.color = '#721c24';
+              setTimeout(() => status.remove(), 5000);
+            }
+          })
+          .catch(error => {
+            status.textContent = `✕ Error: ${error.message}`;
+            status.classList.add('err');
+            status.style.background = '#f8d7da';
+            status.style.color = '#721c24';
+            setTimeout(() => status.remove(), 5000);
+          });
+      }
+      function loadChestTypes() {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getAvailableChestTypes' })
+        })
+          .then(res => res.json())
+          .then(result => {
+            const norm = normalizeResponse(result);
+            if (norm.success) {
+              availableChestTypes = norm.chestTypes || norm.data || [];
+              renderChestTypesList();
+            } else {
+              console.error('Failed to load chest types:', norm.error);
+            }
+          })
+          .catch(error => {
+            console.error('Failed to load chest types:', error);
+          });
+      }
       function renderChestTypesList() { const container=document.getElementById('chestTypesList'); if (!availableChestTypes || availableChestTypes.length===0) { container.innerHTML='<div style="padding:12px; color:#5f6368;">No chest types found</div>'; return; } container.innerHTML = availableChestTypes.map((type,index)=>`<div class="checkbox-item"><input type="checkbox" id="chest_${index}" value="${escapeHtml(type)}"><label for="chest_${index}">${escapeHtml(type)}</label></div>`).join(''); }
       function getSelectedChestTypes() { const checkboxes=document.querySelectorAll('#chestTypesList input[type="checkbox"]:checked'); return Array.from(checkboxes).map(cb=>cb.value); }
       function setSelectedChestTypes(typesCsv) { const types=(typesCsv||'').split(',').map(t=>t.trim()).filter(Boolean); document.querySelectorAll('#chestTypesList input[type="checkbox"]').forEach(cb=>{ cb.checked = types.includes(cb.value); }); }
@@ -2012,17 +2124,34 @@
           status.classList.add('err'); 
         };
         
-        if (editingTypeOriginalName) { 
-          google.script.run
-            .withSuccessHandler(onSuccess)
-            .withFailureHandler(onFailure)
-            .updateEventType(editingTypeOriginalName, typeName, method, selectedChestTypes, description, threshold, troopTargets); 
-        } else { 
-          google.script.run
-            .withSuccessHandler(onSuccess)
-            .withFailureHandler(onFailure)
-            .addEventType(typeName, method, selectedChestTypes, description, threshold, troopTargets); 
-        }
+        const payload = editingTypeOriginalName
+          ? {
+              action: 'updateEventType',
+              editingTypeOriginalName,
+              typeName,
+              method,
+              selectedChestTypes,
+              description,
+              threshold,
+              troopTargets
+            }
+          : {
+              action: 'addEventType',
+              typeName,
+              method,
+              selectedChestTypes,
+              description,
+              threshold,
+              troopTargets
+            };
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(res => res.json())
+          .then(onSuccess)
+          .catch(onFailure);
       }
       
       function getTroopTargets() {
@@ -2106,33 +2235,33 @@
       function removeTroopTargetRow(rowId) {
         const row = document.getElementById(rowId);
         if (row) {
-          row.remove();
-        }
-      }
-      function updateEventTypeMethod() { 
-        const method=document.getElementById('newEventTypeMethod').value; 
-        const chestSection=document.getElementById('chestTypeSection'); 
-        const troopSection=document.getElementById('troopTargetSection');
-        if (method==='chest-based') {
-          chestSection.style.display='block';
-          troopSection.style.display='none';
-        } else if (method==='troop-based') {
-          chestSection.style.display='none';
-          troopSection.style.display='block';
-        } else {
-          chestSection.style.display='none';
-          troopSection.style.display='none';
-        }
-      }
-      function editEventType(eventTypeName) { 
-        const status=document.getElementById('addTypeStatus'); 
-        status.textContent=''; 
-        status.className='status'; 
-        const eventType=eventTypesData.find(et=>et.name===eventTypeName); 
-        if (!eventType) { 
-          status.textContent='Unable to find that event type for editing.'; 
-          status.classList.add('err'); 
-          return; 
+          showLoading();
+          fetch(window.GAS_WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'getCompensationReports' })
+          })
+            .then(res => res.json())
+            .then(result => {
+              document.getElementById('compensationReportsLoading').style.display = 'none';
+              if (result.success && result.reports.length > 0) {
+                const container = document.getElementById('compensationReportsList');
+                container.innerHTML = result.reports.map(report => `
+                  <div onclick="CompensationTab.viewDetail('${report.sheetName}')" style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); cursor: pointer; transition: all 0.2s; border-left: 4px solid #1a73e8;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.12)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 14px; font-weight: 600; color: #202124; margin-bottom: 4px;">${report.incidentName}</div>
+                    <div style="font-size: 12px; color: #5f6368;">📅 ${report.date}</div>
+                    <div style="margin-top: 8px; font-size: 11px; color: #1a73e8; font-weight: 600;">Click to view details →</div>
+                  </div>
+                `).join('');
+              } else {
+                document.getElementById('compensationReportsEmpty').style.display = 'block';
+              }
+            })
+            .catch(error => {
+              document.getElementById('compensationReportsLoading').style.display = 'none';
+              document.getElementById('compensationReportsEmpty').style.display = 'block';
+              document.getElementById('compensationReportsEmpty').textContent = 'Error loading reports: ' + error.message;
+            });
         } 
         console.log('[editEventType] Editing:', eventType);
         editingTypeOriginalName=eventTypeName; 
@@ -2168,26 +2297,33 @@
         updateEventTypeMethod(); 
       }
       function loadEventTypes() { 
-        document.getElementById('typesLoading').style.display='block'; 
-        document.getElementById('eventTypesTable').style.display='none'; 
+        document.getElementById('typesLoading').style.display='block';
+        document.getElementById('eventTypesTable').style.display='none';
         document.getElementById('typesEmpty').style.display='none';
-        google.script.run.withSuccessHandler((result)=>{ 
-          console.log('[DEBUG] loadEventTypes result:', result, 'type:', typeof result); 
-          const norm=normalizeResponse(result); 
-          if (norm.success) { 
-            const data=norm.eventTypes||norm.data||[]; 
-            eventTypesData=Array.isArray(data)?data:[]; 
-            console.log('[DEBUG] loadEventTypes - set eventTypesData to:', eventTypesData); 
-            populateEventTypeDropdown();
-            renderEventTypesTable();
-          } else { 
-            console.error('Unexpected result format for getAllEventTypes'); 
-            document.getElementById('typesLoading').innerHTML='<p style="color:#c33;">Error loading event types.</p>';
-          } 
-        }).withFailureHandler((error)=>{
-          console.error('Failed to load event types:',error);
-          document.getElementById('typesLoading').innerHTML='<p style="color:#c33;">Error loading event types.</p>';
-        }).getAllEventTypes(); 
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getAllEventTypes' })
+        })
+          .then(res => res.json())
+          .then(result => {
+            console.log('[DEBUG] loadEventTypes result:', result, 'type:', typeof result);
+            const norm = normalizeResponse(result);
+            if (norm.success) {
+              const data = norm.eventTypes || norm.data || [];
+              eventTypesData = Array.isArray(data) ? data : [];
+              console.log('[DEBUG] loadEventTypes - set eventTypesData to:', eventTypesData);
+              populateEventTypeDropdown();
+              renderEventTypesTable();
+            } else {
+              console.error('Unexpected result format for getAllEventTypes');
+              document.getElementById('typesLoading').innerHTML = '<p style="color:#c33;">Error loading event types.</p>';
+            }
+          })
+          .catch(error => {
+            console.error('Failed to load event types:', error);
+            document.getElementById('typesLoading').innerHTML = '<p style="color:#c33;">Error loading event types.</p>';
+          });
       }
       function populateEventTypeDropdown() { const select=document.getElementById('eventType'); const currentValue=select.value; console.log('[DEBUG] populateEventTypeDropdown - eventTypesData:', eventTypesData); if (!eventTypesData || !Array.isArray(eventTypesData)) { console.error('eventTypesData is not an array:', eventTypesData); eventTypesData=[]; } const options=['<option value="">-- Select Event Type --</option>'].concat(eventTypesData.map(et=>`<option value="${escapeHtml(et.name)}">${escapeHtml(et.name)}</option>`)); select.innerHTML=options.join(''); if (currentValue && eventTypesData.some(et=>et.name===currentValue)) select.value=currentValue; }
       function renderEventTypesTable() {
@@ -2303,7 +2439,27 @@
         if (!date) { status.textContent='Please choose a date.'; status.classList.add('err'); return; }
         const might=parseInt(mightRaw,10); if (isNaN(might)||might<=0) { status.textContent='Enter a valid might value (>0).'; status.classList.add('err'); return; }
         status.textContent='Saving...';
-        google.script.run.withSuccessHandler((result)=>{ if (result&&result.success) { status.textContent=`Saved ${member} at ${formatMight(might)} for ${formatDate(date)}.`; status.classList.add('ok'); document.getElementById('mightValue').value=''; setTimeout(loadMembers,500); } else { status.textContent=result?.message||'Failed to save might.'; status.classList.add('err'); } }).withFailureHandler((error)=>{ status.textContent=`Error: ${error.message}`; status.classList.add('err'); }).recordMemberMight(member,date,might);
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'recordMemberMight', member, date, might })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              status.textContent = `Saved ${member} at ${formatMight(might)} for ${formatDate(date)}.`;
+              status.classList.add('ok');
+              document.getElementById('mightValue').value = '';
+              setTimeout(loadMembers, 500);
+            } else {
+              status.textContent = result?.message || 'Failed to save might.';
+              status.classList.add('err');
+            }
+          })
+          .catch(error => {
+            status.textContent = `Error: ${error.message}`;
+            status.classList.add('err');
+          });
       }
       function submitAddMember() {
         const name=document.getElementById('newMemberNameInput').value.trim(); const joinDate=document.getElementById('joinDate').value; const startMightRaw=document.getElementById('startMight').value; const status=document.getElementById('addMemberStatus'); status.textContent=''; status.className='status';
@@ -2311,7 +2467,28 @@
         if (!joinDate) { status.textContent='Please select a join date.'; status.classList.add('err'); return; }
         const startMight=parseInt(startMightRaw,10); if (isNaN(startMight)||startMight<=0) { status.textContent='Enter a valid starting might (>0).'; status.classList.add('err'); return; }
         status.textContent='Adding member...';
-        google.script.run.withSuccessHandler((result)=>{ if (result&&result.success) { status.textContent=`Successfully added "${name}" with ${formatMight(startMight)} might.`; status.classList.add('ok'); document.getElementById('newMemberNameInput').value=''; document.getElementById('startMight').value=''; setTimeout(loadMembers,800); } else { status.textContent=result?.message||'Failed to add member.'; status.classList.add('err'); } }).withFailureHandler((error)=>{ status.textContent=`Error: ${error.message}`; status.classList.add('err'); }).addMember(name,joinDate,startMight);
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'addMember', name, joinDate, startMight })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              status.textContent = `Successfully added "${name}" with ${formatMight(startMight)} might.`;
+              status.classList.add('ok');
+              document.getElementById('newMemberNameInput').value = '';
+              document.getElementById('startMight').value = '';
+              setTimeout(loadMembers, 800);
+            } else {
+              status.textContent = result?.message || 'Failed to add member.';
+              status.classList.add('err');
+            }
+          })
+          .catch(error => {
+            status.textContent = `Error: ${error.message}`;
+            status.classList.add('err');
+          });
       }
       function submitNameChange() {
         const oldName=document.getElementById('oldMemberSelect').value; const newName=document.getElementById('newMemberName').value.trim(); const status=document.getElementById('nameChangeStatus'); status.textContent=''; status.className='status';
@@ -2319,14 +2496,53 @@
         if (!newName) { status.textContent='Please enter a new name.'; status.classList.add('err'); return; }
         if (oldName===newName) { status.textContent='New name is the same as old name.'; status.classList.add('err'); return; }
         status.textContent='Updating name across all sheets...';
-        google.script.run.withSuccessHandler((result)=>{ if (result&&result.success) { status.textContent=result.message||`Successfully updated "${oldName}" to "${newName}".`; status.classList.add('ok'); document.getElementById('newMemberName').value=''; setTimeout(loadMembers,800); } else { status.textContent=result?.message||'Failed to update name.'; status.classList.add('err'); } }).withFailureHandler((error)=>{ status.textContent=`Error: ${error.message}`; status.classList.add('err'); }).updateMemberName(oldName,newName);
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'updateMemberName', oldName, newName })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              status.textContent = result.message || `Successfully updated "${oldName}" to "${newName}".`;
+              status.classList.add('ok');
+              document.getElementById('newMemberName').value = '';
+              setTimeout(loadMembers, 800);
+            } else {
+              status.textContent = result?.message || 'Failed to update name.';
+              status.classList.add('err');
+            }
+          })
+          .catch(error => {
+            status.textContent = `Error: ${error.message}`;
+            status.classList.add('err');
+          });
       }
       function submitRemoveMember() {
         const memberName=document.getElementById('removeMemberSelect').value; const endDate=document.getElementById('endDate').value; const status=document.getElementById('removeMemberStatus'); status.textContent=''; status.className='status';
         if (!memberName) { status.textContent='Please select a member.'; status.classList.add('err'); return; }
         if (!endDate) { status.textContent='Please select an end date.'; status.classList.add('err'); return; }
         status.textContent='Removing member...';
-        google.script.run.withSuccessHandler((result)=>{ if (result&&result.success) { status.textContent=result.message||`Successfully removed "${memberName}".`; status.classList.add('ok'); setTimeout(loadMembers,800); } else { status.textContent=result?.message||'Failed to remove member.'; status.classList.add('err'); } }).withFailureHandler((error)=>{ status.textContent=`Error: ${error.message}`; status.classList.add('err'); }).disableMember(memberName,endDate);
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'disableMember', memberName, endDate })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              status.textContent = result.message || `Successfully removed "${memberName}".`;
+              status.classList.add('ok');
+              setTimeout(loadMembers, 800);
+            } else {
+              status.textContent = result?.message || 'Failed to remove member.';
+              status.classList.add('err');
+            }
+          })
+          .catch(error => {
+            status.textContent = `Error: ${error.message}`;
+            status.classList.add('err');
+          });
       }
       function switchTab(tabId, evt) { document.querySelectorAll('#members .tab-content').forEach(c=>c.classList.remove('active')); document.querySelectorAll('#members .tab').forEach(t=>t.classList.remove('active')); document.getElementById(tabId)?.classList.add('active'); if (evt&&evt.target) evt.target.classList.add('active'); }
       function formatMight(might) { if (!might||might===0) return '-'; return might.toLocaleString(); }
@@ -2346,7 +2562,7 @@
       function init() {
         setupSummarySorting();
         loadTroopSummary();
-        // Delay loading to ensure google.script.run is ready
+        // Delay loading to ensure initialization order
         setTimeout(() => {
           loadPlayerList();
           loadPlayerHistoryList();
@@ -2813,7 +3029,17 @@
       function init() {
         loadProgress(); document.getElementById('progSearchInput').addEventListener('input',(e)=>filterMembers(e.target.value)); document.querySelectorAll('#progress th[data-column]').forEach(th=>{ th.addEventListener('click',()=>sortTable(th.dataset.column)); });
       }
-      function loadProgress() { showLoading(); google.script.run.withSuccessHandler(onProgressLoaded).withFailureHandler(onError).getProgressData(currentPeriod); }
+      function loadProgress() {
+        showLoading();
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getProgressData', period: currentPeriod })
+        })
+          .then(res => res.json())
+          .then(onProgressLoaded)
+          .catch(onError);
+      }
             function loadProgress() {
               showLoading();
               fetch(window.GAS_WEB_APP_URL, {
@@ -3247,39 +3473,27 @@
         }
       }
 
-      function loadReports() {
-        document.getElementById('compensationReportsLoading').style.display = 'block';
-        document.getElementById('compensationReportsList').innerHTML = '';
-        document.getElementById('compensationReportsEmpty').style.display = 'none';
-
-        google.script.run
-          .withSuccessHandler((result) => {
-            document.getElementById('compensationReportsLoading').style.display = 'none';
-            
-            if (result.success && result.reports.length > 0) {
-              const container = document.getElementById('compensationReportsList');
-              container.innerHTML = result.reports.map(report => `
-                <div onclick="CompensationTab.viewDetail('${report.sheetName}')" style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); cursor: pointer; transition: all 0.2s; border-left: 4px solid #1a73e8;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.12)'; this.style.transform='translateY(0)'">
-                  <div style="font-size: 14px; font-weight: 600; color: #202124; margin-bottom: 4px;">${report.incidentName}</div>
-                  <div style="font-size: 12px; color: #5f6368;">📅 ${report.date}</div>
-                  <div style="margin-top: 8px; font-size: 11px; color: #1a73e8; font-weight: 600;">Click to view details →</div>
-                </div>
-              `).join('');
-            } else {
-              document.getElementById('compensationReportsEmpty').style.display = 'block';
-            }
-          })
-          .withFailureHandler((error) => {
-            document.getElementById('compensationReportsLoading').style.display = 'none';
-            document.getElementById('compensationReportsEmpty').style.display = 'block';
-            document.getElementById('compensationReportsEmpty').textContent = 'Error loading reports: ' + error.message;
-          })
-          .getCompensationReports();
+      function loadProgress() {
+        showLoading();
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getProgressData', period: currentPeriod })
+        })
+          .then(res => res.json())
+          .then(onProgressLoaded)
+          .catch(onError);
       }
+          
 
       function viewDetail(sheetName) {
-        google.script.run
-          .withSuccessHandler((result) => {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getCompensationReportDetails', sheetName })
+        })
+          .then(res => res.json())
+          .then(result => {
             if (result.success) {
               const content = document.getElementById('compensationDetailContent');
               content.innerHTML = `
@@ -3321,10 +3535,9 @@
               document.getElementById('compensationDetailModal').style.display = 'block';
             }
           })
-          .withFailureHandler((error) => {
+          .catch(error => {
             alert('Error loading report details: ' + error.message);
-          })
-          .getCompensationReportDetails(sheetName);
+          });
       }
 
       function closeDetail() {
@@ -3333,64 +3546,52 @@
 
       function editReport(sheetName) {
         showStatus('⏳ Loading report data...', '');
-        
-        google.script.run
-          .withSuccessHandler((result) => {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getCompensationReportParameters', sheetName })
+        })
+          .then(res => res.json())
+          .then(result => {
             if (result.success && result.parameters) {
               // Load parameters back into form
               const params = result.parameters;
-              
-              // Load heroes
               if (params.heroes) {
                 Object.entries(params.heroes).forEach(([level, count]) => {
                   document.getElementById(`heroL${level}`).value = count;
                 });
               }
-              
-              // Load captains
               if (params.captains) {
                 Object.entries(params.captains).forEach(([level, count]) => {
                   document.getElementById(`captainL${level}`).value = count;
                 });
               }
-              
-              // Load guardsmen
               if (params.guardsmen) {
                 Object.entries(params.guardsmen).forEach(([level, count]) => {
                   document.getElementById(`guardsmenL${level}`).value = count;
                 });
               }
-              
-              // Load specialists
               if (params.specialists) {
                 Object.entries(params.specialists).forEach(([level, count]) => {
                   document.getElementById(`specialistsL${level}`).value = count;
                 });
               }
-              
-              // Load siege
               if (params.siege) {
                 Object.entries(params.siege).forEach(([level, count]) => {
                   document.getElementById(`siegeL${level}`).value = count;
                 });
               }
-              
-              // Load mercenary
               if (params.mercenary) {
                 Object.entries(params.mercenary).forEach(([level, count]) => {
                   document.getElementById(`mercenaryL${level}`).value = count;
                 });
               }
-              
-              // Load monsters
               if (params.monsters) {
                 Object.entries(params.monsters).forEach(([type, count]) => {
                   const field = document.getElementById(type);
                   if (field) field.value = count;
                 });
               }
-              
-              // Load buildings
               if (params.buildings) {
                 if (params.buildings.clanCapital) {
                   document.getElementById('clanCapital').checked = true;
@@ -3411,14 +3612,8 @@
                   document.getElementById('tarAmount').value = params.buildings.tar;
                 }
               }
-              
-              // Update incident name
               document.getElementById('compensationName').value = result.incidentName;
-              
-              // Set tracking variable
               currentEditingReport = sheetName;
-              
-              // Close detail modal and scroll to form
               closeDetail();
               document.getElementById('incidentsSection').scrollIntoView({ behavior: 'smooth' });
               showStatus('✓ Report loaded! Make changes and click Calculate to save.', 'ok');
@@ -3426,18 +3621,21 @@
               showStatus('✕ Error loading report parameters', 'err');
             }
           })
-          .withFailureHandler((error) => {
+          .catch(error => {
             showStatus('✕ Error: ' + error.message, 'err');
-          })
-          .getCompensationReportParameters(sheetName);
+          });
       }
 
       function deleteReport(sheetName) {
         if (confirm('⚠️ Delete this compensation report? This cannot be undone.')) {
           showStatus('⏳ Deleting...', '');
-          
-          google.script.run
-            .withSuccessHandler((result) => {
+          fetch(window.GAS_WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'deleteCompensationReport', sheetName })
+          })
+            .then(res => res.json())
+            .then(result => {
               if (result.success) {
                 closeDetail();
                 loadReports();
@@ -3446,10 +3644,9 @@
                 showStatus('✕ Error: ' + (result.error || 'Unknown error'), 'err');
               }
             })
-            .withFailureHandler((error) => {
+            .catch(error => {
               showStatus('✕ Error: ' + error.message, 'err');
-            })
-            .deleteCompensationReport(sheetName);
+            });
         }
       }
 
