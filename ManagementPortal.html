@@ -140,10 +140,10 @@
     }
 
     /* Events Tab */
-    #events .header, #members .header, #progress .header, #troops .header { background: white; color: #202124; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); border: 1px solid #e8eaed; }
-    #events .header h1, #members .header h1, #progress .header h1, #troops .header h1 { margin: 0 0 4px 0; font-weight: 600; color: #1a73e8; }
-    #events .header p, #members .header p, #progress .header p, #troops .header p { font-size: 13px; color: #5f6368; }
-    #events .tabs-container, #members .tabs-container, #troops .tabs-container { background: white; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); border: 1px solid #e8eaed; overflow: hidden; }
+    #events .header, #members .header, #progress .header, #troops .header { background: transparent; color: #ffb300; padding: 20px 0 12px 0; border-radius: 0; margin-bottom: 20px; box-shadow: none; border: none; }
+    #events .header h1, #members .header h1, #progress .header h1, #troops .header h1 { margin: 0 0 4px 0; font-weight: 700; color: #ffb300; text-shadow: 0 2px 8px #000a; font-size: 2em; display: flex; align-items: center; gap: 12px; }
+    #events .header p, #members .header p, #progress .header p, #troops .header p { font-size: 15px; color: #e0e0e0; margin: 0; }
+    #events .tabs-container, #members .tabs-container, #troops .tabs-container { background: transparent; border-radius: 8px; margin-bottom: 16px; box-shadow: none; border: none; overflow: visible; }
     #events .tabs, #members .tabs, #troops .tabs { display: flex; background: #f8f9fa; border-bottom: 1px solid #e8eaed; }
     #events .tab, #members .tab, #troops .tab { flex: 1; padding: 12px 20px; text-align: center; cursor: pointer; border: none; background: none; font-size: 14px; font-weight: 600; color: #5f6368; transition: all 0.2s; border-bottom: 3px solid transparent; }
     #events .tab:hover, #members .tab:hover, #troops .tab:hover { background: #fff; color: #1a73e8; }
@@ -507,7 +507,7 @@
   </div>
 
   <div id="events" class="tab-content">
-    <div class="header"><h1><img src="pages/events.png" alt="Events" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Event Management</h1><p>Track clan events and member participation</p></div>
+    <div class="header"><h1><img src="events.png" alt="Events" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Event Management</h1><p>Track clan events and member participation</p></div>
     <div class="tabs-container">
       <div class="tabs">
         <button class="tab active" onclick="EventsTab.switchTab('manageTab', event)">📋 Manage Events</button>
@@ -599,7 +599,7 @@
   </div>
 
   <div id="members" class="tab-content">
-    <div class="header"><h1><img src="pages/members.png" alt="Members" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Member Management</h1><p>View and manage clan members</p></div>
+    <div class="header"><h1><img src="members.png" alt="Members" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Member Management</h1><p>View and manage clan members</p></div>
     <div class="stats-cards" id="memberStatsCards">
       <div class="stat-card"><h3>Total Members</h3><div class="value" id="memberTotal">-</div></div>
       <div class="stat-card"><h3>Total Might</h3><div class="value" id="memberTotalMight">-</div></div>
@@ -648,7 +648,7 @@
   <!-- TROOPS TAB -->
   <div id="troops" class="tab-content">
     <div class="header">
-      <h1><img src="pages/troops.png" alt="Troops" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Troop Level Tracker</h1>
+      <h1><img src="troops.png" alt="Troops" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Troop Level Tracker</h1>
       <p>Track and manage troop levels (G, M, S, E) and crypt levels for each member</p>
     </div>
 
@@ -719,10 +719,10 @@
   </div>
 
   <div id="progress" class="tab-content">
-    <div class="header"><h1><img src="pages/progress.png" alt="Progress" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Progress Dashboard</h1><p>Track member participation, growth, and activity</p></div>
+    <div class="header"><h1><img src="progress.png" alt="Progress" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Progress Dashboard</h1><p>Track member participation, growth, and activity</p></div>
     <div class="period-tabs" style="display:flex; gap:8px; margin-bottom:20px; border-bottom:2px solid #e8eaed; padding-bottom:12px;">
   <div id="compensation" class="tab-content">
-    <h1><img src="pages/compensation.png" alt="Compensation" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Compensation Calculator</h1>
+    <h1><img src="compensation.png" alt="Compensation" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Compensation Calculator</h1>
     <p style="color: #5f6368; margin-bottom: 16px;">Calculate compensation for illegal attacks and save the calculation for future reference</p>
     
     <!-- QUICK ADD SECTION -->
@@ -1066,7 +1066,7 @@
   </div>
 
   <div id="points" class="tab-content">
-    <h1><img src="pages/points.png" alt="Points Reference" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Points Reference</h1>
+    <h1><img src="chest_points.png" alt="Points Reference" class="tab-icon" style="vertical-align: middle; margin-right: 12px;"> Points Reference</h1>
     <p style="color: #5f6368; margin-bottom: 16px;">Reference table for all chest types and their corresponding point values</p>
     <div class="points-reference-table">
       <table class="points-table">
