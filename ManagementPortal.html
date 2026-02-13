@@ -144,10 +144,10 @@
     #events .header h1, #members .header h1, #progress .header h1, #troops .header h1 { margin: 0 0 4px 0; font-weight: 700; color: #ffb300; text-shadow: 0 2px 8px #000a; font-size: 2em; display: flex; align-items: center; gap: 12px; }
     #events .header p, #members .header p, #progress .header p, #troops .header p { font-size: 15px; color: #e0e0e0; margin: 0; }
     #events .tabs-container, #members .tabs-container, #troops .tabs-container { background: transparent; border-radius: 8px; margin-bottom: 16px; box-shadow: none; border: none; overflow: visible; }
-    #events .tabs, #members .tabs, #troops .tabs { display: flex; background: #f8f9fa; border-bottom: 1px solid #e8eaed; }
-    #events .tab, #members .tab, #troops .tab { flex: 1; padding: 12px 20px; text-align: center; cursor: pointer; border: none; background: none; font-size: 14px; font-weight: 600; color: #5f6368; transition: all 0.2s; border-bottom: 3px solid transparent; }
-    #events .tab:hover, #members .tab:hover, #troops .tab:hover { background: #fff; color: #1a73e8; }
-    #events .tab.active, #members .tab.active, #troops .tab.active { background: white; color: #1a73e8; border-bottom-color: #1a73e8; }
+    #events .tabs, #members .tabs, #troops .tabs { display: flex; background: transparent; border-bottom: 1px solid #444; }
+    #events .tab, #members .tab, #troops .tab { flex: 1; padding: 12px 20px; text-align: center; cursor: pointer; border: none; background: none; font-size: 14px; font-weight: 600; color: #e0e0e0; transition: all 0.2s; border-bottom: 3px solid transparent; }
+    #events .tab:hover, #members .tab:hover, #troops .tab:hover { background: #33343a; color: #ffb300; }
+    #events .tab.active, #members .tab.active, #troops .tab.active { background: transparent; color: #ffb300; border-bottom-color: #ffb300; }
     #events .tab-content, #members .tab-content, #troops .tab-content, #progress .tab-content, #compensation .tab-content, #points .tab-content {
       display: none;
       padding: 16px;
@@ -175,7 +175,7 @@
     #events .status, #members .status, #troops .status { font-size: 13px; margin-top: 8px; }
     #events .status.ok, #members .status.ok, #troops .status.ok { color: #1b5e20; }
     #events .status.err, #members .status.err, #troops .status.err { color: #c62828; }
-    #events .table-container, #members .table-container, #progress .table-container, #troops .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: auto; margin-top: 16px; max-height: 70vh; }
+    #events .table-container, #members .table-container, #progress .table-container, #troops .table-container { background: #232526; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.25); overflow: auto; margin-top: 16px; max-height: 70vh; border: 1px solid #444; }
     #events .table-container::-webkit-scrollbar, #members .table-container::-webkit-scrollbar, #progress .table-container::-webkit-scrollbar, #troops .table-container::-webkit-scrollbar { width: 12px; height: 12px; }
     #events .table-container::-webkit-scrollbar-track, #members .table-container::-webkit-scrollbar-track, #progress .table-container::-webkit-scrollbar-track, #troops .table-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
     #events .table-container::-webkit-scrollbar-thumb, #members .table-container::-webkit-scrollbar-thumb, #progress .table-container::-webkit-scrollbar-thumb, #troops .table-container::-webkit-scrollbar-thumb { background: #888; border-radius: 6px; }
@@ -226,9 +226,9 @@
     #events .sortable.asc::after, #troops .sortable.asc::after { content: '▲'; opacity: 1; }
     #events .sortable.desc::after, #troops .sortable.desc::after { content: '▼'; opacity: 1; }
     #events .filter-row { background: #f8f9fa; }
-    #events .filter-select { width: 100%; padding: 6px 8px; border: 1px solid #dadce0; border-radius: 4px; font-size: 12px; background: white; }
+    #events .filter-select { width: 100%; padding: 6px 8px; border: 1px solid #444; border-radius: 4px; font-size: 12px; background: #232526; color: #e0e0e0; }
     #events .filter-select:focus { outline: none; border-color: #1a73e8; }
-    #members .stat-card { background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); border: 1px solid #e8eaed; text-align: left; }
+    #members .stat-card { background: #232526; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); border: 1px solid #444; text-align: left; color: #e0e0e0; }
     #members .stat-card h3 { font-size: 11px; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600; }
     #members .stat-card .value { font-size: 26px; font-weight: 600; color: #1a73e8; }
     #members .stats-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -517,7 +517,7 @@
         <button class="tab" onclick="EventsTab.switchTab('eventTypesTab', event)">⚙️ Event Types</button>
       </div>
       <div id="manageTab" class="tab-content active">
-        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#202124;">All Events</h3>
+        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#ffb300;">All Events</h3>
         <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
           <button class="btn" onclick="EventsTab.loadEvents()">🔄 Refresh</button>
         </div>
@@ -531,8 +531,8 @@
         </div>
       </div>
       <div id="chestEventsTab" class="tab-content">
-        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#202124;">Chest-Based Events</h3>
-        <p style="margin-bottom:12px; color:#5f6368;">View and calculate participation for chest-based events. Participation is automatically calculated from chest data during the event period (including 1 day after).</p>
+        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#ffb300;">Chest-Based Events</h3>
+        <p style="margin-bottom:12px; color:#e0e0e0;">View and calculate participation for chest-based events. Participation is automatically calculated from chest data during the event period (including 1 day after).</p>
         <div style="margin-bottom:12px;"><label for="chestEventSelect">Select Event</label><select id="chestEventSelect" onchange="EventsTab.onChestEventSelected()" style="max-width:400px;"><option value="">-- Select Chest Event --</option></select></div>
         <div id="chestEventActions" style="display:none; margin-bottom:12px;">
           <button class="btn" onclick="EventsTab.calculateChestParticipation()">🔄 Calculate Participation</button>
@@ -545,8 +545,8 @@
         </div>
       </div>
       <div id="manualEventsTab" class="tab-content">
-        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#202124;">Manual Events</h3>
-        <p style="margin-bottom:12px; color:#5f6368;">Manually track participation for events that don't use chest data.</p>
+        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#ffb300;">Manual Events</h3>
+        <p style="margin-bottom:12px; color:#e0e0e0;">Manually track participation for events that don't use chest data.</p>
         <div class="form-grid" style="margin-bottom:12px;">
           <div><label for="manualEventSelect">Event</label><select id="manualEventSelect" onchange="EventsTab.onManualEventSelected()"><option value="">-- Select Event --</option></select></div>
           <div><label for="manualMember">Member</label><select id="manualMember"><option value="">-- Select Member --</option></select></div>
@@ -556,7 +556,7 @@
         <div id="manualParticipationData" style="display:none; margin-top:12px;"><h4 id="manualParticipationHeading" style="margin:0 0 12px 0;">Participation Entries</h4><div id="manualLoadingIndicator" class="loading">Loading participation data...</div><div class="table-container"><table><thead id="manualParticipationTableHead"></thead><tbody id="manualParticipationTableBody"></tbody></table></div></div>
       </div>
       <div id="createTab" class="tab-content">
-        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#202124;">Create New Event</h3>
+        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#ffb300;">Create New Event</h3>
         <div class="form-grid">
           <div><label for="eventName">Event Name</label><input type="text" id="eventName" placeholder="e.g., Summer Ragnarok 2026"></div>
           <div><label for="eventType">Event Type</label><select id="eventType"><option value="">-- Select Event Type --</option></select></div>
@@ -565,15 +565,15 @@
         <button class="btn" onclick="EventsTab.submitCreateEvent()">🎯 Create Event</button><div id="createStatus" class="status"></div>
       </div>
       <div id="eventTypesTab" class="tab-content">
-        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#202124;">Manage Event Types</h3>
-        <div style="margin-bottom:16px; padding:16px; background:#e8f0fe; border-radius:6px;">
-          <h4 style="margin:0 0 8px 0; font-size:14px; color:#1a73e8;">Add New Event Type</h4>
+        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#ffb300;">Manage Event Types</h3>
+        <div style="margin-bottom:16px; padding:16px; background:#232526; border-radius:6px; border: 1px solid #444;">
+          <h4 style="margin:0 0 8px 0; font-size:14px; color:#ffb300;">Add New Event Type</h4>
           <div class="form-grid"><div><label for="newEventTypeName">Event Type Name</label><input type="text" id="newEventTypeName" placeholder="e.g., Alliance War"></div><div><label for="newEventTypeMethod">Tracking Method</label><select id="newEventTypeMethod" onchange="EventsTab.updateEventTypeMethod()"><option value="" selected>-- Select Method --</option><option value="chest-based">Chest-Based</option><option value="manual-entry">Manual Entry</option><option value="troop-based">Troop-Based</option></select></div></div>
-          <div id="chestTypeSection" style="display:none; margin-bottom:12px;"><label>Chest Types for This Event Type</label><div id="chestTypesList" style="max-height:200px; overflow-y:auto; border:1px solid #dadce0; border-radius:6px; padding:8px; background:#fff;"><div class="loading" style="padding:20px; text-align:center; color:#5f6368;">Loading chest types...</div></div><div class="note">Select which chest types count for this event type. Leave empty to include all chests.</div></div>
+          <div id="chestTypeSection" style="display:none; margin-bottom:12px;"><label>Chest Types for This Event Type</label><div id="chestTypesList" style="max-height:200px; overflow-y:auto; border:1px solid #444; border-radius:6px; padding:8px; background:#232526;"><div class="loading" style="padding:20px; text-align:center; color:#e0e0e0;">Loading chest types...</div></div><div class="note">Select which chest types count for this event type. Leave empty to include all chests.</div></div>
           <div id="troopTargetSection" style="display:none; margin-bottom:12px;">
             <label style="display:block; margin-bottom:8px; font-weight:600;">G Level Targets</label>
-            <p style="color:#5f6368; font-size:12px; margin-bottom:12px;">Set target points for each G level (1-9). Only enter the levels you need.</p>
-            <div id="troopTargetsList" style="border:1px solid #dadce0; border-radius:6px; padding:12px; background:#fafbfc; margin-bottom:12px; max-height:250px; overflow-y:auto;">
+            <p style="color:#e0e0e0; font-size:12px; margin-bottom:12px;">Set target points for each G level (1-9). Only enter the levels you need.</p>
+            <div id="troopTargetsList" style="border:1px solid #444; border-radius:6px; padding:12px; background:#232526; margin-bottom:12px; max-height:250px; overflow-y:auto;">
               <!-- Targets will be added dynamically here -->
             </div>
             <button type="button" class="btn" style="width:100%; margin-bottom:12px;" onclick="EventsTab.addTroopTargetRow()">➕ Add G Level Target</button>
@@ -614,22 +614,22 @@
         <button class="tab" onclick="MembersTab.switchTab('removeMemberTab', event)">🚪 Remove Member</button>
       </div>
       <div id="mightTab" class="tab-content active">
-        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#202124;">Track Member Might</h3>
+        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#ffb300;">Track Member Might</h3>
         <div class="form-grid"><div><label for="mightMemberSelect">Member</label><select id="mightMemberSelect"></select></div><div><label for="mightValue">Might</label><input type="number" id="mightValue" placeholder="Enter current might" onkeypress="if(event.key==='Enter'){MembersTab.submitMightEntry();}"></div><div><label for="mightDate">Date</label><input type="date" id="mightDate"><div class="note">Defaults to today; change only if needed</div></div></div>
         <button class="btn" onclick="MembersTab.submitMightEntry()">💾 Save Might</button><div id="mightStatus" class="status"></div>
       </div>
       <div id="addMemberTab" class="tab-content">
-        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#202124;">Add New Member</h3>
+        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#ffb300;">Add New Member</h3>
         <div class="form-grid"><div><label for="newMemberNameInput">Member Name</label><input type="text" id="newMemberNameInput" placeholder="Enter member name"></div><div><label for="joinDate">Join Date</label><input type="date" id="joinDate"><div class="note">Date member joined</div></div><div><label for="startMight">Starting Might</label><input type="number" id="startMight" placeholder="Enter starting might" onkeypress="if(event.key==='Enter'){MembersTab.submitAddMember();}"></div></div>
         <button class="btn" onclick="MembersTab.submitAddMember()">➕ Add Member</button><div id="addMemberStatus" class="status"></div>
       </div>
       <div id="nameTab" class="tab-content">
-        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#202124;">Change Member Name</h3>
+        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#ffb300;">Change Member Name</h3>
         <div class="form-grid"><div><label for="oldMemberSelect">Current Member</label><select id="oldMemberSelect"></select></div><div><label for="newMemberName">New Name</label><input type="text" id="newMemberName" placeholder="Enter new member name"></div></div>
         <button class="btn" onclick="MembersTab.submitNameChange()">✏️ Update Name</button><div id="nameChangeStatus" class="status"></div>
       </div>
       <div id="removeMemberTab" class="tab-content">
-        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#202124;">Remove Member</h3>
+        <h3 style="margin:0 0 12px 0; font-size:16px; font-weight:600; color:#ffb300;">Remove Member</h3>
         <div class="form-grid"><div><label for="removeMemberSelect">Member to Remove</label><select id="removeMemberSelect"></select></div><div><label for="endDate">End Date</label><input type="date" id="endDate"><div class="note">Date member left</div></div></div>
         <button class="btn" onclick="MembersTab.submitRemoveMember()">🚪 Remove Member</button><div id="removeMemberStatus" class="status"></div>
       </div>
