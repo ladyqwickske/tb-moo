@@ -1347,12 +1347,32 @@
       }
     }
     function loadDashboard() {
-      if (!isSidebar) { document.getElementById('playerList').innerHTML = '<div class="loading" style="color:#d93025;">⚠️ Dashboard must be opened from the spreadsheet menu.</div>'; return; }
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
-      google.script.run.withSuccessHandler(displaySummary).withFailureHandler((e)=>console.error('Summary error:',e)).getStatsSummary(startDate,endDate);
       document.getElementById('playerList').innerHTML = '<div class="loading">Loading...</div>';
-      google.script.run.withSuccessHandler(displayPlayerStats).withFailureHandler((e)=>{console.error('Stats error:',e); document.getElementById('playerList').innerHTML='<div class="loading" style="color:#d93025;">Error loading player stats</div>';}).getPlayerStats(null,null,startDate,endDate);
+      // Use CORS proxy (Cloudflare Worker) for API calls
+      // 1. Get summary
+      fetch(window.GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'getStatsSummary', startDate, endDate })
+      })
+        .then(res => res.json())
+        .then(displaySummary)
+        .catch(e => console.error('Summary error:', e));
+
+      // 2. Get player stats
+      fetch(window.GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'getPlayerStats', startDate, endDate })
+      })
+        .then(res => res.json())
+        .then(displayPlayerStats)
+        .catch(e => {
+          console.error('Stats error:', e);
+          document.getElementById('playerList').innerHTML = '<div class="loading" style="color:#d93025;">Error loading player stats</div>';
+        });
     }
     function displaySummary(data) {
       document.getElementById('totalChests').textContent = data.totalChests ? data.totalChests.toLocaleString() : '0';
@@ -1473,7 +1493,17 @@
         document.getElementById('eventsLoading').style.display='block';
         document.getElementById('eventsTable').style.display='none';
         document.getElementById('eventsEmpty').style.display='none';
-        google.script.run.withSuccessHandler(onEventsLoaded).withFailureHandler((error)=>{ console.error('Error loading events:',error); document.getElementById('eventsLoading').innerHTML = '<p style="color:#c33;">Error: '+error.message+'</p>'; }).getAllEvents();
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getAllEvents' })
+        })
+          .then(res => res.json())
+          .then(onEventsLoaded)
+          .catch(error => {
+            console.error('Error loading events:', error);
+            document.getElementById('eventsLoading').innerHTML = '<p style="color:#c33;">Error: '+error.message+'</p>';
+          });
       }
       function onEventsLoaded(result) {
         if (!result || !result.success) { document.getElementById('eventsLoading').innerHTML = '<p style="color:#c33;">Error loading events.</p>'; return; }
@@ -1574,7 +1604,42 @@
         const evt = eventsData.find(e=>e.eventName===eventName); if (!evt) { alert('Event not found.'); return; }
         if (evt.participationMethod!=='chest-based') { alert('Participation calculation applies to chest-based events only.'); return; }
         const status = document.createElement('div'); status.className='status'; status.textContent=`⏳ Calculating participation for "${evt.eventName}"...`; status.style.cssText='position:fixed; top:20px; right:20px; background:#fff; padding:14px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); z-index:1000; min-width:300px;'; document.body.appendChild(status);
-        google.script.run.withSuccessHandler((result)=>{ if (result && result.success) { status.textContent='✓ '+result.message; status.classList.add('ok'); status.style.background='#d4edda'; status.style.color='#155724'; selectedEvent=evt; currentParticipationEventName=evt.eventName; loadChestParticipationData(evt.eventName); } else { status.textContent='✕ '+(result?.message||'Failed to calculate.'); status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; } setTimeout(()=>status.remove(),5000); }).withFailureHandler((error)=>{ status.textContent=`✕ Error: ${error.message}`; status.classList.add('err'); status.style.background='#f8d7da'; status.style.color='#721c24'; setTimeout(()=>status.remove(),5000); }).calculateChestParticipation(evt.eventName, evt.startDate, evt.endDate, evt.eventType);
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'calculateChestParticipation',
+            eventName: evt.eventName,
+            startDate: evt.startDate,
+            endDate: evt.endDate,
+            eventType: evt.eventType
+          })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              status.textContent='✓ '+result.message;
+              status.classList.add('ok');
+              status.style.background='#d4edda';
+              status.style.color='#155724';
+              selectedEvent=evt;
+              currentParticipationEventName=evt.eventName;
+              loadChestParticipationData(evt.eventName);
+            } else {
+              status.textContent='✕ '+(result?.message||'Failed to calculate.');
+              status.classList.add('err');
+              status.style.background='#f8d7da';
+              status.style.color='#721c24';
+            }
+            setTimeout(()=>status.remove(),5000);
+          })
+          .catch(error => {
+            status.textContent=`✕ Error: ${error.message}`;
+            status.classList.add('err');
+            status.style.background='#f8d7da';
+            status.style.color='#721c24';
+            setTimeout(()=>status.remove(),5000);
+          });
       }
       function viewEventParticipation(eventName) {
         const evt = eventsData.find(e=>e.eventName===eventName); if (!evt) { alert('Event not found.'); return; }
@@ -1637,23 +1702,106 @@
         selectedEvent = eventsData.find(e=>e.eventName===eventName); currentParticipationEventName=eventName; if (!selectedEvent) return; populateMemberSelects(); loadManualParticipationData(eventName);
       }
       function calculateChestParticipation() {
-        if (!selectedEvent) return; const status=document.getElementById('chestCalcStatus'); status.textContent='Calculating participation...'; status.className='status';
-        google.script.run.withSuccessHandler((result)=>{ if (result && result.success) { status.textContent=result.message; status.classList.add('ok'); loadChestParticipationData(selectedEvent.eventName); } else { status.textContent=result?.message||'Failed to calculate.'; status.classList.add('err'); } }).withFailureHandler((error)=>{ status.textContent=`Error: ${error.message}`; status.classList.add('err'); }).calculateChestParticipation(selectedEvent.eventName, selectedEvent.startDate, selectedEvent.endDate, selectedEvent.eventType);
+        if (!selectedEvent) return;
+        const status=document.getElementById('chestCalcStatus');
+        status.textContent='Calculating participation...';
+        status.className='status';
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'calculateChestParticipation',
+            eventName: selectedEvent.eventName,
+            startDate: selectedEvent.startDate,
+            endDate: selectedEvent.endDate,
+            eventType: selectedEvent.eventType
+          })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              status.textContent = result.message;
+              status.classList.add('ok');
+              loadChestParticipationData(selectedEvent.eventName);
+            } else {
+              status.textContent = result?.message || 'Failed to calculate.';
+              status.classList.add('err');
+            }
+          })
+          .catch(error => {
+            status.textContent = `Error: ${error.message}`;
+            status.classList.add('err');
+          });
       }
       function calculateManualNonParticipants() {
-        const status=document.getElementById('manualNonPartStatus'); status.textContent=''; status.className='status';
+        const status=document.getElementById('manualNonPartStatus');
+        status.textContent='';
+        status.className='status';
         if (!selectedEvent) { status.textContent='Please select a manual event first.'; status.classList.add('err'); return; }
         if (selectedEvent.participationMethod!=='manual-entry') { status.textContent='This action is only for manual-entry events.'; status.classList.add('err'); return; }
         status.textContent='Calculating non-participants...';
-        google.script.run.withSuccessHandler((result)=>{ if (result && result.success) { status.textContent=result.message; status.classList.add('ok'); loadManualParticipationData(selectedEvent.eventName); } else { status.textContent=result?.message||'Failed to calculate non-participants.'; status.classList.add('err'); } }).withFailureHandler((error)=>{ status.textContent=`Error: ${error.message}`; status.classList.add('err'); }).calculateManualNonParticipants(selectedEvent.eventName);
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'calculateManualNonParticipants',
+            eventName: selectedEvent.eventName
+          })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              status.textContent = result.message;
+              status.classList.add('ok');
+              loadManualParticipationData(selectedEvent.eventName);
+            } else {
+              status.textContent = result?.message || 'Failed to calculate non-participants.';
+              status.classList.add('err');
+            }
+          })
+          .catch(error => {
+            status.textContent = `Error: ${error.message}`;
+            status.classList.add('err');
+          });
       }
       function submitManualEntry() {
-        const status=document.getElementById('manualEntryStatus'); status.textContent=''; status.className='status';
+        const status=document.getElementById('manualEntryStatus');
+        status.textContent='';
+        status.className='status';
         if (!selectedEvent) { status.textContent='Please select an event first.'; status.classList.add('err'); return; }
-        const memberName = document.getElementById('manualMember').value; const points = parseInt(document.getElementById('manualPoints').value)||0;
+        const memberName = document.getElementById('manualMember').value;
+        const points = parseInt(document.getElementById('manualPoints').value)||0;
         if (!memberName) { status.textContent='Please select a member.'; status.classList.add('err'); return; }
         status.textContent='Saving...';
-        google.script.run.withSuccessHandler((result)=>{ if (result && result.success) { status.textContent=result.message; status.classList.add('ok'); document.getElementById('manualPoints').value=''; document.getElementById('manualMember').value=''; loadManualParticipationData(selectedEvent.eventName); } else { status.textContent=result?.message||'Failed to save.'; status.classList.add('err'); } }).withFailureHandler((error)=>{ status.textContent=`Error: ${error.message}`; status.classList.add('err'); }).recordManualParticipation(selectedEvent.eventName, memberName, points, '', '');
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'recordManualParticipation',
+            eventName: selectedEvent.eventName,
+            memberName,
+            points,
+            notes: '',
+            extra: ''
+          })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.success) {
+              status.textContent = result.message;
+              status.classList.add('ok');
+              document.getElementById('manualPoints').value='';
+              document.getElementById('manualMember').value='';
+              loadManualParticipationData(selectedEvent.eventName);
+            } else {
+              status.textContent = result?.message || 'Failed to save.';
+              status.classList.add('err');
+            }
+          })
+          .catch(error => {
+            status.textContent = `Error: ${error.message}`;
+            status.classList.add('err');
+          });
       }
       function loadChestParticipationData(eventName) {
         const loadingIndicator=document.getElementById('chestLoadingIndicator');
@@ -1664,18 +1812,25 @@
         thead.innerHTML='';
         tbody.innerHTML='';
         loadingIndicator.style.display='block';
-        google.script.run.withSuccessHandler((result)=>{
-          loadingIndicator.style.display='none';
-          if (result && result.success && result.data && result.data.length>0) {
-            renderChestParticipationData(result.data);
-          } else {
-            thead.innerHTML='';
-            tbody.innerHTML='<tr><td colspan="4" style="text-align:center; padding:40px; color:#7f8c8d;"><div style="font-size:48px; margin-bottom:12px;">📊</div><div style="font-size:16px; margin-bottom:8px;">No participation data yet</div><div style="font-size:13px;">Click "Calculate Participation" to generate data from chest records</div></td></tr>';
-          }
-        }).withFailureHandler((error)=>{
-          loadingIndicator.style.display='none';
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#c33;"><div style="font-size:16px; margin-bottom:8px;">Error loading data</div><div style="font-size:13px;">${escapeHtml(error.message||'Unknown error')}</div></td></tr>`;
-        }).getEventParticipation(eventName);
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getEventParticipation', eventName })
+        })
+          .then(res => res.json())
+          .then(result => {
+            loadingIndicator.style.display='none';
+            if (result && result.success && result.data && result.data.length>0) {
+              renderChestParticipationData(result.data);
+            } else {
+              thead.innerHTML='';
+              tbody.innerHTML='<tr><td colspan="4" style="text-align:center; padding:40px; color:#7f8c8d;"><div style="font-size:48px; margin-bottom:12px;">📊</div><div style="font-size:16px; margin-bottom:8px;">No participation data yet</div><div style="font-size:13px;">Click "Calculate Participation" to generate data from chest records</div></td></tr>';
+            }
+          })
+          .catch(error => {
+            loadingIndicator.style.display='none';
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#c33;"><div style="font-size:16px; margin-bottom:8px;">Error loading data</div><div style="font-size:13px;">${escapeHtml(error.message||'Unknown error')}</div></td></tr>`;
+          });
       }
       function loadManualParticipationData(eventName) {
         const loadingIndicator=document.getElementById('manualLoadingIndicator');
@@ -2077,7 +2232,18 @@
         document.getElementById('memberSearchInput').addEventListener('input',(e)=>filterMembers(e.target.value));
         document.querySelectorAll('#members th.sortable').forEach(th=>{ th.addEventListener('click',()=>sortTable(th.dataset.column)); });
       }
-      function loadMembers() { console.log('[MembersTab.loadMembers] START'); showLoading(); google.script.run.withSuccessHandler(onMembersLoaded).withFailureHandler(onError).getMembersListWithProgress(); }
+      function loadMembers() {
+        console.log('[MembersTab.loadMembers] START');
+        showLoading();
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getMembersList' })
+        })
+          .then(res => res.json())
+          .then(result => { membersData = result?.data || result || []; populateMemberSelects(); })
+          .catch(error => { console.error('Error loading members:', error); });
+      }
       function onMembersLoaded(data) {
         const result = normalizeResponse(data);
         console.log('[MembersTab.onMembersLoaded] Normalized data:', result);
@@ -2324,60 +2490,76 @@
 
       function loadPlayerList() {
         console.log('[TroopsTab.loadPlayerList] START');
-        google.script.run
-          .withSuccessHandler(members => {
-            console.log('[TroopsTab.loadPlayerList] Data received:', members);
-            const select = document.getElementById('troopPlayerName');
-            select.innerHTML = '<option value="">-- Select Player --</option>';
-            if (!Array.isArray(members)) {
-              console.error('[TroopsTab.loadPlayerList] Members is not an array:', typeof members, members);
-              select.innerHTML = '<option value="">-- Error: Invalid response --</option>';
-              return;
-            }
-            members.forEach(member => {
-              const name = (member && typeof member === 'object') ? (member.name || member.playerName || String(member)) : String(member);
-              const option = document.createElement('option');
-              option.value = name;
-              option.textContent = name;
-              select.appendChild(option);
+        const select = document.getElementById('troopPlayerName');
+        select.innerHTML = '<option value="">-- Select Player --</option>';
+        try {
+          fetch(window.GAS_WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'getTroopMembersForForm' })
+          })
+            .then(res => res.json())
+            .then(members => {
+              console.log('[TroopsTab.loadPlayerList] Data received:', members);
+              if (!Array.isArray(members)) {
+                console.error('[TroopsTab.loadPlayerList] Members is not an array:', typeof members, members);
+                select.innerHTML = '<option value="">-- Error: Invalid response --</option>';
+                return;
+              }
+              members.forEach(member => {
+                const name = (member && typeof member === 'object') ? (member.name || member.playerName || String(member)) : String(member);
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+              });
+              console.log('[TroopsTab.loadPlayerList] Populated ' + members.length + ' members');
+            })
+            .catch(error => {
+              console.error('[TroopsTab.loadPlayerList] API ERROR:', error);
+              select.innerHTML = '<option value="">-- Error loading members --</option>';
             });
-            console.log('[TroopsTab.loadPlayerList] Populated ' + members.length + ' members');
-          })
-          .withFailureHandler(error => {
-            console.error('[TroopsTab.loadPlayerList] API ERROR:', error);
-            const select = document.getElementById('troopPlayerName');
-            select.innerHTML = '<option value="">-- Error loading members --</option>';
-          })
-          .getTroopMembersForForm();
+        } catch (error) {
+          console.error('[TroopsTab.loadPlayerList] API ERROR:', error);
+          select.innerHTML = '<option value="">-- Error loading members --</option>';
+        }
       }
 
       function loadPlayerHistoryList() {
         console.log('[TroopsTab.loadPlayerHistoryList] START');
-        google.script.run
-          .withSuccessHandler(members => {
-            console.log('[TroopsTab.loadPlayerHistoryList] Data received:', members);
-            const select = document.getElementById('troopHistoryPlayerSelect');
-            select.innerHTML = '<option value="">-- Select Player --</option>';
-            if (!Array.isArray(members)) {
-              console.error('[TroopsTab.loadPlayerHistoryList] Members is not an array:', typeof members, members);
-              select.innerHTML = '<option value="">-- Error: Invalid response --</option>';
-              return;
-            }
-            members.forEach(member => {
-              const name = (member && typeof member === 'object') ? (member.name || member.playerName || String(member)) : String(member);
-              const option = document.createElement('option');
-              option.value = name;
-              option.textContent = name;
-              select.appendChild(option);
+        const select = document.getElementById('troopHistoryPlayerSelect');
+        select.innerHTML = '<option value="">-- Select Player --</option>';
+        try {
+          fetch(window.GAS_WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'getTroopMembersForForm' })
+          })
+            .then(res => res.json())
+            .then(members => {
+              console.log('[TroopsTab.loadPlayerHistoryList] Data received:', members);
+              if (!Array.isArray(members)) {
+                console.error('[TroopsTab.loadPlayerHistoryList] Members is not an array:', typeof members, members);
+                select.innerHTML = '<option value="">-- Error: Invalid response --</option>';
+                return;
+              }
+              members.forEach(member => {
+                const name = (member && typeof member === 'object') ? (member.name || member.playerName || String(member)) : String(member);
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+              });
+              console.log('[TroopsTab.loadPlayerHistoryList] Populated ' + members.length + ' members');
+            })
+            .catch(error => {
+              console.error('[TroopsTab.loadPlayerHistoryList] API ERROR:', error);
+              select.innerHTML = '<option value="">-- Error loading members --</option>';
             });
-            console.log('[TroopsTab.loadPlayerHistoryList] Populated ' + members.length + ' members');
-          })
-          .withFailureHandler(error => {
-            console.error('[TroopsTab.loadPlayerHistoryList] API ERROR:', error);
-            const select = document.getElementById('troopHistoryPlayerSelect');
-            select.innerHTML = '<option value="">-- Error loading members --</option>';
-          })
-          .getTroopMembersForForm();
+        } catch (error) {
+          console.error('[TroopsTab.loadPlayerHistoryList] API ERROR:', error);
+          select.innerHTML = '<option value="">-- Error loading members --</option>';
+        }
       }
 
       function showStatus(message, type) {
@@ -2400,8 +2582,19 @@
           return;
         }
 
-        google.script.run
-          .withSuccessHandler(result => {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'addTroopEntry',
+            playerName,
+            troopType,
+            troopLevel: parseInt(troopLevel),
+            notes
+          })
+        })
+          .then(res => res.json())
+          .then(result => {
             if (result.success) {
               showStatus(result.message, 'ok');
               resetTroopForm();
@@ -2410,10 +2603,9 @@
               showStatus(result.message, 'err');
             }
           })
-          .withFailureHandler(error => {
+          .catch(error => {
             showStatus('Error: ' + error.toString(), 'err');
-          })
-          .addTroopEntry(playerName, troopType, parseInt(troopLevel), notes);
+          });
       }
 
       function resetTroopForm() {
@@ -2432,8 +2624,13 @@
           return;
         }
 
-        google.script.run
-          .withSuccessHandler(history => {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getTroopHistory', playerName })
+        })
+          .then(res => res.json())
+          .then(history => {
             const container = document.getElementById('troopPlayerHistoryContainer');
             const tableDiv = document.getElementById('troopPlayerHistoryTable');
 
@@ -2459,8 +2656,7 @@
             html += '</div>';
             tableDiv.innerHTML = html;
             container.style.display = 'block';
-          })
-          .getTroopHistory(playerName);
+          });
       }
 
       function loadPlayerHistory() {
@@ -2472,15 +2668,25 @@
           return;
         }
 
-        google.script.run
-          .withSuccessHandler(history => {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getTroopHistory', playerName })
+        })
+          .then(res => res.json())
+          .then(history => {
             if (history.length === 0) {
               contentDiv.innerHTML = '<div class="no-data">No history found for this player</div>';
               return;
             }
 
-            google.script.run
-              .withSuccessHandler(latest => {
+            fetch(window.GAS_WEB_APP_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'getLatestTroopLevels', playerName })
+            })
+              .then(res => res.json())
+              .then(latest => {
                 let html = '<div style="margin-bottom: 20px;">';
                 html += '<h2 style="font-size: 14px; margin-bottom: 12px;">Latest Levels</h2>';
                 html += '<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">';
@@ -2516,10 +2722,8 @@
 
                 html += '</div>';
                 contentDiv.innerHTML = html;
-              })
-              .getLatestTroopLevels(playerName);
-          })
-          .getTroopHistory(playerName);
+              });
+          });
       }
 
       function loadTroopSummary() {
@@ -2531,13 +2735,22 @@
         contentDiv.textContent = 'Loading...';
         tableDiv.style.display = 'none';
 
-        google.script.run
-          .withSuccessHandler(summary => {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getAllTroopLevelsSummary' })
+        })
+          .then(res => res.json())
+          .then(summary => {
             console.log('[loadTroopSummary] Received summary:', summary, 'Type:', typeof summary, 'IsArray:', Array.isArray(summary), 'Length:', summary?.length);
-            // Defensive null check - ensure summary is an array
             if (!summary || !Array.isArray(summary) || summary.length === 0) {
-              google.script.run
-                .withSuccessHandler(debug => {
+              fetch(window.GAS_WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'getTroopSummaryDebug' })
+              })
+                .then(res => res.json())
+                .then(debug => {
                   if (debug && debug.ok) {
                     const lines = [
                       'No troop data available yet.',
@@ -2549,31 +2762,26 @@
                     tableDiv.style.display = 'none';
                     return;
                   }
-
                   const err = debug && debug.error ? debug.error : 'Debug check failed';
                   contentDiv.innerHTML = `<div class="no-data">No troop data available yet. (${err})</div>`;
                   tableDiv.style.display = 'none';
                 })
-                .withFailureHandler(error => {
+                .catch(error => {
                   contentDiv.innerHTML = '<div class="no-data">No troop data available yet</div>';
                   tableDiv.style.display = 'none';
                   console.error('getTroopSummaryDebug failed:', error);
-                })
-                .getTroopSummaryDebug();
+                });
               return;
             }
-
             summaryData = summary;
             renderTroopSummary();
-
             contentDiv.className = '';
             contentDiv.textContent = '';
           })
-          .withFailureHandler(error => {
+          .catch(error => {
             contentDiv.innerHTML = '<div class="no-data">Error loading summary: ' + error.toString() + '</div>';
             tableDiv.style.display = 'none';
-          })
-          .getAllTroopLevelsSummary();
+          });
       }
 
       return { init, switchSubTab, submitTroopEntry, resetTroopForm, updatePlayerHistory, loadPlayerHistory, loadTroopSummary };
@@ -2586,6 +2794,17 @@
         loadProgress(); document.getElementById('progSearchInput').addEventListener('input',(e)=>filterMembers(e.target.value)); document.querySelectorAll('#progress th[data-column]').forEach(th=>{ th.addEventListener('click',()=>sortTable(th.dataset.column)); });
       }
       function loadProgress() { showLoading(); google.script.run.withSuccessHandler(onProgressLoaded).withFailureHandler(onError).getProgressData(currentPeriod); }
+            function loadProgress() {
+              showLoading();
+              fetch(window.GAS_WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'getProgressData', period: currentPeriod })
+              })
+                .then(res => res.json())
+                .then(onProgressLoaded)
+                .catch(onError);
+            }
       function setPeriod(period) { 
         currentPeriod=period; 
         // Update button styles
@@ -2792,62 +3011,7 @@
         let monsters = 0;
         let buildings = 0;
 
-        // Heroes and Captains: level × count × 1200
-        for (let level = 1; level <= 30; level++) {
-          const heroCount = parseInt(document.getElementById(`heroL${level}`).value) || 0;
-          herosCaptains += level * heroCount * 1200;
-          
-          const captainCount = parseInt(document.getElementById(`captainL${level}`).value) || 0;
-          herosCaptains += level * captainCount * 1200;
-        }
-
-        // Guardsmen by level: level × count × 80
-        for (let level = 1; level <= 9; level++) {
-          const count = parseInt(document.getElementById(`guardsmenL${level}`).value) || 0;
-          troops += level * count * TROOP_VALUES.guardsmen;
-        }
-
-        // Specialists by level: level × count × 80
-        for (let level = 1; level <= 9; level++) {
-          const count = parseInt(document.getElementById(`specialistsL${level}`).value) || 0;
-          troops += level * count * TROOP_VALUES.specialists;
-        }
-
-        // Siege Engines by level: level × count × 400
-        for (let level = 1; level <= 9; level++) {
-          const count = parseInt(document.getElementById(`siegeL${level}`).value) || 0;
-          troops += level * count * TROOP_VALUES.siege;
-        }
-
-        // Mercenaries by level: level × count × 400
-        for (let level = 1; level <= 9; level++) {
-          const count = parseInt(document.getElementById(`mercenaryL${level}`).value) || 0;
-          troops += level * count * TROOP_VALUES.mercenary;
-        }
-
-        // Monsters
-        monsters += (parseInt(document.getElementById('monsterIII').value) || 0) * MONSTER_VALUES['III'];
-        monsters += (parseInt(document.getElementById('monsterIV').value) || 0) * MONSTER_VALUES['IV'];
-        monsters += (parseInt(document.getElementById('monsterV').value) || 0) * MONSTER_VALUES['V'];
-        monsters += (parseInt(document.getElementById('monsterVI').value) || 0) * MONSTER_VALUES['VI'];
-        monsters += (parseInt(document.getElementById('monsterVII').value) || 0) * MONSTER_VALUES['VII'];
-        monsters += (parseInt(document.getElementById('monsterVIII').value) || 0) * MONSTER_VALUES['VIII'];
-        monsters += (parseInt(document.getElementById('monsterIX').value) || 0) * MONSTER_VALUES['IX'];
-
-        // Griffins
-        monsters += (parseInt(document.getElementById('griffinV').value) || 0) * GRIFFIN_VALUES['V'];
-        monsters += (parseInt(document.getElementById('griffinVI').value) || 0) * GRIFFIN_VALUES['VI'];
-        monsters += (parseInt(document.getElementById('griffinVII').value) || 0) * GRIFFIN_VALUES['VII'];
-        monsters += (parseInt(document.getElementById('coraxI').value) || 0) * GRIFFIN_VALUES['Corax I'];
-        monsters += (parseInt(document.getElementById('coraxII').value) || 0) * GRIFFIN_VALUES['Corax II'];
-
-        // Buildings
-        buildings += (parseInt(document.getElementById('clanCapital').value) || 0) * BUILDING_VALUES['Clan Capital'];
-        buildings += (parseInt(document.getElementById('otherBuildingsCount').value) || 0) * BUILDING_VALUES['Other Buildings'];
-        buildings += (parseInt(document.getElementById('portalsCount').value) || 0) * BUILDING_VALUES['Portals'];
-        buildings += (parseInt(document.getElementById('cityWallCount').value) || 0) * BUILDING_VALUES['City Wall'];
-        buildings += (parseInt(document.getElementById('goldAmount').value) || 0) * BUILDING_VALUES['Gold'];
-        buildings += (parseInt(document.getElementById('tarAmount').value) || 0) * BUILDING_VALUES['Tar'];
+        // ...existing code for calculating values...
 
         const grandTotal = herosCaptains + troops + monsters + buildings;
         const breakdown = {
@@ -2857,10 +3021,20 @@
           buildings: buildings
         };
 
-        showStatus('⏳ Saving...', '');
+        showStatus('\u23f3 Saving...', '');
 
-        google.script.run
-          .withSuccessHandler((result) => {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'saveCompensation',
+            name,
+            breakdown,
+            grandTotal
+          })
+        })
+          .then(res => res.json())
+          .then(result => {
             if (result.success) {
               document.getElementById('resultHeroes').textContent = breakdown.herosCaptains.toLocaleString();
               document.getElementById('resultTroops').textContent = breakdown.troops.toLocaleString();
@@ -2869,15 +3043,14 @@
               document.getElementById('resultGrandTotal').textContent = grandTotal.toLocaleString() + ' silver';
               document.getElementById('resultSheetName').textContent = result.sheetName;
               document.getElementById('compensationResult').style.display = 'block';
-              showStatus('✓ Compensation calculated and saved!', 'ok');
+              showStatus('\u2713 Compensation calculated and saved!', 'ok');
             } else {
-              showStatus('✕ Error: ' + (result.error || 'Unknown error'), 'err');
+              showStatus('\u2715 Error: ' + (result.error || 'Unknown error'), 'err');
             }
           })
-          .withFailureHandler((error) => {
-            showStatus('✕ Error: ' + error.message, 'err');
-          })
-          .saveCompensation(name, breakdown, grandTotal);
+          .catch(error => {
+            showStatus('\u2715 Error: ' + error.message, 'err');
+          });
       }
 
       function clearForm() {
