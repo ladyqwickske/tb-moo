@@ -1,4 +1,8 @@
 // Set this to your deployed Google Apps Script Web App URL
 // Example: https://script.google.com/macros/s/AKfycb.../exec
+// Cloudflare Worker (public, CORS-friendly)
+window.CLOUDFLARE_WORKER_URL = 'https://moo.lady-qwickske.workers.dev/';
 
-window.GAS_WEB_APP_URL = 'https://moo.lady-qwickske.workers.dev/';
+// Google Apps Script Web App URL (used by the worker and backend)
+// Example: https://script.google.com/macros/s/AKfycb.../exec
+window.GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz0GNf2P6MYZYSf-iH2Br00mn_DQebWLIu6L660dr09uUxPOVDKbAVOBp2omzgiqzzn/exec';
