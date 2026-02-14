@@ -369,6 +369,7 @@
     // --- Google Sign-In for edit access ---
     const BACKEND_VERIFY_URL = window.GAS_WEB_APP_URL;
     const AUTH_KEY = 'moo_portal_google_auth';
+    const AUTH_EMAIL_KEY = 'moo_portal_google_email';
 
     function setReadOnlyMode(enabled) {
       if (enabled) {
@@ -379,6 +380,18 @@
         document.documentElement.classList.remove('read-only-mode');
         if (document.body) document.body.classList.remove('read-only-mode');
         console.log('[INFO] Portal loaded in EDITABLE mode');
+      }
+    }
+
+    function updateSignedInBadge(email) {
+      const badge = document.getElementById('signedInUserBadge');
+      if (!badge) return;
+      if (email) {
+        badge.innerHTML = `<img src="cute_cow.png" alt="User" style="height:16px;width:16px;vertical-align:-3px;margin-right:6px;">${email}`;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.textContent = '';
+        badge.style.display = 'none';
       }
     }
 
@@ -413,6 +426,8 @@
             setReadOnlyMode(true);
             // Remove any previous auth
             try { localStorage.removeItem(AUTH_KEY); } catch (e) {}
+            try { localStorage.removeItem(AUTH_EMAIL_KEY); } catch (e) {}
+            updateSignedInBadge(null);
           };
         }
           // Initialize Google Sign-In library before rendering button
@@ -481,10 +496,14 @@
         if (data.success && data.allowed) {
           console.log('[SUCCESS] User authorized: ' + email);
           localStorage.setItem(AUTH_KEY, '1');
+          localStorage.setItem(AUTH_EMAIL_KEY, email);
+          updateSignedInBadge(email);
           document.getElementById('login-overlay').remove();
           setReadOnlyMode(false);
+          setTimeout(() => { window.location.reload(); }, 200);
         } else {
           setReadOnlyMode(true);
+          updateSignedInBadge(null);
           const errorMsg = data.error || 'Access denied: not an authorized user.';
           const debugInfo = data.debug ? `\n\n📋 DEBUG INFO:\n${data.debug}` : '';
           const emailInfo = `\n\nYour email: ${email}`;
@@ -499,6 +518,7 @@
       } catch (err) {
         console.error('[VERIFICATION ERROR]', err);
         setReadOnlyMode(true);
+        updateSignedInBadge(null);
         document.getElementById('login-error').textContent = 'Login failed: ' + err.message + '\n\nCheck browser console (F12) for details.';
         document.getElementById('login-error').style.display = 'block';
         document.getElementById('login-error').style.whiteSpace = 'pre-wrap';
@@ -508,8 +528,11 @@
     // On load: default to guest (read-only) mode
     let isAuthed = false;
     try { isAuthed = localStorage.getItem(AUTH_KEY) === '1'; } catch (e) {}
+    let authedEmail = null;
+    try { authedEmail = localStorage.getItem(AUTH_EMAIL_KEY); } catch (e) {}
     if (!isAuthed) {
       setReadOnlyMode(true);
+      updateSignedInBadge(null);
       // Show a 'Sign in to Manage' button in the nav bar
       window.addEventListener('DOMContentLoaded', function() {
         let nav = document.querySelector('.tab-nav-container');
@@ -524,6 +547,7 @@
       });
     } else {
       setReadOnlyMode(false);
+      updateSignedInBadge(authedEmail);
     }
   </script>
   
@@ -539,7 +563,8 @@
         <button class="tab-btn" onclick="switchTab('compensation')" title="Compensation"><img src="compensation.png" alt="Compensation" class="tab-icon"></button>
         <button class="tab-btn" onclick="switchTab('points')" title="Points Reference"><img src="chest_points.png" alt="Points Reference" class="tab-icon"></button>
       </div>
-      <div id="readOnlyBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
+      <div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
+      <div id="signedInUserBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #e8f5e9; border-radius: 4px; font-size: 12px; color: #1b5e20;"></div>
     </div>
   </nav>
 
