@@ -2278,18 +2278,32 @@
       }
 
       function editEventType(eventTypeName) {
-        console.log('[editEventType] Looking for:', eventTypeName, 'in', eventTypesData);
-        // Find the event type from the loaded data
-        const eventType = eventTypesData.find(et => et.name === eventTypeName);
-        if (!eventType) {
-          console.error('[editEventType] Event type not found:', eventTypeName);
+        console.log('[editEventType] Called with typeName:', eventTypeName, 'type:', typeof eventTypeName);
+        console.log('[editEventType] eventTypesData:', eventTypesData);
+        
+        if (!eventTypeName || eventTypeName.trim() === '') {
+          console.error('[editEventType] Invalid typeName:', eventTypeName);
           const status = document.getElementById('addTypeStatus');
-          status.textContent = 'Event type not found.';
+          status.textContent = 'Error: Event type name is invalid.';
           status.classList.add('err');
           return;
         }
         
-        console.log('[editEventType] Editing:', eventType);
+        // Find the event type from the loaded data
+        const eventType = eventTypesData.find(et => {
+          console.log('[editEventType] Comparing:', et.name, '===', eventTypeName, '?', et.name === eventTypeName);
+          return et.name === eventTypeName;
+        });
+        
+        if (!eventType) {
+          console.error('[editEventType] Event type not found:', eventTypeName, 'Available types:', eventTypesData.map(et => et.name));
+          const status = document.getElementById('addTypeStatus');
+          status.textContent = `Event type not found: "${eventTypeName}"`;
+          status.classList.add('err');
+          return;
+        }
+        
+        console.log('[editEventType] Found event type:', eventType);
         const status = document.getElementById('addTypeStatus');
         editingTypeOriginalName = eventTypeName; 
         document.getElementById('newEventTypeName').value = eventType.name || ''; 
@@ -2371,14 +2385,36 @@
           const chestTypesDisplay=eventType.chestTypes?escapeHtml(eventType.chestTypes):'<em style="color:#7f8c8d;">All chests</em>'; 
           const thresholdDisplay=(eventType.threshold && eventType.threshold > 0) ? eventType.threshold : '<em style="color:#9e9e9e;">—</em>'; 
           const row=document.createElement('tr'); 
-          row.innerHTML=`<td class="event-name">${escapeHtml(eventType.name)}</td><td>${methodBadge}</td><td>${chestTypesDisplay}</td><td>${escapeHtml(eventType.description)}</td><td style="text-align:center;">${thresholdDisplay}</td><td><button class="btn action-btn" data-action="edit-type" data-type-name="${escapeHtml(eventType.name)}">✏️ Edit</button><button class="btn action-btn btn-secondary" data-action="delete-type" data-type-name="${escapeHtml(eventType.name)}">🗑️ Delete</button></td>`; 
+          row.innerHTML=`<td class="event-name">${escapeHtml(eventType.name)}</td><td>${methodBadge}</td><td>${chestTypesDisplay}</td><td>${escapeHtml(eventType.description)}</td><td style="text-align:center;">${thresholdDisplay}</td><td><button class="btn action-btn" data-type-name="${eventType.name}">✏️ Edit</button><button class="btn action-btn btn-secondary" data-action="delete-type" data-type-name="${eventType.name}">🗑️ Delete</button></td>`; 
           tbody.appendChild(row); 
         }); 
-        tbody.querySelectorAll('button[data-action]').forEach(btn=>btn.addEventListener('click',function(){ 
+        tbody.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',function(){ 
           const action=this.getAttribute('data-action'); 
           const typeName=this.getAttribute('data-type-name'); 
-          if (action==='edit-type') editEventType(typeName); 
-          else if (action==='delete-type') deleteEventTypeConfirm(typeName); 
+          console.log('[renderEventTypesTable] Button click - action:', action, 'typeName:', typeName, 'button text:', this.textContent);
+          
+          // Check if it's an edit button (Edit button doesn't have data-action, check by icon)
+          const isEditButton = this.textContent.includes('✏️');
+          const isDeleteButton = this.textContent.includes('🗑️');
+          
+          if (isEditButton || action === 'edit-type') {
+            if (!typeName || typeName.trim() === '') {
+              console.error('[renderEventTypesTable] Edit clicked but typeName is undefined or empty');
+              alert('Error: Event type name not found. Please refresh and try again.');
+              return;
+            }
+            console.log('[renderEventTypesTable] Calling editEventType with:', typeName);
+            editEventType(typeName);
+          }
+          else if (isDeleteButton || action === 'delete-type') {
+            if (!typeName || typeName.trim() === '') {
+              console.error('[renderEventTypesTable] Delete clicked but typeName is undefined or empty');
+              alert('Error: Event type name not found. Please refresh and try again.');
+              return;
+            }
+            console.log('[renderEventTypesTable] Calling deleteEventTypeConfirm with:', typeName);
+            deleteEventTypeConfirm(typeName);
+          }
         })); 
         document.getElementById('eventTypesTable').style.display='table';
         console.log('[DEBUG] renderEventTypesTable: table rendered with', eventTypesData.length, 'items');
