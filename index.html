@@ -70,6 +70,33 @@
       letter-spacing: 0.5px;
       text-shadow: 0 1px 4px #0008;
     }
+    
+    /* Oops list styling */
+    .oops-list {
+      font-size: 1.05em;
+      line-height: 2;
+      color: #e0e0e0;
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 1.2em;
+    }
+    .oops-list li {
+      margin-bottom: 0.8em;
+      padding-left: 40px;
+      position: relative;
+    }
+    .oops-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      width: 30px;
+      height: 30px;
+      background-image: url('cute_cow.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    
     @media (max-width: 700px) {
       .portal-links {
         flex-direction: column;
@@ -116,7 +143,7 @@
         We are the true Masters of Oops 🐮
       </p>
 
-      <ul style="font-size: 1.05em; line-height: 2; color: #e0e0e0; list-style: none; padding-left: 0; margin-bottom: 1.2em;">
+      <ul class="oops-list">
         <li>We make mistakes often 🙈</li>
         <li>We confidently click "Leave Clan"—while logged into our main instead of the alt 🤦‍♀️</li>
         <li>We launch heroic marches that somehow take six hours, even after using speedups 🐌⏳</li>
@@ -127,7 +154,7 @@
         <li>And yes—every single one of us has proudly sent the wrong captains to epics, watched them march out, and thought:</li>
       </ul>
 
-      <p style="font-size: 1.15em; font-style: italic; color: #ffb300; margin-bottom: 1.2em; text-align: center;">
+      <p style="font-size: 1.15em; color: #ffb300; margin-bottom: 1.2em; text-align: center;">
         "Oops." 😳
       </p>
 
