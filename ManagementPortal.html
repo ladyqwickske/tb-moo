@@ -220,7 +220,7 @@
     #events .badge.manual { background: #cce5ff; color: #004085; }
     #events .action-btn { padding: 6px 12px; font-size: 12px; margin-right: 4px; }
     #events .checkbox-item { padding: 6px 0; display: flex; align-items: center; gap: 8px; }
-    #events .checkbox-item label { margin: 0; text-transform: none; font-weight: normal; font-size: 14px; color: #202124; cursor: pointer; }
+    #events .checkbox-item label { margin: 0; text-transform: none; font-weight: normal; font-size: 14px; color: #e0e0e0; cursor: pointer; }
     #events .sortable, #troops .sortable { cursor: pointer; user-select: none; position: relative; padding-right: 20px; }
     #events .sortable::after, #troops .sortable::after { content: '⇅'; position: absolute; right: 5px; opacity: 0.3; font-size: 10px; }
     #events .sortable.asc::after, #troops .sortable.asc::after { content: '▲'; opacity: 1; }
@@ -2091,7 +2091,7 @@
             console.error('Failed to load chest types:', error);
           });
       }
-      function renderChestTypesList() { const container=document.getElementById('chestTypesList'); if (!availableChestTypes || availableChestTypes.length===0) { container.innerHTML='<div style="padding:12px; color:#5f6368;">No chest types found</div>'; return; } container.innerHTML = availableChestTypes.map((type,index)=>`<div class="checkbox-item"><input type="checkbox" id="chest_${index}" value="${escapeHtml(type)}"><label for="chest_${index}">${escapeHtml(type)}</label></div>`).join(''); }
+      function renderChestTypesList() { const container=document.getElementById('chestTypesList'); if (!availableChestTypes || availableChestTypes.length===0) { container.innerHTML='<div style="padding:12px; color:#e0e0e0;">No chest types found</div>'; return; } container.innerHTML = availableChestTypes.map((type,index)=>`<div class="checkbox-item"><input type="checkbox" id="chest_${index}" value="${escapeHtml(type)}"><label for="chest_${index}">${escapeHtml(type)}</label></div>`).join(''); }
       function getSelectedChestTypes() { const checkboxes=document.querySelectorAll('#chestTypesList input[type="checkbox"]:checked'); return Array.from(checkboxes).map(cb=>cb.value); }
       function setSelectedChestTypes(typesCsv) { const types=(typesCsv||'').split(',').map(t=>t.trim()).filter(Boolean); document.querySelectorAll('#chestTypesList input[type="checkbox"]').forEach(cb=>{ cb.checked = types.includes(cb.value); }); }
       function submitAddEventType() {
