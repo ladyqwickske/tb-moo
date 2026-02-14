@@ -858,7 +858,7 @@
       <!-- Heroes & Captains Quick Add -->
       <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #444;">
         <div style="font-size: 13px; font-weight: 600; color: #ffb300; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px;">Heroes & Captains</div>
-        <div style="display: grid; grid-template-columns: 2fr 1fr 2fr auto; gap: 12px; align-items: end;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 12px; align-items: end;">
           <div>
             <label for="quickLeaderType">Type</label>
             <select id="quickLeaderType">
@@ -869,10 +869,6 @@
           <div>
             <label for="quickLeaderLevel">Level</label>
             <input type="number" id="quickLeaderLevel" placeholder="1-600" min="1" max="600" value="1">
-          </div>
-          <div>
-            <label for="quickLeaderAmount">Amount</label>
-            <input type="number" id="quickLeaderAmount" placeholder="0" min="0">
           </div>
           <button class="btn" onclick="CompensationTab.quickAddLeader()" style="padding: 10px 20px;">➕ Add</button>
         </div>
@@ -3469,13 +3465,13 @@
         }
         
         let html = '<table style="width: 100%; border-collapse: collapse; font-size: 13px;">';
-        html += '<tr style="border-bottom: 1px solid #444;"><th style="text-align: left; padding: 8px; color: #ffb300; font-weight: 600;">Type</th><th style="text-align: center; padding: 8px; color: #ffb300; font-weight: 600;">Level</th><th style="text-align: center; padding: 8px; color: #ffb300; font-weight: 600;">Amount</th><th style="text-align: center; padding: 8px; color: #ffb300; font-weight: 600;">Value</th><th style="text-align: center; padding: 8px; color: #ffb300; font-weight: 600;"></th></tr>';
+        html += '<tr style="border-bottom: 1px solid #444;"><th style="text-align: left; padding: 8px; color: #ffb300; font-weight: 600;">Type</th><th style="text-align: center; padding: 8px; color: #ffb300; font-weight: 600;">Level</th><th style="text-align: center; padding: 8px; color: #ffb300; font-weight: 600;">Value</th><th style="text-align: center; padding: 8px; color: #ffb300; font-weight: 600;"></th></tr>';
         
         addedLeaders.forEach((leader, index) => {
           const typeLabel = leader.type === 'hero' ? 'Hero' : 'Captain';
           const silver = leader.type === 'hero' ? 5000 : 3000;
           const total = leader.amount * silver;
-          html += `<tr style="border-bottom: 1px solid #333;"><td style="padding: 8px; color: #e0e0e0;">${typeLabel}</td><td style="text-align: center; padding: 8px; color: #e0e0e0;">Lvl ${leader.level}</td><td style="text-align: center; padding: 8px; color: #e0e0e0;">${leader.amount}</td><td style="text-align: center; padding: 8px; color: #ffc933;">${total.toLocaleString()}</td><td style="text-align: center; padding: 8px;"><button onclick="CompensationTab.removeLeader(${index})" style="background: #ff5252; border: none; color: white; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px;">Remove</button></td></tr>`;
+          html += `<tr style="border-bottom: 1px solid #333;"><td style="padding: 8px; color: #e0e0e0;">${typeLabel}</td><td style="text-align: center; padding: 8px; color: #e0e0e0;">Lvl ${leader.level}</td><td style="text-align: center; padding: 8px; color: #ffc933;">${total.toLocaleString()}</td><td style="text-align: center; padding: 8px;"><button onclick="CompensationTab.removeLeader(${index})" style="background: #ff5252; border: none; color: white; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px;">Remove</button></td></tr>`;
         });
         
         html += '</table>';
@@ -3498,26 +3494,20 @@
       function quickAddLeader() {
         const type = document.getElementById('quickLeaderType').value;
         const level = parseInt(document.getElementById('quickLeaderLevel').value) || 0;
-        const amount = parseInt(document.getElementById('quickLeaderAmount').value) || 0;
 
         if (level < 1 || level > 600) {
           showQuickStatus('Level must be between 1 and 600', 'err');
           return;
         }
 
-        if (amount <= 0) {
-          showQuickStatus('Amount must be greater than 0', 'err');
-          return;
-        }
-
-        // Add to addedLeaders array
-        addedLeaders.push({ type, level, amount });
+        // Add to addedLeaders array with amount = 1
+        addedLeaders.push({ type, level, amount: 1 });
         displayAddedLeaders();
         
         const typeName = type.charAt(0).toUpperCase() + type.slice(1);
-        showQuickStatus(`✓ Added ${amount} level ${level} ${typeName}(s)`, 'ok');
-        document.getElementById('quickLeaderAmount').value = '';
-        document.getElementById('quickLeaderAmount').focus();
+        showQuickStatus(`✓ Added level ${level} ${typeName}`, 'ok');
+        document.getElementById('quickLeaderLevel').value = '1';
+        document.getElementById('quickLeaderLevel').focus();
       }
 
       function removeLeader(index) {
@@ -3547,9 +3537,7 @@
           const currentValue = parseInt(field.value) || 0;
           field.value = currentValue + amount;
           field.style.background = '#e8f5e9';
-          setTimeout(() => field.style.background = '#fff', 500);
-          
-          showQuickStatus(`✓ Added ${amount} level ${level} ${type}`, 'ok');
+          setTimeout(() => field.style.background = '#232526', 500);
           document.getElementById('quickTroopAmount').value = '';
           document.getElementById('quickTroopAmount').focus();
         }
@@ -3569,9 +3557,7 @@
           const currentValue = parseInt(field.value) || 0;
           field.value = currentValue + amount;
           field.style.background = '#e8f5e9';
-          setTimeout(() => field.style.background = '#fff', 500);
-          
-          const typeName = document.querySelector(`#quickMonsterType option[value="${type}"]`).textContent;
+          setTimeout(() => field.style.background = '#232526', 500);
           showQuickStatus(`✓ Added ${amount} ${typeName}`, 'ok');
           document.getElementById('quickMonsterAmount').value = '';
           document.getElementById('quickMonsterAmount').focus();
@@ -3587,7 +3573,7 @@
           if (amount > 0) {
             document.getElementById(type).value = '1';
             document.getElementById(type).style.background = '#e8f5e9';
-            setTimeout(() => document.getElementById(type).style.background = '#fff', 500);
+            setTimeout(() => document.getElementById(type).style.background = '#232526', 500);
             showQuickStatus(`✓ Clan Capital marked as lost`, 'ok');
             document.getElementById('quickBuildingAmount').value = '';
           } else {
@@ -3606,9 +3592,7 @@
           const currentValue = parseInt(field.value) || 0;
           field.value = currentValue + amount;
           field.style.background = '#e8f5e9';
-          setTimeout(() => field.style.background = '#fff', 500);
-          
-          const typeName = document.querySelector(`#quickBuildingType option[value="${type}"]`).textContent;
+          setTimeout(() => field.style.background = '#232526', 500);
           showQuickStatus(`✓ Added ${amount} ${typeName}`, 'ok');
           document.getElementById('quickBuildingAmount').value = '';
           document.getElementById('quickBuildingAmount').focus();
