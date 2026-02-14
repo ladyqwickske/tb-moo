@@ -446,10 +446,30 @@
       const idToken = response.credential;
       console.log('[DEBUG] Google Sign-In initiated with token');
       try {
-        const res = await fetch(BACKEND_VERIFY_URL, {
+        // Step 1: Verify token via Cloudflare Worker (handles Google API call without OAuth issues)
+        const cfWorkerUrl = window.CLOUDFLARE_WORKER_URL || window.GAS_WEB_APP_URL;
+        console.log('[DEBUG] Verifying token via: ' + cfWorkerUrl);
+        
+        let tokenRes = await fetch(cfWorkerUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken })
+        });
+        let tokenData = await tokenRes.json();
+        console.log('[DEBUG] Token verification response:', JSON.stringify(tokenData, null, 2));
+        
+        if (!tokenData.success || !tokenData.token_verified) {
+          throw new Error(tokenData.error || 'Token verification failed');
+        }
+        
+        // Step 2: Send verified email to GAS backend for permission check
+        const email = tokenData.email;
+        console.log('[DEBUG] Token verified, checking permissions for: ' + email);
+        
+        const res = await fetch(BACKEND_VERIFY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
         });
         const data = await res.json();
         console.log('[DEBUG] Backend response:', JSON.stringify(data, null, 2));
@@ -457,15 +477,9 @@
         if (data.debug) {
           console.log('[DEBUG INFO]', data.debug);
         }
-        if (data.stack) {
-          console.log('[ERROR STACK]', data.stack);
-        }
-        if (data.apiResponse) {
-          console.log('[GOOGLE API RESPONSE]', data.apiResponse);
-        }
         
         if (data.success && data.allowed) {
-          console.log('[SUCCESS] User authorized: ' + data.email);
+          console.log('[SUCCESS] User authorized: ' + email);
           localStorage.setItem(AUTH_KEY, '1');
           document.getElementById('login-overlay').remove();
           setReadOnlyMode(false);
@@ -473,8 +487,8 @@
           setReadOnlyMode(true);
           const errorMsg = data.error || 'Access denied: not an authorized user.';
           const debugInfo = data.debug ? `\n\n📋 DEBUG INFO:\n${data.debug}` : '';
-          const receivedEmail = data.receivedEmail ? `\n\nReceived email: ${data.receivedEmail}` : '';
-          const finalMsg = errorMsg + debugInfo + receivedEmail;
+          const emailInfo = `\n\nYour email: ${email}`;
+          const finalMsg = errorMsg + emailInfo + debugInfo;
           document.getElementById('login-error').textContent = finalMsg;
           document.getElementById('login-error').style.display = 'block';
           document.getElementById('login-error').style.whiteSpace = 'pre-wrap';
@@ -483,7 +497,7 @@
           console.error('[LOGIN FAILED]', finalMsg);
         }
       } catch (err) {
-        console.error('[FETCH ERROR]', err);
+        console.error('[VERIFICATION ERROR]', err);
         setReadOnlyMode(true);
         document.getElementById('login-error').textContent = 'Login failed: ' + err.message + '\n\nCheck browser console (F12) for details.';
         document.getElementById('login-error').style.display = 'block';
