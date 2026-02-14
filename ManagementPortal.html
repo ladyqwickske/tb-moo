@@ -954,7 +954,7 @@
       <div id="quickAddStatus" class="status" style="margin-top: 12px;"></div>
     </div>
 
-    <div style="background: #232526; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); margin-bottom: 16px; border: 1px solid #444;">
+    <div style="background: #232526; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); margin-bottom: 16px; border: 1px solid #444;" id="incidentsSection">
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
         
@@ -2263,10 +2263,10 @@
               if (result.success && result.reports.length > 0) {
                 const container = document.getElementById('compensationReportsList');
                 container.innerHTML = result.reports.map(report => `
-                  <div onclick="CompensationTab.viewDetail('${report.sheetName}')" style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); cursor: pointer; transition: all 0.2s; border-left: 4px solid #1a73e8;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.12)'; this.style.transform='translateY(0)';">
-                    <div style="font-size: 14px; font-weight: 600; color: #202124; margin-bottom: 4px;">${report.incidentName}</div>
-                    <div style="font-size: 12px; color: #5f6368;">📅 ${report.date}</div>
-                    <div style="margin-top: 8px; font-size: 11px; color: #1a73e8; font-weight: 600;">Click to view details →</div>
+                  <div onclick="CompensationTab.viewDetail('${report.sheetName}')" style="background: #232526; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); cursor: pointer; transition: all 0.2s; border-left: 4px solid #ffb300; border: 1px solid #444;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.35)'; this.style.transform='translateY(-2px)'; this.style.borderLeftColor='#ffc933'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.25)'; this.style.transform='translateY(0)'; this.style.borderLeftColor='#ffb300'">
+                    <div style="font-size: 14px; font-weight: 600; color: #ffb300; margin-bottom: 4px;">${report.incidentName}</div>
+                    <div style="font-size: 12px; color: #e0e0e0;">📅 ${report.date}</div>
+                    <div style="margin-top: 8px; font-size: 11px; color: #ffc933; font-weight: 600;">Click to view details →</div>
                   </div>
                 `).join('');
               } else {
@@ -3309,9 +3309,10 @@
         };
 
         // Calculate Heroes & Captains from addedLeaders array
+        // Formula: level × amount × 1200
         addedLeaders.forEach(leader => {
-          const value = leader.type === 'hero' ? 5000 : 3000;
-          herosCaptains += leader.amount * value;
+          const baseValue = 1200;
+          herosCaptains += leader.level * leader.amount * baseValue;
           const paramKey = leader.type === 'hero' ? 'heroes' : 'captains';
           if (!allParameters[paramKey][leader.level]) {
             allParameters[paramKey][leader.level] = 0;
@@ -3469,8 +3470,8 @@
         
         addedLeaders.forEach((leader, index) => {
           const typeLabel = leader.type === 'hero' ? 'Hero' : 'Captain';
-          const silver = leader.type === 'hero' ? 5000 : 3000;
-          const total = leader.amount * silver;
+          const baseValue = 1200;
+          const total = leader.amount * leader.level * baseValue;
           html += `<tr style="border-bottom: 1px solid #333;"><td style="padding: 8px; color: #e0e0e0;">${typeLabel}</td><td style="text-align: center; padding: 8px; color: #e0e0e0;">Lvl ${leader.level}</td><td style="text-align: center; padding: 8px; color: #ffc933;">${total.toLocaleString()}</td><td style="text-align: center; padding: 8px;"><button onclick="CompensationTab.removeLeader(${index})" style="background: #ff5252; border: none; color: white; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px;">Remove</button></td></tr>`;
         });
         
@@ -3624,38 +3625,38 @@
               const content = document.getElementById('compensationDetailContent');
               content.innerHTML = `
                 <div style="margin-bottom: 20px;">
-                  <div style="font-size: 13px; color: #5f6368; margin-bottom: 4px;">INCIDENT</div>
-                  <div style="font-size: 20px; font-weight: 600; color: #202124;">${result.incidentName}</div>
-                  <div style="font-size: 13px; color: #5f6368; margin-top: 4px;">📅 ${result.date}</div>
+                  <div style="font-size: 13px; color: #ccc; margin-bottom: 4px;">INCIDENT</div>
+                  <div style="font-size: 20px; font-weight: 600; color: #ffb300;">${result.incidentName}</div>
+                  <div style="font-size: 13px; color: #e0e0e0; margin-top: 4px;">📅 ${result.date}</div>
                 </div>
 
                 <div style="display: grid; gap: 12px; margin-bottom: 20px;">
-                  <div style="background: #f8f9fa; border-radius: 6px; padding: 12px; display: flex; justify-content: space-between;">
-                    <span style="color: #5f6368; font-size: 13px;">Heroes & Captains</span>
-                    <span style="font-weight: 600; color: #1a73e8;">${result.breakdown.herosCaptains.toLocaleString()}</span>
+                  <div style="background: #1a1b1c; border-radius: 6px; padding: 12px; display: flex; justify-content: space-between; border: 1px solid #444;">
+                    <span style="color: #ccc; font-size: 13px;">Heroes & Captains</span>
+                    <span style="font-weight: 600; color: #ffb300;">${result.breakdown.herosCaptains.toLocaleString()}</span>
                   </div>
-                  <div style="background: #f8f9fa; border-radius: 6px; padding: 12px; display: flex; justify-content: space-between;">
-                    <span style="color: #5f6368; font-size: 13px;">Troops</span>
-                    <span style="font-weight: 600; color: #34a853;">${result.breakdown.troops.toLocaleString()}</span>
+                  <div style="background: #1a1b1c; border-radius: 6px; padding: 12px; display: flex; justify-content: space-between; border: 1px solid #444;">
+                    <span style="color: #ccc; font-size: 13px;">Troops</span>
+                    <span style="font-weight: 600; color: #8bc34a;">${result.breakdown.troops.toLocaleString()}</span>
                   </div>
-                  <div style="background: #f8f9fa; border-radius: 6px; padding: 12px; display: flex; justify-content: space-between;">
-                    <span style="color: #5f6368; font-size: 13px;">Monsters & Creatures</span>
-                    <span style="font-weight: 600; color: #fbbc04;">${result.breakdown.monsters.toLocaleString()}</span>
+                  <div style="background: #1a1b1c; border-radius: 6px; padding: 12px; display: flex; justify-content: space-between; border: 1px solid #444;">
+                    <span style="color: #ccc; font-size: 13px;">Monsters & Creatures</span>
+                    <span style="font-weight: 600; color: #ffc933;">${result.breakdown.monsters.toLocaleString()}</span>
                   </div>
-                  <div style="background: #f8f9fa; border-radius: 6px; padding: 12px; display: flex; justify-content: space-between;">
-                    <span style="color: #5f6368; font-size: 13px;">Buildings & Resources</span>
-                    <span style="font-weight: 600; color: #ea4335;">${result.breakdown.buildings.toLocaleString()}</span>
+                  <div style="background: #1a1b1c; border-radius: 6px; padding: 12px; display: flex; justify-content: space-between; border: 1px solid #444;">
+                    <span style="color: #ccc; font-size: 13px;">Buildings & Resources</span>
+                    <span style="font-weight: 600; color: #ff5252;">${result.breakdown.buildings.toLocaleString()}</span>
                   </div>
                 </div>
 
-                <div style="background: linear-gradient(135deg, #1a73e8 0%, #1765c1 100%); color: white; border-radius: 8px; padding: 20px; text-align: center;">
-                  <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">GRAND TOTAL</div>
+                <div style="background: linear-gradient(135deg, #ffb300 0%, #ffc933 100%); color: #232526; border-radius: 8px; padding: 20px; text-align: center;">
+                  <div style="font-size: 12px; opacity: 0.8; margin-bottom: 8px; font-weight: 600;">GRAND TOTAL</div>
                   <div style="font-size: 36px; font-weight: 700;">${result.grandTotal.toLocaleString()} silver</div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
-                  <button onclick="CompensationTab.editReport('${result.sheetName}')" style="padding: 10px 16px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">✏️ Edit</button>
-                  <button onclick="CompensationTab.deleteReport('${result.sheetName}')" style="padding: 10px 16px; background: #ea4335; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">🗑️ Delete</button>
+                  <button onclick="CompensationTab.editReport('${result.sheetName}')" style="padding: 10px 16px; background: #ffb300; color: #232526; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">✏️ Edit</button>
+                  <button onclick="CompensationTab.deleteReport('${result.sheetName}')" style="padding: 10px 16px; background: #ff5252; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">🗑️ Delete</button>
                 </div>
               `;
               document.getElementById('compensationDetailModal').style.display = 'block';
@@ -3748,7 +3749,10 @@
               document.getElementById('compensationName').value = result.incidentName;
               currentEditingReport = sheetName;
               closeDetail();
-              document.getElementById('incidentsSection').scrollIntoView({ behavior: 'smooth' });
+              const incidentsSection = document.getElementById('incidentsSection');
+              if (incidentsSection) {
+                incidentsSection.scrollIntoView({ behavior: 'smooth' });
+              }
               showStatus('✓ Report loaded! Make changes and click Calculate to save.', 'ok');
             } else {
               showStatus('✕ Error loading report parameters', 'err');
