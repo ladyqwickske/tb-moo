@@ -3356,7 +3356,91 @@
         let monsters = 0;
         let buildings = 0;
 
-        // ...existing code for calculating values...
+        // Collect all parameters for storage/retrieval
+        const allParameters = {
+          heroes: {},
+          captains: {},
+          guardsmen: {},
+          specialists: {},
+          siege: {},
+          mercenary: {},
+          monsters: {},
+          buildings: {}
+        };
+
+        // Calculate Heroes & Captains (levels 1-30)
+        for (let level = 1; level <= 30; level++) {
+          const heroCount = parseInt(document.getElementById(`heroL${level}`).value) || 0;
+          const captainCount = parseInt(document.getElementById(`captainL${level}`).value) || 0;
+          
+          if (heroCount > 0) {
+            herosCaptains += heroCount * 5000; // Heroes give 5000 silver each
+            allParameters.heroes[level] = heroCount;
+          }
+          if (captainCount > 0) {
+            herosCaptains += captainCount * 3000; // Captains give 3000 silver each
+            allParameters.captains[level] = captainCount;
+          }
+        }
+
+        // Calculate Troops (levels 1-9 for each type)
+        for (let level = 1; level <= 9; level++) {
+          const guardsmenCount = parseInt(document.getElementById(`guardsmenL${level}`).value) || 0;
+          const specialistsCount = parseInt(document.getElementById(`specialistsL${level}`).value) || 0;
+          const siegeCount = parseInt(document.getElementById(`siegeL${level}`).value) || 0;
+          const mercenaryCount = parseInt(document.getElementById(`mercenaryL${level}`).value) || 0;
+
+          troops += guardsmenCount * TROOP_VALUES.guardsmen;
+          troops += specialistsCount * TROOP_VALUES.specialists;
+          troops += siegeCount * TROOP_VALUES.siege;
+          troops += mercenaryCount * TROOP_VALUES.mercenary;
+
+          if (guardsmenCount > 0) allParameters.guardsmen[level] = guardsmenCount;
+          if (specialistsCount > 0) allParameters.specialists[level] = specialistsCount;
+          if (siegeCount > 0) allParameters.siege[level] = siegeCount;
+          if (mercenaryCount > 0) allParameters.mercenary[level] = mercenaryCount;
+        }
+
+        // Calculate Monsters & Creatures
+        const monsterTypes = ['monsterIII', 'monsterIV', 'monsterV', 'monsterVI', 'monsterVII', 'monsterVIII', 'monsterIX', 'griffinV', 'griffinVI', 'griffinVII', 'coraxI', 'coraxII'];
+        monsterTypes.forEach(type => {
+          const count = parseInt(document.getElementById(type).value) || 0;
+          if (count > 0) {
+            const baseName = type.replace('monster', '').replace('griffin', '').replace('corax', '');
+            const typeKey = type.startsWith('monster') ? baseName : type;
+            
+            if (MONSTER_VALUES[baseName]) {
+              monsters += count * MONSTER_VALUES[baseName];
+            } else if (GRIFFIN_VALUES[typeKey]) {
+              monsters += count * GRIFFIN_VALUES[typeKey];
+            }
+            allParameters.monsters[type] = count;
+          }
+        });
+
+        // Calculate Buildings & Resources
+        const clanCapitalValue = document.getElementById('clanCapital').value === '1' ? BUILDING_VALUES['Clan Capital'] : 0;
+        const otherBuildingsCount = parseInt(document.getElementById('otherBuildingsCount').value) || 0;
+        const portalsCount = parseInt(document.getElementById('portalsCount').value) || 0;
+        const cityWallCount = parseInt(document.getElementById('cityWallCount').value) || 0;
+        const goldAmount = parseInt(document.getElementById('goldAmount').value) || 0;
+        const tarAmount = parseInt(document.getElementById('tarAmount').value) || 0;
+
+        buildings += clanCapitalValue;
+        buildings += otherBuildingsCount * BUILDING_VALUES['Other Buildings'];
+        buildings += portalsCount * BUILDING_VALUES['Portals'];
+        buildings += cityWallCount * BUILDING_VALUES['City Wall'];
+        buildings += goldAmount * BUILDING_VALUES['Gold'];
+        buildings += tarAmount * BUILDING_VALUES['Tar'];
+
+        allParameters.buildings = {
+          clanCapital: clanCapitalValue > 0,
+          otherBuildings: otherBuildingsCount,
+          portals: portalsCount,
+          cityWalls: cityWallCount,
+          gold: goldAmount,
+          tar: tarAmount
+        };
 
         const grandTotal = herosCaptains + troops + monsters + buildings;
         const breakdown = {
@@ -3373,9 +3457,11 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'saveCompensation',
-            name,
+            incidentName: name,
             breakdown,
-            grandTotal
+            grandTotal,
+            allParameters,
+            currentEditingReport
           })
         })
           .then(res => res.json())
@@ -3693,7 +3779,9 @@
               }
               if (params.buildings) {
                 if (params.buildings.clanCapital) {
-                  document.getElementById('clanCapital').checked = true;
+                  document.getElementById('clanCapital').value = '1';
+                } else {
+                  document.getElementById('clanCapital').value = '';
                 }
                 if (params.buildings.otherBuildings) {
                   document.getElementById('otherBuildingsCount').value = params.buildings.otherBuildings;
@@ -3750,8 +3838,49 @@
       }
 
       function loadReports() {
-        // Stub function - can be expanded to load reports list if needed
         console.log('[CompensationTab.loadReports] called');
+        const loadingDiv = document.getElementById('compensationReportsLoading');
+        const listDiv = document.getElementById('compensationReportsList');
+        const emptyDiv = document.getElementById('compensationReportsEmpty');
+        
+        loadingDiv.style.display = 'block';
+        listDiv.style.display = 'none';
+        emptyDiv.style.display = 'none';
+
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getCompensationReports' })
+        })
+          .then(res => res.json())
+          .then(result => {
+            loadingDiv.style.display = 'none';
+            
+            if (result.success && result.reports && result.reports.length > 0) {
+              listDiv.innerHTML = '';
+              result.reports.forEach(report => {
+                const card = document.createElement('div');
+                card.style.cssText = 'background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); cursor: pointer; transition: all 0.2s; border-left: 4px solid #1a73e8;';
+                card.onmouseover = function() { this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; this.style.transform = 'translateY(-2px)'; };
+                card.onmouseout = function() { this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.12)'; this.style.transform = 'translateY(0)'; };
+                
+                card.innerHTML = `
+                  <div style="font-size: 14px; font-weight: 600; color: #1a73e8; margin-bottom: 8px;">${report.incidentName}</div>
+                  <div style="font-size: 12px; color: #5f6368; margin-bottom: 12px;">📅 ${report.date}</div>
+                  <button onclick="CompensationTab.viewDetail('${report.sheetName}')" style="padding: 8px 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; margin-right: 8px;">👁️ View</button>
+                `;
+                listDiv.appendChild(card);
+              });
+              listDiv.style.display = 'grid';
+            } else {
+              emptyDiv.style.display = 'block';
+            }
+          })
+          .catch(error => {
+            loadingDiv.style.display = 'none';
+            console.error('Error loading reports:', error);
+            emptyDiv.style.display = 'block';
+          });
       }
 
       function init() {
