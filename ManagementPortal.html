@@ -1665,7 +1665,9 @@
         })
           .then(res => res.json())
           .then(result => {
-            membersData = result?.data || result || [];
+            const norm = normalizeResponse(result);
+            const list = norm.members || norm.data || [];
+            membersData = Array.isArray(list) ? list : [];
             populateMemberSelects();
           })
           .catch(error => {
@@ -2494,8 +2496,8 @@
           body: JSON.stringify({ action: 'getMembersList' })
         })
           .then(res => res.json())
-          .then(result => { membersData = result?.data || result || []; populateMemberSelects(); })
-          .catch(error => { console.error('Error loading members:', error); });
+          .then(result => { onMembersLoaded(result); })
+          .catch(error => { onError(error); });
       }
       function onMembersLoaded(data) {
         const result = normalizeResponse(data);
