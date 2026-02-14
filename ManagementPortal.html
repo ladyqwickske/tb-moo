@@ -3672,6 +3672,7 @@
       }
 
       function editReport(sheetName) {
+        closeDetail();
         showStatus('⏳ Loading report data...', '');
         fetch(window.GAS_WEB_APP_URL, {
           method: 'POST',
@@ -3680,18 +3681,17 @@
         })
           .then(res => res.json())
           .then(result => {
-            if (result.success && result.parameters) {
-              // Load parameters back into form
-              const params = result.parameters;
+            if (result.success) {
+              const params = result.parameters || {};
               
               // Load heroes and captains into addedLeaders array
               addedLeaders = [];
-              if (params.heroes) {
+              if (params.heroes && Object.keys(params.heroes).length > 0) {
                 Object.entries(params.heroes).forEach(([level, count]) => {
                   addedLeaders.push({ type: 'hero', level: parseInt(level), amount: count });
                 });
               }
-              if (params.captains) {
+              if (params.captains && Object.keys(params.captains).length > 0) {
                 Object.entries(params.captains).forEach(([level, count]) => {
                   addedLeaders.push({ type: 'captain', level: parseInt(level), amount: count });
                 });
@@ -3700,22 +3700,26 @@
               
               if (params.guardsmen) {
                 Object.entries(params.guardsmen).forEach(([level, count]) => {
-                  document.getElementById(`guardsmenL${level}`).value = count;
+                  const field = document.getElementById(`guardsmenL${level}`);
+                  if (field) field.value = count;
                 });
               }
               if (params.specialists) {
                 Object.entries(params.specialists).forEach(([level, count]) => {
-                  document.getElementById(`specialistsL${level}`).value = count;
+                  const field = document.getElementById(`specialistsL${level}`);
+                  if (field) field.value = count;
                 });
               }
               if (params.siege) {
                 Object.entries(params.siege).forEach(([level, count]) => {
-                  document.getElementById(`siegeL${level}`).value = count;
+                  const field = document.getElementById(`siegeL${level}`);
+                  if (field) field.value = count;
                 });
               }
               if (params.mercenary) {
                 Object.entries(params.mercenary).forEach(([level, count]) => {
-                  document.getElementById(`mercenaryL${level}`).value = count;
+                  const field = document.getElementById(`mercenaryL${level}`);
+                  if (field) field.value = count;
                 });
               }
               if (params.monsters) {
@@ -3748,14 +3752,13 @@
               }
               document.getElementById('compensationName').value = result.incidentName;
               currentEditingReport = sheetName;
-              closeDetail();
               const incidentsSection = document.getElementById('incidentsSection');
               if (incidentsSection) {
                 incidentsSection.scrollIntoView({ behavior: 'smooth' });
               }
               showStatus('✓ Report loaded! Make changes and click Calculate to save.', 'ok');
             } else {
-              showStatus('✕ Error loading report parameters', 'err');
+              showStatus('✕ Error: ' + (result.error || 'Unknown error loading parameters'), 'err');
             }
           })
           .catch(error => {
