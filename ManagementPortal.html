@@ -444,6 +444,7 @@
 
     window.onGoogleSignIn = async function(response) {
       const idToken = response.credential;
+      console.log('[DEBUG] Google Sign-In initiated with token');
       try {
         const res = await fetch(BACKEND_VERIFY_URL, {
           method: 'POST',
@@ -451,19 +452,42 @@
           body: JSON.stringify({ idToken })
         });
         const data = await res.json();
+        console.log('[DEBUG] Backend response:', JSON.stringify(data, null, 2));
+        
+        if (data.debug) {
+          console.log('[DEBUG INFO]', data.debug);
+        }
+        if (data.stack) {
+          console.log('[ERROR STACK]', data.stack);
+        }
+        if (data.apiResponse) {
+          console.log('[GOOGLE API RESPONSE]', data.apiResponse);
+        }
+        
         if (data.success && data.allowed) {
+          console.log('[SUCCESS] User authorized: ' + data.email);
           localStorage.setItem(AUTH_KEY, '1');
           document.getElementById('login-overlay').remove();
           setReadOnlyMode(false);
         } else {
           setReadOnlyMode(true);
-          document.getElementById('login-error').textContent = data.error || 'Access denied: not an authorized user.';
+          const errorMsg = data.error || 'Access denied: not an authorized user.';
+          const debugInfo = data.debug ? `\n\n📋 DEBUG INFO:\n${data.debug}` : '';
+          const receivedEmail = data.receivedEmail ? `\n\nReceived email: ${data.receivedEmail}` : '';
+          const finalMsg = errorMsg + debugInfo + receivedEmail;
+          document.getElementById('login-error').textContent = finalMsg;
           document.getElementById('login-error').style.display = 'block';
+          document.getElementById('login-error').style.whiteSpace = 'pre-wrap';
+          document.getElementById('login-error').style.fontSize = '11px';
+          document.getElementById('login-error').style.maxWidth = '400px';
+          console.error('[LOGIN FAILED]', finalMsg);
         }
       } catch (err) {
+        console.error('[FETCH ERROR]', err);
         setReadOnlyMode(true);
-        document.getElementById('login-error').textContent = 'Login failed. Please try again.';
+        document.getElementById('login-error').textContent = 'Login failed: ' + err.message + '\n\nCheck browser console (F12) for details.';
         document.getElementById('login-error').style.display = 'block';
+        document.getElementById('login-error').style.whiteSpace = 'pre-wrap';
       }
     };
 
@@ -2377,6 +2401,26 @@
             }
       function escapeHtml(text) { if (!text) return ''; const div=document.createElement('div'); div.textContent=text; return div.innerHTML; }
       function sortTableProxy(column){ sortTable(column); }
+      function updateEventTypeMethod() {
+        const method = document.getElementById('newEventTypeMethod')?.value;
+        const chestSection = document.getElementById('chestTypeSection');
+        const troopSection = document.getElementById('troopTargetSection');
+        if (!method) {
+          if (chestSection) chestSection.style.display = 'none';
+          if (troopSection) troopSection.style.display = 'none';
+          return;
+        }
+        if (method === 'chest-based') {
+          if (chestSection) chestSection.style.display = '';
+          if (troopSection) troopSection.style.display = 'none';
+        } else if (method === 'troop-based') {
+          if (chestSection) chestSection.style.display = 'none';
+          if (troopSection) troopSection.style.display = '';
+        } else {
+          if (chestSection) chestSection.style.display = 'none';
+          if (troopSection) troopSection.style.display = 'none';
+        }
+      }
       return { init, switchTab, loadEvents, recalculateAllChestEvents, calculateChestParticipation, onChestEventSelected, onManualEventSelected, submitManualEntry, calculateManualNonParticipants, submitCreateEvent, sortTable: sortTableProxy, sortManualTable, updateEventTypeMethod, submitAddEventType, renderEventTypesTable, cancelEditEventType, addTroopTargetRow, removeTroopTargetRow };
     })();
 
