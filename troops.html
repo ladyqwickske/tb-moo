@@ -164,7 +164,7 @@
 
     /* Table */
     .table-container { margin-top: 12px; margin-bottom: 12px; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; background: #232526; border-radius: 8px; overflow: hidden; border: 1px solid #444; }
+    table { width: 100%; border-collapse: collapse; background: #232526; border-radius: 8px; overflow: hidden; border: 1px solid #444; table-layout: fixed; }
     thead { background: #1a1b1c; }
     th { 
       padding: 12px 8px; 
@@ -189,6 +189,19 @@
     }
     td.center { text-align: center; }
     tr:hover { background: #2a2b2c; }
+    #troopMembersTable th[data-column="playerName"],
+    #troopMembersTable td:first-child {
+      width: 200px;
+    }
+    #troopMembersTable th[data-column$="_currentDate"],
+    #troopMembersTable td:nth-child(3),
+    #troopMembersTable td:nth-child(5),
+    #troopMembersTable td:nth-child(7),
+    #troopMembersTable td:nth-child(9),
+    #troopMembersTable td:nth-child(11) {
+      width: 130px;
+      white-space: nowrap;
+    }
 
     @media (max-width: 1200px) {
       .controls { flex-wrap: wrap; }
@@ -700,13 +713,13 @@
             if (currentLevel !== null && currentLevel !== undefined) {
               levelCell.textContent = currentLevel;
               if (currentLevel !== startLevel) {
-                levelCell.style.color = '#7b1fa2';
+                levelCell.style.color = '#ffb300';
               } else {
                 levelCell.style.color = '#e0e0e0';
               }
             } else {
               levelCell.textContent = '−';
-              levelCell.style.color = '#dadce0;';
+              levelCell.style.color = '#b0b0b0';
               levelCell.style.fontWeight = '400';
             }
             row.appendChild(levelCell);
@@ -721,7 +734,7 @@
             if (currentDate !== null && currentDate !== undefined) {
               dateCell.textContent = formatSummaryDate(currentDate);
               if (currentLevel !== startLevel) {
-                dateCell.style.color = '#7b1fa2';
+                dateCell.style.color = '#ffb300';
               } else {
                 dateCell.style.color = '#e0e0e0';
               }
