@@ -114,6 +114,11 @@
 
     /* Controls */
     .controls { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: nowrap; align-items: flex-end; }
+    .controls .field { flex: 1 1 0; min-width: 110px; }
+    .controls .field.wide { flex: 2 1 0; min-width: 160px; }
+    .controls .field.narrow { flex: 0 1 120px; }
+    .controls .field.tiny { flex: 0 1 90px; }
+    .controls .field.checkbox-field { flex: 0 0 auto; }
     .control-group { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
 
     /* Forms */
@@ -481,13 +486,13 @@
       <!-- ADD ENTRY SUB-TAB -->
       <div id="troopEntry" class="tab-content active">
         <div class="controls">
-          <div style="flex: 1; min-width: 150px;">
+          <div class="field">
             <label for="troopPlayerName">Player Name *</label>
             <select id="troopPlayerName" required onchange="TroopsTab.updatePlayerHistory()">
               <option value="">-- Select Player --</option>
             </select>
           </div>
-          <div style="min-width: 140px;">
+          <div class="field narrow">
             <label for="troopType">Type *</label>
             <select id="troopType" required>
               <option value="">-- Select Type --</option>
@@ -498,15 +503,15 @@
               <option value="C">Crypt (C)</option>
             </select>
           </div>
-          <div style="min-width: 100px;">
+          <div class="field tiny">
             <label for="troopLevel">Level *</label>
             <input type="number" id="troopLevel" required min="0" placeholder="45" />
           </div>
-          <div style="flex: 1; min-width: 200px;">
+          <div class="field wide">
             <label for="troopResearch">Research</label>
             <input type="text" id="troopResearch" placeholder="e.g., [START] or notes" />
           </div>
-          <div style="display: flex; align-items: center; gap: 8px; padding-bottom: 10px;">
+          <div class="field checkbox-field" style="display: flex; align-items: center; gap: 8px; padding-bottom: 10px;">
             <input type="checkbox" id="troopIsStarting" />
             <label for="troopIsStarting" style="margin: 0; font-weight: normal; text-transform: none; color: #e0e0e0;">Starting</label>
           </div>
@@ -697,7 +702,7 @@
               if (currentLevel !== startLevel) {
                 levelCell.style.color = '#7b1fa2';
               } else {
-                levelCell.style.color = '#1a73e8';
+                levelCell.style.color = '#e0e0e0';
               }
             } else {
               levelCell.textContent = '−';
@@ -718,7 +723,7 @@
               if (currentLevel !== startLevel) {
                 dateCell.style.color = '#7b1fa2';
               } else {
-                dateCell.style.color = '#1a73e8';
+                dateCell.style.color = '#e0e0e0';
               }
             } else {
               dateCell.textContent = '−';
