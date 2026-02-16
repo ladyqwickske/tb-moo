@@ -458,6 +458,9 @@
       let currentEvents = [];
       let currentParticipationMap = {};
       let currentPeriod = 'week';
+      let eventTypesData = [];
+      let troopSummaryMap = {};
+      let troopTargetsCache = {};
       const PARTICIPATION_CACHE_KEY = 'moo_participation_cache';
       const PARTICIPATION_TIMESTAMP_KEY = 'moo_participation_timestamp';
 
@@ -467,6 +470,79 @@
         document.querySelectorAll('#progress th[data-column]').forEach(th => {
           th.addEventListener('click', () => sortTable(th.dataset.column));
         });
+      }
+
+      function normalizeName(name) {
+        return String(name || '').trim().toLowerCase();
+      }
+
+      function parseDateSafe(value) {
+        if (!value) return null;
+        if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
+        const str = String(value).trim();
+        if (!str) return null;
+        if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+          const date = new Date(str + 'T00:00:00');
+          return isNaN(date.getTime()) ? null : date;
+        }
+        const mdy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (mdy) {
+          const month = parseInt(mdy[1], 10) - 1;
+          const day = parseInt(mdy[2], 10);
+          const year = parseInt(mdy[3], 10);
+          const date = new Date(year, month, day);
+          return isNaN(date.getTime()) ? null : date;
+        }
+        const parsed = new Date(str);
+        return isNaN(parsed.getTime()) ? null : parsed;
+      }
+
+      function ensureTroopSummaryLoaded() {
+        if (troopSummaryMap && Object.keys(troopSummaryMap).length > 0) return Promise.resolve();
+        return fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getAllTroopLevelsSummary' })
+        })
+          .then(res => res.json())
+          .then(result => {
+            const list = Array.isArray(result) ? result : (result?.data || []);
+            troopSummaryMap = {};
+            list.forEach(entry => {
+              const key = normalizeName(entry?.playerName || entry?.name);
+              if (key) troopSummaryMap[key] = entry;
+            });
+          })
+          .catch(() => { troopSummaryMap = {}; });
+      }
+
+      function ensureEventTypesLoaded() {
+        if (eventTypesData && eventTypesData.length > 0) return Promise.resolve();
+        return fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getAllEventTypes' })
+        })
+          .then(res => res.json())
+          .then(result => {
+            const list = result?.eventTypes || result?.data || [];
+            eventTypesData = Array.isArray(list) ? list : [];
+          })
+          .catch(() => { eventTypesData = []; });
+      }
+
+      function getTroopTargets(eventTypeName) {
+        if (!eventTypeName) return null;
+        if (troopTargetsCache[eventTypeName]) return troopTargetsCache[eventTypeName];
+        const type = eventTypesData.find(et => et.name === eventTypeName);
+        if (!type || !type.troopTargets) return null;
+        try {
+          const parsed = JSON.parse(type.troopTargets);
+          troopTargetsCache[eventTypeName] = parsed;
+          return parsed;
+        } catch (e) {
+          return null;
+        }
       }
 
       function loadProgress() {
@@ -550,8 +626,15 @@
 
         updateSummary(result.summary || {});
         updateHighlights(result.summary || {});
-        loadParticipationAndRender(result.events || [], result.members || []);
-        showTable();
+        Promise.all([ensureTroopSummaryLoaded(), ensureEventTypesLoaded()])
+          .then(() => {
+            loadParticipationAndRender(result.events || [], result.members || []);
+            showTable();
+          })
+          .catch(() => {
+            loadParticipationAndRender(result.events || [], result.members || []);
+            showTable();
+          });
 
         const growthHeader = document.querySelector('#progress th[data-column="recentGrowthPercent"]');
         if (growthHeader) growthHeader.classList.add('sorted-desc');
@@ -608,7 +691,7 @@
         currentEvents.forEach(event => {
           if (event.participationDetails && Array.isArray(event.participationDetails)) {
             event.participationDetails.forEach(detail => {
-              const key = `${detail.member}_${event.name}`;
+              const key = `${normalizeName(detail.member)}__${event.name}`;
               currentParticipationMap[key] = {
                 member: detail.member,
                 event: event.name,
@@ -678,18 +761,38 @@
           let html = `<td class="member-name">${escapeHtml(member.name)}</td><td class="stat-cell">${member.chestCount || 0}</td><td class="stat-cell">${formatMight(member.latestMight)}</td><td class="stat-cell">${(member.growthPercent || 0).toFixed(1)}%</td><td class="stat-cell">${(member.recentGrowthPercent || 0).toFixed(1)}%</td>`;
 
           currentEvents.forEach(event => {
-            const key = `${member.name}_${event.name}`;
+            const key = `${normalizeName(member.name)}__${event.name}`;
             const participation = currentParticipationMap[key];
 
-            const eventStart = new Date(event.startDate);
-            const memberJoinDate = new Date(member.joinDate);
+            const eventStart = parseDateSafe(event.startDate);
+            const eventEnd = parseDateSafe(event.endDate);
+            const memberJoinDate = parseDateSafe(member.joinDate);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const hasNotStarted = eventStart > today;
-            const memberJoinedAfterEvent = memberJoinDate > eventStart;
+            const hasNotStarted = eventStart && eventStart > today;
+            const memberJoinedAfterEvent = memberJoinDate && eventEnd && memberJoinDate > eventEnd;
 
             if (hasNotStarted || memberJoinedAfterEvent) {
               html += '<td class="event-cell"><span class="not-started">−</span></td>';
+            } else if (event.participationMethod === 'troop-based') {
+              const points = participation ? Number(participation.value || 0) : 0;
+              const targets = getTroopTargets(event.eventType);
+              const troopSummary = troopSummaryMap[normalizeName(member.name)] || {};
+              const gLevelRaw = troopSummary.G_currentLevel ?? troopSummary.G ?? null;
+              const gLevel = gLevelRaw !== null && gLevelRaw !== undefined ? Number(gLevelRaw) : null;
+              const targetPoints = (targets && gLevel !== null && gLevel !== undefined)
+                ? Number(targets[String(gLevel)])
+                : null;
+
+              if (targetPoints === null || isNaN(targetPoints)) {
+                html += '<td class="event-cell"><span class="not-started">−</span></td>';
+              } else if (points >= targetPoints) {
+                html += '<td class="event-cell"><span class="checkmark">✓</span></td>';
+              } else if (points >= targetPoints * 0.9 && points > 0) {
+                html += '<td class="event-cell"><span class="warning">!</span></td>';
+              } else {
+                html += '<td class="event-cell"><span class="cross">✕</span></td>';
+              }
             } else if (!participation || participation.value === 0) {
               html += '<td class="event-cell"><span class="cross">✕</span></td>';
             } else if (!participation.met) {
