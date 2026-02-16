@@ -193,6 +193,11 @@
     }
     .badge.chest { background: #1976d2; color: #e3f2fd; }
     .badge.manual { background: #f57c00; color: #fff3e0; }
+    .status-icon { font-weight: 700; font-size: 14px; }
+    .status-icon.ok { color: #4caf50; }
+    .status-icon.warn { color: #ff9800; }
+    .status-icon.err { color: #f44336; }
+    .status-icon.na { color: #9e9e9e; }
 
     /* Checkboxes */
     .checkbox-item { 
@@ -540,6 +545,9 @@
       let currentParticipationEventName = null;
       let editingTypeOriginalName = null;
       let editingEventName = null;
+      let troopSummaryMap = {};
+      let troopTargetsCache = {};
+      let memberJoinDatesMap = {};
 
       function init() {
         switchTab('manageTab');
@@ -628,11 +636,13 @@
             const norm = normalizeResponse(result);
             const list = norm.members || norm.data || [];
             membersData = Array.isArray(list) ? list : [];
+            buildMemberJoinDatesMap();
             populateMemberSelects();
           })
           .catch(error => {
             console.error('Failed to load members:', error);
             membersData = [];
+            buildMemberJoinDatesMap();
             populateMemberSelects();
           });
       }
@@ -658,6 +668,73 @@
         const manualEvents = eventsData.filter(e => e.participationMethod === 'manual-entry');
         if (manualEvents.length === 0) { select.innerHTML = '<option value="">-- No manual events --</option>'; return; }
         select.innerHTML = ['<option value="">-- Select Event --</option>'].concat(manualEvents.map(e => `<option value="${escapeHtml(e.eventName)}">${escapeHtml(e.eventName)}</option>`)).join('');
+      }
+
+      function normalizeName(name) {
+        return String(name || '').trim().toLowerCase();
+      }
+
+      function parseDateSafe(value) {
+        if (!value) return null;
+        if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
+        const str = String(value).trim();
+        if (!str) return null;
+        if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+          const date = new Date(str + 'T00:00:00');
+          return isNaN(date.getTime()) ? null : date;
+        }
+        const mdy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (mdy) {
+          const month = parseInt(mdy[1], 10) - 1;
+          const day = parseInt(mdy[2], 10);
+          const year = parseInt(mdy[3], 10);
+          const date = new Date(year, month, day);
+          return isNaN(date.getTime()) ? null : date;
+        }
+        const parsed = new Date(str);
+        return isNaN(parsed.getTime()) ? null : parsed;
+      }
+
+      function buildMemberJoinDatesMap() {
+        memberJoinDatesMap = {};
+        membersData.forEach(member => {
+          const key = normalizeName(member?.name);
+          const joinDate = parseDateSafe(member?.joinDate);
+          if (key && joinDate) memberJoinDatesMap[key] = joinDate;
+        });
+      }
+
+      function ensureTroopSummaryLoaded() {
+        if (troopSummaryMap && Object.keys(troopSummaryMap).length > 0) return Promise.resolve();
+        return fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getAllTroopLevelsSummary' })
+        })
+          .then(res => res.json())
+          .then(result => {
+            const list = Array.isArray(result) ? result : (result?.data || []);
+            troopSummaryMap = {};
+            list.forEach(entry => {
+              const key = normalizeName(entry?.playerName || entry?.name);
+              if (key) troopSummaryMap[key] = entry;
+            });
+          })
+          .catch(() => { troopSummaryMap = {}; });
+      }
+
+      function getEventTroopTargets(eventTypeName) {
+        if (!eventTypeName) return null;
+        if (troopTargetsCache[eventTypeName]) return troopTargetsCache[eventTypeName];
+        const type = eventTypesData.find(et => et.name === eventTypeName);
+        if (!type || !type.troopTargets) return null;
+        try {
+          const parsed = JSON.parse(type.troopTargets);
+          troopTargetsCache[eventTypeName] = parsed;
+          return parsed;
+        } catch (e) {
+          return null;
+        }
       }
 
       function submitCreateEvent() {
@@ -857,14 +934,14 @@
           loadingIndicator.style.display = 'none';
           if (result && result.success && result.data && result.data.length > 0) {
             participationRawData = result.data;
-            renderManualParticipationData();
+            ensureTroopSummaryLoaded().then(() => renderManualParticipationData());
           } else {
             thead.innerHTML = '';
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px; color:#7f8c8d;">No data yet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#7f8c8d;">No data yet.</td></tr>';
           }
         }).catch(error => {
           loadingIndicator.style.display = 'none';
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px; color:#ff5252;">Error: ' + error.message + '</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#ff5252;">Error: ' + error.message + '</td></tr>';
         });
       }
 
@@ -884,13 +961,39 @@
       function renderManualParticipationData() {
         const thead = document.getElementById('manualParticipationTableHead');
         const tbody = document.getElementById('manualParticipationTableBody');
-        thead.innerHTML = '<tr><th>Member Name</th><th>Points</th><th>Participated</th></tr>';
+        thead.innerHTML = '<tr><th>Member Name</th><th>G Level</th><th>Target</th><th>Achieved</th><th>Status</th></tr>';
         tbody.innerHTML = '';
+        const eventTypeName = selectedEvent?.eventType || '';
+        const targets = getEventTroopTargets(eventTypeName);
+        const eventEndDate = parseDateSafe(selectedEvent?.endDate);
+
         participationRawData.forEach(p => {
           const pts = Number(p.value1 ?? 0);
-          const icon = pts > 0 ? '<span style="color:#4caf50;">✓</span>' : '<span style="color:#f44336;">✕</span>';
+          const nameKey = normalizeName(p.memberName);
+          const troopSummary = troopSummaryMap[nameKey] || {};
+          const gLevelRaw = troopSummary.G_currentLevel ?? troopSummary.G ?? null;
+          const gLevel = gLevelRaw !== null && gLevelRaw !== undefined ? Number(gLevelRaw) : null;
+          const targetPoints = (targets && gLevel !== null && gLevel !== undefined)
+            ? Number(targets[String(gLevel)])
+            : null;
+          const joinDate = memberJoinDatesMap[nameKey] || null;
+          const notInClan = joinDate && eventEndDate && joinDate > eventEndDate;
+
+          let statusIcon = '<span class="status-icon na">—</span>';
+          if (!notInClan && targetPoints !== null && !isNaN(targetPoints)) {
+            if (pts >= targetPoints) {
+              statusIcon = '<span class="status-icon ok">✓</span>';
+            } else if (pts >= targetPoints * 0.9) {
+              statusIcon = '<span class="status-icon warn">!</span>';
+            } else {
+              statusIcon = '<span class="status-icon err">✕</span>';
+            }
+          }
+
+          const targetDisplay = targetPoints !== null && !isNaN(targetPoints) ? targetPoints : '—';
+          const gLevelDisplay = gLevel !== null && !isNaN(gLevel) ? gLevel : '—';
           const row = document.createElement('tr');
-          row.innerHTML = `<td>${escapeHtml(p.memberName)}</td><td>${pts}</td><td style="text-align:center;">${icon}</td>`;
+          row.innerHTML = `<td>${escapeHtml(p.memberName)}</td><td>${gLevelDisplay}</td><td>${targetDisplay}</td><td>${pts}</td><td style="text-align:center;">${statusIcon}</td>`;
           tbody.appendChild(row);
         });
       }
