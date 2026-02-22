@@ -142,8 +142,9 @@
       <p style="font-size: 1.05em; line-height: 1.8; color: #e0e0e0; margin-bottom: 1.2em;">
         That said… perfection has never really been our thing 😅
       </p>
-      <p style="font-size: 1.1em; font-weight: 600; color: #ffb300; margin-bottom: 1.2em;">
-        We are the true Masters of Oops 🐮
+      <p style="font-size: 1.1em; font-weight: 600; color: #ffb300; margin-bottom: 1.2em; display: flex; align-items: center; gap: 8px;">
+        We are the true Masters of Oops
+        <img src="cute_cow.png" alt="Cow" style="height: 32px; vertical-align: middle;">
       </p>
       <ul class="oops-list" id="oops-list">
         <!-- Oopses will be loaded dynamically from Google Sheets -->
@@ -157,41 +158,30 @@
       <p style="font-size: 1.05em; line-height: 1.8; color: #e0e0e0; margin-bottom: 1.2em;">
         We laugh 😂, we learn 📚, we grow 🌱, and we keep playing together—because at the end of the day, this clan is about enjoying the game 🎮, sharing the chaos 🔥, and turning every mistake into a story worth telling 📖
       </p>
-      <p style="font-size: 1.2em; font-weight: 600; color: #ffb300; text-align: center; margin-top: 1.5em;">
-        Welcome to the Masters of Oops! 🐮👑
+      <p style="font-size: 1.2em; font-weight: 600; color: #ffb300; text-align: center; margin-top: 1.5em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        Welcome to the Masters of Oops!
+        <img src="cute_cow.png" alt="Cow" style="height: 32px; vertical-align: middle;">
+        <span style="font-size: 1.2em;">👑</span>
       </p>
     </div>
   </div>
 </body>
 <script>
-// --- Dynamic Oopses ---
-// Reuse config.js for sheet ID
-const SHEET_NAME = 'Oopses'; // Sheet tab name
-
-function getSheetId() {
-  // GAS_CONFIG is loaded from config.js
-  return window.GAS_CONFIG && window.GAS_CONFIG.SHEET_ID ? window.GAS_CONFIG.SHEET_ID : null;
-}
-
-function getSheetUrl() {
-  const sheetId = getSheetId();
-  if (!sheetId) return null;
-  return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`;
-}
-
-function fetchOopses() {
-  const url = getSheetUrl();
-  if (!url) return Promise.reject('Sheet ID not found');
-  return fetch(url)
-    .then(resp => resp.text())
-    .then(csv => {
-      // Parse CSV rows
-      const rows = csv.split('\n').map(line => line.trim()).filter(line => line);
-      // Remove header if present
-      if (rows[0] && rows[0].toLowerCase().includes('oops')) rows.shift();
-      return rows;
-    });
-}
+// --- Static Oopses with Daily Rotation ---
+const OOPSES = [
+  'We confidently click "Leave Clan"—while logged into our main instead of the alt 🤦‍♀️',
+  'We launch heroic marches that somehow take six hours, even after using speedups 🐌⏳',
+  'We attempt to clean up what we thought were abandoned buildings, only to discover they very much still belong to someone 🏚️➡️😬',
+  'We start a clan CP run, march proudly toward the CP city… and only then realize all reinforcements were left behind — instant suicide 💀',
+  'Some of us happily march toward big, fat runic squads, fully convinced a raid has started… spoiler: it hasn’t 😐',
+  'We attack a Death Omens “monster,” leave the city feeling confident, and only afterward notice it’s a HUGE heroic monster — another instant suicide ⚰️',
+  'And yes—every single one of us has proudly sent the wrong captains to epics, watched them march out, and thought: "Oops." 😳',
+  'We try to kick a random stranger from our territory and accidentally remove an actual clan member instead 😬',
+  'We delete a fully stocked clan building because we meant to move it, not erase it from existence 🧨',
+  'We close the portal just before the clan march returns home… and everyone enjoys a surprise 30-minute walk of shame 🚪⏳',
+  'We accept a random applicant we’ve never heard of because, well… they sounded confident 🤷‍♂️',
+  'We finish gathering resources on another account, feel proud of our planning… and then get robbed before a single caravan is sent 🥲💰➡️💸'
+];
 
 function showOopsOfDay(oopses) {
   if (!oopses || !oopses.length) {
@@ -216,12 +206,8 @@ function renderOopsList(oopses) {
 
 // Load oopses on page load
 document.addEventListener('DOMContentLoaded', () => {
-  fetchOopses().then(oopses => {
-    showOopsOfDay(oopses);
-    renderOopsList(oopses);
-  }).catch(() => {
-    document.getElementById('oops-day-text').textContent = 'Failed to load oopses.';
-  });
+  showOopsOfDay(OOPSES);
+  renderOopsList(OOPSES);
 });
 </script>
 </html>
