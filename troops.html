@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Masters Of Oops (MOO) - Troops</title>
+  <title>Masters Of Oops - Troops</title>
   <link rel="icon" href="moo-portal.png" type="image/png">
   <script src="config.js"></script>
   <script src="portal-shim.js"></script>
@@ -15,7 +15,7 @@
       background: linear-gradient(135deg, #232526 0%, #414345 100%);
       color: #f3f3f3;
       text-align: center;
-      padding: 32px 8px 60px 8px;
+      padding: 32px 16px 60px 16px;
       min-height: 100vh;
       background-attachment: fixed;
     }
@@ -27,7 +27,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
       position: sticky; top: 0; z-index: 1000;
     }
-    .tab-nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; padding: 0 16px; }
+    .tab-nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; padding: 0 16px; overflow: visible; flex-wrap: wrap; }
     .nav-brand { font-size: 20px; font-weight: 700; color: #ffb300; padding: 16px 0; margin-right: 32px; white-space: nowrap; display: flex; align-items: center; gap: 8px; text-shadow: 0 2px 8px #000a; }
     .nav-brand img { height: 32px; width: auto; }
     .tab-buttons {
@@ -74,10 +74,14 @@
     }
 
     .tab-btn .tab-icon {
-      width: 56px;
-      height: 56px;
       display: block;
       margin: 0 auto;
+      height: 40px;
+      width: auto;
+      font-size: 16px;
+      line-height: 1.2;
+      font-weight: 500;
+      white-space: nowrap;
       filter: drop-shadow(0 2px 8px #000a);
     }
 
@@ -131,6 +135,38 @@
     }
     .control-group { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
 
+    .initial-entry-panel {
+      background: #1a1b1c;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+      text-align: left;
+    }
+    .initial-entry-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .initial-entry-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .checkbox-inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .helper-text {
+      font-size: 12px;
+      color: #b0b0b0;
+      margin-top: 6px;
+    }
+
     /* Forms */
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 12px; font-weight: 600; color: #ffb300; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -173,8 +209,8 @@
     .status.err { background: #b71c1c; color: #ef5350; border: 1px solid #d32f2f; }
 
     /* Table */
-    .table-container { margin-top: 12px; margin-bottom: 12px; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; background: #232526; border-radius: 8px; overflow: hidden; border: 1px solid #444; table-layout: fixed; }
+    .table-container { margin-top: 12px; margin-bottom: 12px; overflow: auto; max-height: 70vh; position: relative; border-radius: 8px; border: 1px solid #444; }
+    table { width: 100%; border-collapse: collapse; background: #232526; table-layout: fixed; }
     thead { background: #1a1b1c; }
     th { 
       padding: 12px 8px; 
@@ -185,6 +221,16 @@
       letter-spacing: 0.5px;
       border-bottom: 2px solid #444;
       text-align: left;
+      position: sticky;
+      top: 0;
+      background: #1a1b1c;
+      z-index: 10;
+    }
+    th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 11;
+      background: #1a1b1c;
     }
     th.sortable { cursor: pointer; user-select: none; }
     th.sortable:hover { color: #ffc933; }
@@ -197,8 +243,16 @@
       color: #e0e0e0;
       font-size: 13px;
     }
+    td:first-child {
+      position: sticky;
+      left: 0;
+      background: #232526;
+      z-index: 9;
+      font-weight: 500;
+    }
     td.center { text-align: center; }
     tr:hover { background: #2a2b2c; }
+    tr:hover td:first-child { background: #2a2b2c; }
     #troopMembersTable th[data-column="playerName"],
     #troopMembersTable td:first-child {
       width: 200px;
@@ -318,13 +372,136 @@
     .read-only-mode input,
     .read-only-mode select,
     .read-only-mode textarea,
-    .read-only-mode button:not(.tab-btn):not(.tab) {
+    .read-only-mode button:not(.tab-btn):not(.tab):not(.hamburger) {
       pointer-events: none !important;
       background: #f5f5f5 !important;
       color: #666 !important;
       cursor: not-allowed !important;
       opacity: 0.7 !important;
       border-color: #ddd !important;
+    }
+
+    /* Hamburger menu */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background: #ffb300;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    /* Responsive navigation: show icons on desktop, plain text on mobile */
+    .tab-label.mobile-only { display: none; }
+    .tab-icon.desktop-only { display: block; margin: 0 auto; height: 40px; width: auto; }
+
+    @media (max-width: 800px) {
+      .tab-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 9999;
+      }
+      .tab-nav-container {
+        flex-wrap: wrap;
+        padding: 8px;
+      }
+      .nav-brand {
+        flex: 1;
+        margin-right: 8px;
+        font-size: 16px;
+        padding: 8px 0;
+      }
+      .nav-brand img {
+        height: 24px;
+        width: 24px;
+      }
+      .hamburger { 
+        display: flex;
+        order: 2;
+      }
+      .tab-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        max-height: 60vh;
+        overflow-y: auto;
+        background: #232526;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 10000;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        display: none;
+        order: 10;
+      }
+      .tab-buttons.open {
+        display: flex;
+      }
+      .tab-btn {
+        font-size: 18px;
+        padding: 18px 24px;
+        border-bottom: 1px solid #444;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        background: none;
+        height: auto;
+      }
+      .tab-btn:last-child { border-bottom: none; }
+      .tab-label.mobile-only { display: inline; }
+      .tab-icon.desktop-only { display: none; }
+      /* Auth buttons and badges on mobile */
+      #readOnlyBadge,
+      #signedInUserBadge,
+      #logoutBtn,
+      #signInManageBtn {
+        order: 3;
+        margin: 4px 0 4px auto !important;
+        font-size: 11px !important;
+        padding: 6px 8px !important;
+      }
+      body {
+        padding-top: 100px;
+      }
+    }
+
+    @media (min-width: 801px) {
+      .tab-label.mobile-only { display: none; }
+      .tab-icon.desktop-only { display: block; }
+      .tab-buttons {
+        flex-direction: row;
+        align-items: center;
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+        background: none;
+        box-shadow: none;
+        border-radius: 0;
+        display: flex !important;
+      }
+      .tab-btn {
+        font-size: 28px;
+        padding: 12px 16px;
+        border-bottom: 3px solid transparent;
+        display: block;
+        justify-content: center;
+      }
+      .hamburger { display: none; }
     }
   </style>
 </head>
@@ -350,15 +527,18 @@
     function updateSignedInBadge(email) {
       const badge = document.getElementById('signedInUserBadge');
       const logoutBtn = document.getElementById('logoutBtn');
+      const signInBtn = document.getElementById('signInManageBtn');
       if (!badge) return;
       if (email) {
-        badge.innerHTML = `<img src="cute_cow.png" style="height:16px;width:16px;vertical-align:-3px;margin-right:6px;">${email}`;
+        badge.innerHTML = email;
         badge.style.display = 'inline-block';
         if (logoutBtn) logoutBtn.style.display = 'inline-block';
+        if (signInBtn) signInBtn.style.display = 'none';
       } else {
         badge.textContent = '';
         badge.style.display = 'none';
         if (logoutBtn) logoutBtn.style.display = 'none';
+        if (signInBtn) signInBtn.style.display = 'inline-block';
       }
     }
 
@@ -465,8 +645,15 @@
         updateSignedInBadge(email);
       } else {
         setReadOnlyMode(true);
-        if (!document.getElementById('login-overlay')) {
-          showGoogleLogin();
+        updateSignedInBadge(null);
+        let nav = document.querySelector('.tab-nav-container');
+        if (nav && !document.getElementById('signInManageBtn')) {
+          const btn = document.createElement('button');
+          btn.id = 'signInManageBtn';
+          btn.textContent = '🔑 Sign in to Manage';
+          btn.style = 'margin-left:16px;padding:8px 18px;background:#1a73e8;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;';
+          btn.onclick = showGoogleLogin;
+          nav.appendChild(btn);
         }
       }
     });
@@ -474,15 +661,41 @@
 
   <nav class="tab-nav">
     <div class="tab-nav-container">
-      <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO"> MOO Portal</div>
-      <div class="tab-buttons">
-        <a href="dashboard.html" class="tab-btn" title="Dashboard"><img src="chests.png" alt="Dashboard" class="tab-icon"></a>
-        <a href="events.html" class="tab-btn" title="Events"><img src="events.png" alt="Events" class="tab-icon"></a>
-        <a href="members.html" class="tab-btn" title="Members"><img src="members.png" alt="Members" class="tab-icon"></a>
-        <a href="troops.html" class="tab-btn active" title="Troops"><img src="troops.png" alt="Troops" class="tab-icon"></a>
-        <a href="progress.html" class="tab-btn" title="Progress"><img src="progress.png" alt="Progress" class="tab-icon"></a>
-        <a href="compensation.html" class="tab-btn" title="Compensation"><img src="compensation.png" alt="Compensation" class="tab-icon"></a>
-        <a href="points.html" class="tab-btn" title="Points Reference"><img src="chest_points.png" alt="Points Reference" class="tab-icon"></a>
+      <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</div>
+      <button class="hamburger" id="navHamburger" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="tab-buttons" id="navTabs">
+        <a href="dashboard.html" class="tab-btn" title="Dashboard">
+          <img src="chests.png" alt="Dashboard" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Dashboard</span>
+        </a>
+        <a href="events.html" class="tab-btn" title="Events">
+          <img src="events.png" alt="Events" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Events</span>
+        </a>
+        <a href="members.html" class="tab-btn" title="Members">
+          <img src="members.png" alt="Members" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Members</span>
+        </a>
+        <a href="troops.html" class="tab-btn active" title="Troops">
+          <img src="troops.png" alt="Troops" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Troops</span>
+        </a>
+        <a href="progress.html" class="tab-btn" title="Progress">
+          <img src="progress.png" alt="Progress" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Progress</span>
+        </a>
+        <a href="compensation.html" class="tab-btn" title="Compensation">
+          <img src="compensation.png" alt="Compensation" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Compensation</span>
+        </a>
+        <a href="points.html" class="tab-btn" title="Points Reference">
+          <img src="chest_points.png" alt="Points Reference" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Points Reference</span>
+        </a>
       </div>
       <div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
       <div id="signedInUserBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #1a1b1c; border-radius: 4px; font-size: 12px; color: #ffb300; border: 1px solid #444;"></div>
@@ -492,14 +705,15 @@
 
   <div id="troops" class="tab-content active">
     <div class="header">
-      <h1><img src="troops.png" alt="Troops" class="tab-icon" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Troop Level Tracker</h1>
+      <h1><img src="troops.png" alt="Troops" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Troop Level Tracker</h1>
       <p>Track and manage troop levels (G, M, S, E) and crypt levels for each member</p>
     </div>
 
     <div class="tabs-container">
       <div class="tabs">
-        <button class="tab active" onclick="TroopsTab.switchSubTab('entry')">👤 Add Entry</button>
-        <button class="tab" onclick="TroopsTab.switchSubTab('player')">📋 View Player History</button>
+        <button class="tab active" data-tab="entry" onclick="TroopsTab.switchSubTab('entry', event)">👤 Add Entry</button>
+        <button class="tab" data-tab="initial" onclick="TroopsTab.switchSubTab('initial', event)">🚀 Initial Troop Entry</button>
+        <button class="tab" data-tab="player" onclick="TroopsTab.switchSubTab('player', event)">📋 View Player History</button>
       </div>
 
       <!-- ADD ENTRY SUB-TAB -->
@@ -545,6 +759,68 @@
         <div id="troopPlayerHistoryContainer" style="margin-top: 20px; display: none;">
           <h2>Recent History for Selected Player</h2>
           <div id="troopPlayerHistoryTable"></div>
+        </div>
+      </div>
+
+      <!-- INITIAL TROOP ENTRY SUB-TAB -->
+      <div id="troopInitial" class="tab-content">
+        <div class="initial-entry-panel">
+          <h3>🚀 Initial Troops Quick Entry</h3>
+          <div class="controls" style="margin-top: 12px;">
+            <div class="field">
+              <label for="initialTroopPlayerName">Player Name *</label>
+              <select id="initialTroopPlayerName" required>
+                <option value="">-- Select Player --</option>
+              </select>
+            </div>
+            <div class="field wide">
+              <label for="initialTroopNotes">Notes</label>
+              <input type="text" id="initialTroopNotes" placeholder="Optional notes" />
+            </div>
+            <div class="field checkbox-field checkbox-inline">
+              <input type="checkbox" id="initialTroopIsStarting" checked />
+              <label for="initialTroopIsStarting" style="margin: 0; font-weight: normal; text-transform: none; color: #e0e0e0;">Mark as Starting</label>
+            </div>
+            <div class="field checkbox-field checkbox-inline">
+              <input type="checkbox" id="initialTroopFillZeros" checked />
+              <label for="initialTroopFillZeros" style="margin: 0; font-weight: normal; text-transform: none; color: #e0e0e0;">Auto-fill zeros</label>
+            </div>
+          </div>
+
+          <div class="initial-entry-grid">
+            <div class="field">
+              <label for="initialTroopG">Guardsmen (G)</label>
+              <input type="number" id="initialTroopG" min="0" placeholder="0" />
+            </div>
+            <div class="field">
+              <label for="initialTroopM">Monsters (M)</label>
+              <input type="number" id="initialTroopM" min="0" placeholder="0" />
+            </div>
+            <div class="field">
+              <label for="initialTroopS">Specialists (S)</label>
+              <input type="number" id="initialTroopS" min="0" placeholder="0" />
+            </div>
+            <div class="field">
+              <label for="initialTroopE">Engineering (E)</label>
+              <input type="number" id="initialTroopE" min="0" placeholder="0" />
+            </div>
+            <div class="field">
+              <label for="initialTroopC">Crypt (C)</label>
+              <input type="number" id="initialTroopC" min="0" placeholder="0" />
+            </div>
+          </div>
+
+          <div class="initial-entry-actions">
+            <div class="field" style="min-width: 160px;">
+              <label for="initialApplyLevel">Apply level to all</label>
+              <input type="number" id="initialApplyLevel" min="0" placeholder="45" />
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="TroopsTab.applyInitialLevelToAll()">Apply</button>
+            <button type="button" class="btn" onclick="TroopsTab.submitInitialTroopEntry()">✅ Save Initial Troops</button>
+            <button type="button" class="btn btn-secondary" onclick="TroopsTab.resetInitialTroopForm()">🗑️ Clear</button>
+          </div>
+          <div class="helper-text">Blank fields are skipped unless auto-fill zeros is enabled.</div>
+          <div id="initialTroopEntryMessage" class="status" style="margin-top: 12px;"></div>
         </div>
       </div>
 
@@ -616,19 +892,18 @@
       }
 
       function switchSubTab(tabName, evt) {
-        document.querySelectorAll('#troops .tabs').forEach(tabs => {
-          tabs.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-          tabs.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
-        });
+        const container = document.querySelector('#troops .tabs-container');
+        if (!container) return;
+        container.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        container.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
         const contentId = 'troop' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
         document.getElementById(contentId)?.classList.add('active');
-        if (evt && evt.target) {
-          evt.target.classList.add('active');
-        } else {
-          const buttons = document.querySelectorAll('#troops .tab');
-          if (tabName === 'entry' && buttons[0]) buttons[0].classList.add('active');
-          if (tabName === 'player' && buttons[1]) buttons[1].classList.add('active');
+        if (evt && evt.currentTarget) {
+          evt.currentTarget.classList.add('active');
+          return;
         }
+        const tabButton = document.querySelector(`#troops .tab[data-tab="${tabName}"]`);
+        if (tabButton) tabButton.classList.add('active');
       }
 
       function setupSummarySorting() {
@@ -769,7 +1044,11 @@
 
       function loadPlayerList() {
         const select = document.getElementById('troopPlayerName');
+        const initialSelect = document.getElementById('initialTroopPlayerName');
         select.innerHTML = '<option value="">-- Select Player --</option>';
+        if (initialSelect) {
+          initialSelect.innerHTML = '<option value="">-- Select Player --</option>';
+        }
         try {
           fetch(window.GAS_WEB_APP_URL, {
             method: 'POST',
@@ -780,6 +1059,9 @@
             .then(members => {
               if (!Array.isArray(members)) {
                 select.innerHTML = '<option value="">-- Error: Invalid response --</option>';
+                if (initialSelect) {
+                  initialSelect.innerHTML = '<option value="">-- Error: Invalid response --</option>';
+                }
                 return;
               }
               members.forEach(member => {
@@ -788,13 +1070,25 @@
                 option.value = name;
                 option.textContent = name;
                 select.appendChild(option);
+                if (initialSelect) {
+                  const initialOption = document.createElement('option');
+                  initialOption.value = name;
+                  initialOption.textContent = name;
+                  initialSelect.appendChild(initialOption);
+                }
               });
             })
             .catch(error => {
               select.innerHTML = '<option value="">-- Error loading members --</option>';
+              if (initialSelect) {
+                initialSelect.innerHTML = '<option value="">-- Error loading members --</option>';
+              }
             });
         } catch (error) {
           select.innerHTML = '<option value="">-- Error loading members --</option>';
+          if (initialSelect) {
+            initialSelect.innerHTML = '<option value="">-- Error loading members --</option>';
+          }
         }
       }
 
@@ -838,11 +1132,31 @@
         }
       }
 
+      function showInitialStatus(message, type) {
+        const el = document.getElementById('initialTroopEntryMessage');
+        if (!el) return;
+        el.textContent = message;
+        el.className = 'status ' + type;
+        if (type === 'ok') {
+          setTimeout(() => { el.className = 'status'; }, 4000);
+        }
+      }
+
+      function buildTroopNotes(rawNotes, isStarting) {
+        const trimmed = (rawNotes || '').trim();
+        if (!isStarting) return trimmed;
+        if (!trimmed) return '[START]';
+        if (trimmed.toUpperCase().startsWith('[START]')) return trimmed;
+        return `[START] ${trimmed}`;
+      }
+
       function submitTroopEntry() {
         const playerName = document.getElementById('troopPlayerName').value;
         const troopType = document.getElementById('troopType').value;
         const troopLevel = document.getElementById('troopLevel').value;
-        const notes = document.getElementById('troopResearch').value;
+        const notesInput = document.getElementById('troopResearch').value;
+        const isStarting = document.getElementById('troopIsStarting').checked;
+        const notes = buildTroopNotes(notesInput, isStarting);
 
         if (!playerName || !troopType || !troopLevel) {
           showStatus('Please fill in all required fields.', 'err');
@@ -880,8 +1194,118 @@
         document.getElementById('troopType').value = '';
         document.getElementById('troopLevel').value = '';
         document.getElementById('troopResearch').value = '';
+        document.getElementById('troopIsStarting').checked = false;
         document.getElementById('troopPlayerHistoryContainer').style.display = 'none';
         document.getElementById('troopEntryMessage').className = 'status';
+      }
+
+      function applyInitialLevelToAll() {
+        const value = document.getElementById('initialApplyLevel').value;
+        if (value === '') return;
+        ['G', 'M', 'S', 'E', 'C'].forEach(type => {
+          const input = document.getElementById(`initialTroop${type}`);
+          if (input) input.value = value;
+        });
+      }
+
+      function resetInitialTroopForm() {
+        document.getElementById('initialTroopPlayerName').value = '';
+        document.getElementById('initialTroopNotes').value = '';
+        document.getElementById('initialTroopIsStarting').checked = true;
+        document.getElementById('initialTroopFillZeros').checked = true;
+        document.getElementById('initialApplyLevel').value = '';
+        ['G', 'M', 'S', 'E', 'C'].forEach(type => {
+          const input = document.getElementById(`initialTroop${type}`);
+          if (input) input.value = '';
+        });
+        showInitialStatus('', '');
+      }
+
+      function submitInitialTroopEntry() {
+        const playerName = document.getElementById('initialTroopPlayerName').value;
+        if (!playerName) {
+          showInitialStatus('Please select a player.', 'err');
+          return;
+        }
+
+        const notesInput = document.getElementById('initialTroopNotes').value;
+        const isStarting = document.getElementById('initialTroopIsStarting').checked;
+        const autoFillZeros = document.getElementById('initialTroopFillZeros').checked;
+        const notes = buildTroopNotes(notesInput, isStarting);
+
+        const entries = ['G', 'M', 'S', 'E', 'C'].map(type => {
+          const input = document.getElementById(`initialTroop${type}`);
+          const rawValue = input ? input.value.trim() : '';
+          console.log(`[DEBUG] Type ${type}: input element=`, input, `rawValue="${rawValue}"`);
+          if (rawValue === '') {
+            return autoFillZeros ? { type, level: 0 } : null;
+          }
+          const level = parseInt(rawValue, 10);
+          if (isNaN(level) || level < 0) {
+            return { type, level: null, invalid: true };
+          }
+          console.log(`[DEBUG] Type ${type}: returning valid entry with level=${level}`);
+          return { type, level };
+        });
+
+        console.log('[DEBUG] All entries after mapping:', entries);
+
+        const invalid = entries.filter(entry => entry && entry.invalid);
+        if (invalid.length > 0) {
+          showInitialStatus('Please enter valid levels (0 or higher).', 'err');
+          return;
+        }
+
+        const validEntries = entries.filter(entry => entry && entry.level !== null);
+        console.log('[DEBUG] Valid entries after filtering:', validEntries);
+        
+        if (validEntries.length === 0) {
+          showInitialStatus('Enter at least one troop level.', 'err');
+          return;
+        }
+
+        // Send requests sequentially to avoid GAS web app concurrency issues
+        showInitialStatus('Saving entries...', 'ok');
+        
+        (async () => {
+          try {
+            let successCount = 0;
+            for (const entry of validEntries) {
+              const payload = {
+                action: 'addTroopEntry',
+                playerName,
+                troopType: entry.type,
+                troopLevel: entry.level,
+                notes
+              };
+              console.log(`[DEBUG] Sending payload for type ${entry.type}:`, payload);
+              
+              const response = await fetch(window.GAS_WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              const result = await response.json();
+              
+              if (result && result.success) {
+                successCount++;
+                console.log(`[DEBUG] Successfully saved ${entry.type}`);
+              } else {
+                console.error(`[ERROR] Failed to save ${entry.type}:`, result);
+                showInitialStatus(`Error saving ${entry.type}: ${result?.message || 'Unknown error'}`, 'err');
+                return;
+              }
+            }
+            
+            showInitialStatus(`Saved ${successCount} entries for ${playerName}.`, 'ok');
+            resetInitialTroopForm();
+            updatePlayerHistory();
+            loadTroopSummary();
+          } catch (error) {
+            console.error('[ERROR] Exception during save:', error);
+            showInitialStatus('Error: ' + error.toString(), 'err');
+          }
+        })();
       }
 
       function updatePlayerHistory() {
@@ -1046,8 +1470,39 @@
           });
       }
 
-      return { init, switchSubTab, submitTroopEntry, resetTroopForm, updatePlayerHistory, loadPlayerHistory, loadTroopSummary };
+      return {
+        init,
+        switchSubTab,
+        submitTroopEntry,
+        resetTroopForm,
+        updatePlayerHistory,
+        loadPlayerHistory,
+        loadTroopSummary,
+        applyInitialLevelToAll,
+        submitInitialTroopEntry,
+        resetInitialTroopForm
+      };
     })();
   </script>
+
+<script>
+// Hamburger menu toggle for mobile navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const hamburger = document.getElementById('navHamburger');
+  const navTabs = document.getElementById('navTabs');
+  if (hamburger && navTabs) {
+    hamburger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      navTabs.classList.toggle('open');
+    });
+  }
+  // Optional: close menu when clicking outside
+  document.addEventListener('click', function(e) {
+    if (navTabs.classList.contains('open') && !navTabs.contains(e.target) && !hamburger.contains(e.target)) {
+      navTabs.classList.remove('open');
+    }
+  });
+});
+</script>
 </body>
 </html>
