@@ -1,31 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Masters Of Oops - Progress</title>
   <link rel="icon" href="moo-portal.png" type="image/png">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-<script>
-// Hamburger menu toggle for mobile navigation
-document.addEventListener('DOMContentLoaded', function() {
-  const hamburger = document.getElementById('navHamburger');
-  const navTabs = document.getElementById('navTabs');
-  if (hamburger && navTabs) {
-    hamburger.addEventListener('click', function(e) {
-      e.stopPropagation();
-      navTabs.classList.toggle('open');
-      hamburger.classList.toggle('open');
-    });
-    document.addEventListener('click', function(e) {
-      if (!navTabs.contains(e.target) && !hamburger.contains(e.target)) {
-        navTabs.classList.remove('open');
-        hamburger.classList.remove('open');
-      }
-    });
-  }
-});
-</script>
+  <script src="config.js"></script>
+  <script src="portal-shim.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
       background: linear-gradient(135deg, #232526 0%, #414345 100%);
       color: #f3f3f3;
       text-align: center;
@@ -41,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
       position: sticky; top: 0; z-index: 1000;
     }
-    .tab-nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; padding: 0 16px; }
+    .tab-nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; padding: 0 16px; overflow: visible; flex-wrap: wrap; }
     .nav-brand { font-size: 20px; font-weight: 700; color: #ffb300; padding: 16px 0; margin-right: 32px; white-space: nowrap; display: flex; align-items: center; gap: 8px; text-shadow: 0 2px 8px #000a; }
     .nav-brand img { height: 32px; width: auto; }
     .tab-buttons {
@@ -88,10 +74,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     .tab-btn .tab-icon {
-      width: 56px;
-      height: 56px;
       display: block;
       margin: 0 auto;
+      height: 40px;
+      width: auto;
+      font-size: 16px;
+      line-height: 1.2;
+      font-weight: 500;
+      white-space: nowrap;
       filter: drop-shadow(0 2px 8px #000a);
     }
 
@@ -190,8 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
     .btn:hover { background: #ffc933; }
 
     /* Table */
-    .table-container { margin-top: 12px; margin-bottom: 12px; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; background: #232526; border-radius: 8px; overflow: hidden; border: 1px solid #444; }
+    .table-container { margin-top: 12px; margin-bottom: 12px; overflow: auto; max-height: 70vh; position: relative; border-radius: 8px; border: 1px solid #444; }
+    table { width: 100%; border-collapse: collapse; background: #232526; }
     thead { background: #1a1b1c; }
     th { 
       padding: 12px 8px; 
@@ -204,6 +194,16 @@ document.addEventListener('DOMContentLoaded', function() {
       text-align: left;
       cursor: pointer;
       user-select: none;
+      position: sticky;
+      top: 0;
+      background: #1a1b1c;
+      z-index: 10;
+    }
+    th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 11;
+      background: #1a1b1c;
     }
     th:hover { color: #ffc933; }
     th.sorted-asc::after { content: ' ↑'; }
@@ -215,10 +215,18 @@ document.addEventListener('DOMContentLoaded', function() {
       color: #e0e0e0;
       font-size: 13px;
     }
+    td:first-child {
+      position: sticky;
+      left: 0;
+      background: #232526;
+      z-index: 9;
+      font-weight: 500;
+    }
+    tr:hover { background: #2a2b2c; }
+    tr:hover td:first-child { background: #2a2b2c; }
     td.member-name { font-weight: 500; }
     td.stat-cell { text-align: right; }
     td.event-cell { text-align: center; font-weight: 600; }
-    tr:hover { background: #2a2b2c; }
 
     /* Event Status Indicators */
     .checkmark { color: #4caf50; }
@@ -237,13 +245,136 @@ document.addEventListener('DOMContentLoaded', function() {
     .read-only-mode input,
     .read-only-mode select,
     .read-only-mode textarea,
-    .read-only-mode button:not(.tab-btn):not(.tab) {
+    .read-only-mode button:not(.tab-btn):not(.tab):not(.hamburger) {
       pointer-events: none !important;
       background: #f5f5f5 !important;
       color: #666 !important;
       cursor: not-allowed !important;
       opacity: 0.7 !important;
       border-color: #ddd !important;
+    }
+
+    /* Hamburger menu */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background: #ffb300;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    /* Responsive navigation: show icons on desktop, plain text on mobile */
+    .tab-label.mobile-only { display: none; }
+    .tab-icon.desktop-only { display: block; margin: 0 auto; height: 40px; width: auto; }
+
+    @media (max-width: 800px) {
+      .tab-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 9999;
+      }
+      .tab-nav-container {
+        flex-wrap: wrap;
+        padding: 8px;
+      }
+      .nav-brand {
+        flex: 1;
+        margin-right: 8px;
+        font-size: 16px;
+        padding: 8px 0;
+      }
+      .nav-brand img {
+        height: 24px;
+        width: 24px;
+      }
+      .hamburger { 
+        display: flex;
+        order: 2;
+      }
+      .tab-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        max-height: 60vh;
+        overflow-y: auto;
+        background: #232526;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 10000;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        display: none;
+        order: 10;
+      }
+      .tab-buttons.open {
+        display: flex;
+      }
+      .tab-btn {
+        font-size: 18px;
+        padding: 18px 24px;
+        border-bottom: 1px solid #444;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        background: none;
+        height: auto;
+      }
+      .tab-btn:last-child { border-bottom: none; }
+      .tab-label.mobile-only { display: inline; }
+      .tab-icon.desktop-only { display: none; }
+      /* Auth buttons and badges on mobile */
+      #readOnlyBadge,
+      #signedInUserBadge,
+      #logoutBtn,
+      #signInManageBtn {
+        order: 3;
+        margin: 4px 0 4px auto !important;
+        font-size: 11px !important;
+        padding: 6px 8px !important;
+      }
+      body {
+        padding-top: 100px;
+      }
+    }
+
+    @media (min-width: 801px) {
+      .tab-label.mobile-only { display: none; }
+      .tab-icon.desktop-only { display: block; }
+      .tab-buttons {
+        flex-direction: row;
+        align-items: center;
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+        background: none;
+        box-shadow: none;
+        border-radius: 0;
+        display: flex !important;
+      }
+      .tab-btn {
+        font-size: 28px;
+        padding: 12px 16px;
+        border-bottom: 3px solid transparent;
+        display: block;
+        justify-content: center;
+      }
+      .hamburger { display: none; }
     }
   </style>
 </head>
@@ -269,15 +400,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateSignedInBadge(email) {
       const badge = document.getElementById('signedInUserBadge');
       const logoutBtn = document.getElementById('logoutBtn');
+      const signInBtn = document.getElementById('signInManageBtn');
       if (!badge) return;
       if (email) {
-        badge.innerHTML = `<img src="cute_cow.png" style="height:16px;width:16px;vertical-align:-3px;margin-right:6px;">${email}`;
+        badge.innerHTML = email;
         badge.style.display = 'inline-block';
         if (logoutBtn) logoutBtn.style.display = 'inline-block';
+        if (signInBtn) signInBtn.style.display = 'none';
       } else {
         badge.textContent = '';
         badge.style.display = 'none';
         if (logoutBtn) logoutBtn.style.display = 'none';
+        if (signInBtn) signInBtn.style.display = 'inline-block';
       }
     }
 
@@ -384,8 +518,15 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSignedInBadge(email);
       } else {
         setReadOnlyMode(true);
-        if (!document.getElementById('login-overlay')) {
-          showGoogleLogin();
+        updateSignedInBadge(null);
+        let nav = document.querySelector('.tab-nav-container');
+        if (nav && !document.getElementById('signInManageBtn')) {
+          const btn = document.createElement('button');
+          btn.id = 'signInManageBtn';
+          btn.textContent = '🔑 Sign in to Manage';
+          btn.style = 'margin-left:16px;padding:8px 18px;background:#1a73e8;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;';
+          btn.onclick = showGoogleLogin;
+          nav.appendChild(btn);
         }
       }
     });
@@ -393,15 +534,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <nav class="tab-nav">
     <div class="tab-nav-container">
-      <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO"> MOO Portal</div>
-      <div class="tab-buttons">
-        <a href="dashboard.html" class="tab-btn" title="Dashboard"><img src="chests.png" alt="Dashboard" class="tab-icon"></a>
-        <a href="events.html" class="tab-btn" title="Events"><img src="events.png" alt="Events" class="tab-icon"></a>
-        <a href="members.html" class="tab-btn" title="Members"><img src="members.png" alt="Members" class="tab-icon"></a>
-        <a href="troops.html" class="tab-btn" title="Troops"><img src="troops.png" alt="Troops" class="tab-icon"></a>
-        <a href="progress.html" class="tab-btn active" title="Progress"><img src="progress.png" alt="Progress" class="tab-icon"></a>
-        <a href="compensation.html" class="tab-btn" title="Compensation"><img src="compensation.png" alt="Compensation" class="tab-icon"></a>
-        <a href="points.html" class="tab-btn" title="Points Reference"><img src="chest_points.png" alt="Points Reference" class="tab-icon"></a>
+      <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</div>
+      <button class="hamburger" id="navHamburger" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="tab-buttons" id="navTabs">
+        <a href="dashboard.html" class="tab-btn" title="Dashboard">
+          <img src="chests.png" alt="Dashboard" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Dashboard</span>
+        </a>
+        <a href="events.html" class="tab-btn" title="Events">
+          <img src="events.png" alt="Events" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Events</span>
+        </a>
+        <a href="members.html" class="tab-btn" title="Members">
+          <img src="members.png" alt="Members" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Members</span>
+        </a>
+        <a href="troops.html" class="tab-btn" title="Troops">
+          <img src="troops.png" alt="Troops" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Troops</span>
+        </a>
+        <a href="progress.html" class="tab-btn active" title="Progress">
+          <img src="progress.png" alt="Progress" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Progress</span>
+        </a>
+        <a href="compensation.html" class="tab-btn" title="Compensation">
+          <img src="compensation.png" alt="Compensation" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Compensation</span>
+        </a>
+        <a href="points.html" class="tab-btn" title="Points Reference">
+          <img src="chest_points.png" alt="Points Reference" class="tab-icon desktop-only">
+          <span class="tab-label mobile-only">Points Reference</span>
+        </a>
       </div>
       <div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
       <div id="signedInUserBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #1a1b1c; border-radius: 4px; font-size: 12px; color: #ffb300; border: 1px solid #444;"></div>
@@ -411,13 +578,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <div id="progress" class="tab-content active">
     <div class="header">
-      <h1><img src="progress.png" alt="Progress" class="tab-icon" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Progress Dashboard</h1>
+      <h1><img src="progress.png" alt="Progress" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Progress Dashboard</h1>
       <p>Track member participation, growth, and activity</p>
     </div>
 
     <div class="period-tabs">
       <button class="period-btn active" onclick="ProgressTab.setPeriod('week')" data-period="week">📅 This Week</button>
-      <button class="period-btn" onclick="ProgressTab.setPeriod('prevweek')" data-period="prevweek">⬅️ Previous Week</button>
+      <button class="period-btn" onclick="ProgressTab.setPeriod('prevweek')" data-period="prevweek">⬅️ Previous Period</button>
       <button class="period-btn" onclick="ProgressTab.setPeriod('month')" data-period="month">📆 This Month</button>
       <button class="period-btn" onclick="ProgressTab.setPeriod('2months')" data-period="2months">📊 Last 2 Months</button>
     </div>
@@ -475,8 +642,8 @@ document.addEventListener('DOMContentLoaded', function() {
       let eventTypesData = [];
       let troopSummaryMap = {};
       let troopTargetsCache = {};
-      const PARTICIPATION_CACHE_KEY = 'moo_participation_cache';
-      const PARTICIPATION_TIMESTAMP_KEY = 'moo_participation_timestamp';
+      const PARTICIPATION_CACHE_KEY = 'ccc_participation_cache';
+      const PARTICIPATION_TIMESTAMP_KEY = 'ccc_participation_timestamp';
 
       function init() {
         loadProgress();
@@ -601,7 +768,7 @@ document.addEventListener('DOMContentLoaded', function() {
           start.setDate(start.getDate() - 7);
           const end = new Date(start);
           end.setDate(end.getDate() + 6);
-          periodLabel = `Viewing: Previous Week (Sun–Sat): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
+          periodLabel = `Viewing: Previous Period: ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
         } else if (period === 'month') {
           const start = new Date(today.getFullYear(), today.getMonth(), 1);
           const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -688,7 +855,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       function loadParticipationAndRender(events, members) {
-        currentEvents = events || [];
+        // Filter out period-marker events (they're for period calculation only, not for participation tracking)
+        currentEvents = (events || []).filter(event => event.participationMethod !== 'period-marker');
         currentEvents.sort((a, b) => {
           const dateA = new Date(a.startDate);
           const dateB = new Date(b.startDate);
@@ -857,5 +1025,25 @@ document.addEventListener('DOMContentLoaded', function() {
       return { init, clearCacheAndRefresh, setPeriod };
     })();
   </script>
+
+<script>
+// Hamburger menu toggle for mobile navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const hamburger = document.getElementById('navHamburger');
+  const navTabs = document.getElementById('navTabs');
+  if (hamburger && navTabs) {
+    hamburger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      navTabs.classList.toggle('open');
+    });
+  }
+  // Optional: close menu when clicking outside
+  document.addEventListener('click', function(e) {
+    if (navTabs.classList.contains('open') && !navTabs.contains(e.target) && !hamburger.contains(e.target)) {
+      navTabs.classList.remove('open');
+    }
+  });
+});
+</script>
 </body>
 </html>
