@@ -1,173 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Masters Of Oops (MOO) - Dashboard</title>
-  <link rel="icon" href="moo-portal.png" type="image/png">
-  <script src="config.js"></script>
-  <script src="portal-shim.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
-      background: linear-gradient(135deg, #232526 0%, #414345 100%);
-      color: #f3f3f3;
-      text-align: center;
-      padding: 32px 8px 60px 8px;
-      min-height: 100vh;
-      background-attachment: fixed;
-    }
-
-    /* Top Tabs */
-    .tab-nav {
-      background: rgba(30, 34, 40, 0.95);
-      border-bottom: 1px solid #444;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-      position: sticky; top: 0; z-index: 1000;
-    }
-    .tab-nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; padding: 0 16px; }
-    .nav-brand { font-size: 20px; font-weight: 700; color: #ffb300; padding: 16px 0; margin-right: 32px; white-space: nowrap; display: flex; align-items: center; gap: 8px; text-shadow: 0 2px 8px #000a; }
-    .nav-brand img { height: 32px; width: auto; }
-    .tab-buttons {
-      display: flex;
-      gap: 4px;
-      flex: 1;
-      overflow-x: auto;
-      overflow-y: hidden;
-      align-items: center;
-      height: 100px;
-    }
-    .tab-btn { 
-      padding: 12px 16px; 
-      background: none; 
-      border: none; 
-      color: #e0e0e0; 
-      font-size: 28px; 
-      font-weight: 500; 
-      border-bottom: 3px solid transparent; 
-      transition: all 0.2s; 
-      white-space: nowrap; 
-      text-decoration: none;
-      display: block;
-      cursor: pointer; 
-      position: relative; 
-    }
-    .tab-btn:hover { color: #ffb300; background: #232526; }
-    .tab-btn.active { color: #ffb300; border-bottom-color: #ffb300; }
-    .tab-btn[title]:hover::after {
-      content: attr(title);
-      position: absolute;
-      top: -42px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #232526;
-      color: #ffb300;
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      white-space: nowrap;
-      z-index: 1001;
-      border: 1px solid #444;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-
-    .tab-btn .tab-icon {
-      width: 56px;
-      height: 56px;
-      display: block;
-      margin: 0 auto;
-      filter: drop-shadow(0 2px 8px #000a);
-    }
-
-    /* Tab Content */
-    .tab-content { display: none; padding: 16px; max-width: 1400px; margin: 0 auto; background: rgba(30, 34, 40, 0.95); border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
-    .tab-content.active { display: block; }
-    h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #ffb300; text-shadow: 0 2px 8px #000a; }
-    h2 { font-size: 18px; font-weight: 500; margin-top: 24px; margin-bottom: 12px; color: #e0e0e0; }
-    .loading { text-align: center; padding: 32px; color: #e0e0e0; }
-    .note { font-size: 12px; color: #e0e0e0; margin-top: 4px; }
-
-    /* Dashboard */
-    .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
-    .card { background: #232526; border-radius: 8px; padding: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.25); text-align: center; border: 1px solid #444; }
-    .card-value { font-size: 28px; font-weight: 700; color: #ffb300; margin-bottom: 4px; text-shadow: 0 2px 8px #000a; }
-    .card-label { font-size: 12px; color: #e0e0e0; text-transform: uppercase; letter-spacing: 0.5px; }
-    .player-list { background: #232526; border-radius: 8px; padding: 0; box-shadow: 0 1px 6px rgba(0,0,0,0.25); margin-bottom: 16px; overflow: auto; max-height: 70vh; border: 1px solid #444; }
-    .chest-table { display: table; width: 100%; border-collapse: collapse; background: #232526; border-radius: 8px; overflow: hidden; }
-    .table-header { display: table-row; background: #232526; border-bottom: 2px solid #444; }
-    .header-cell { display: table-cell; padding: 12px 8px; font-weight: 600; font-size: 11px; color: #ffb300; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-right: 1px solid #444; white-space: nowrap; position: sticky; top: 0; background: #232526; z-index: 2; }
-    .header-cell:first-child { text-align: center; position: sticky; left: 0; z-index: 3; min-width: 45px; max-width: 50px; width: 50px; background: #232526; }
-    .header-cell:nth-child(2) { text-align: left; position: sticky; left: 50px; z-index: 3; min-width: 150px; background: #232526; }
-    .header-cell.rank-col { min-width: 45px !important; max-width: 50px !important; width: 50px !important; padding: 12px 4px; text-align: center !important; }
-    .cell.rank-col { min-width: 45px !important; max-width: 50px !important; width: 50px !important; padding: 12px 4px; text-align: center !important; }
-    .type-total-header { cursor: pointer; user-select: none; background: #33343a; font-weight: 600; color: #ffb300; }
-    .type-total-header:hover { background: #444; }
-    .toggle-icon { display: inline-block; width: 16px; text-align: center; margin-right: 4px; transition: transform 0.15s; }
-    .type-total-header.expanded .toggle-icon { transform: rotate(90deg); }
-    .level-header { background: #33343a; display: none; color: #ffb300; }
-    .level-header.visible { display: table-cell; }
-    .player-row { display: table-row; border-bottom: 1px solid #444; background: #232526; }
-    .player-row:hover { background: #33343a; }
-    .cell { display: table-cell; padding: 12px 8px; border-right: 1px solid #444; text-align: center; font-size: 13px; vertical-align: middle; white-space: nowrap; color: #e0e0e0; background: #232526; }
-    .cell:first-child { text-align: center; font-weight: 500; position: sticky; left: 0; background: #232526; z-index: 1; min-width: 45px; max-width: 50px; width: 50px; }
-    .cell:nth-child(2) { text-align: left; font-weight: 500; position: sticky; left: 50px; background: #232526; z-index: 1; min-width: 150px; }
-    .player-row:hover .cell:first-child, .player-row:hover .cell:nth-child(2) { background: #33343a; }
-    .level-cell { background: #33343a; display: none; font-size: 12px; color: #ffb300; }
-    .level-cell.visible { display: table-cell; }
-    .count-zero { color: #444; }
-    .player-red { color: #ff5252; font-weight: 500; }
-    .player-orange { color: #ffb300; font-weight: 500; }
-    .player-green { color: #8bc34a; font-weight: 600; }
-    .date-filter {
-      background: #232526;
-      border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.25);
-      margin-bottom: 16px;
-      border: 1px solid #444;
-    }
-    .date-filter-label { font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #ffb300; }
-    .date-preset-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-    .preset-btn {
-      padding: 6px 12px;
-      background: #232526;
-      border: 1px solid #444;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: #e0e0e0;
-    }
-    .preset-btn:hover { background: #333; color: #ffb300; border-color: #ffb300; }
-    .preset-btn.active { background: #ffb300; color: #232526; border-color: #ffb300; }
-    .date-range-display {
-      margin-top: 12px;
-      padding: 8px 12px;
-      background: #33343a;
-      border-radius: 4px;
-      font-size: 13px;
-      color: #ffb300;
-      font-weight: 500;
-      border: 1px solid #444;
-    }
-    
-    /* READ-ONLY MODE STYLES */
-    .read-only-mode input,
-    .read-only-mode select,
-    .read-only-mode textarea {
-      pointer-events: none !important;
-      background: #f5f5f5 !important;
-      color: #666 !important;
-      cursor: not-allowed !important;
-      opacity: 0.7 !important;
-      border-color: #ddd !important;
-    }
-  </style>
-</head>
-<body>
-  <!-- Google Sign-In integration -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     // --- Google Sign-In for edit access ---
@@ -367,23 +200,201 @@
       });
     }
   </script>
+  <script>
+  // Hamburger menu toggle for mobile navigation
+  document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.getElementById('navHamburger');
+    const navTabs = document.getElementById('navTabs');
+    if (hamburger && navTabs) {
+      hamburger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        navTabs.classList.toggle('open');
+        hamburger.classList.toggle('open');
+      });
+      document.addEventListener('click', function(e) {
+        if (!navTabs.contains(e.target) && !hamburger.contains(e.target)) {
+          navTabs.classList.remove('open');
+          hamburger.classList.remove('open');
+        }
+      });
+    }
+  });
+  </script>
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #f3f3f3;
+      text-align: center;
+      padding: 32px 8px 60px 8px;
+      min-height: 100vh;
+      background-attachment: fixed;
+    }
+
+    /* Top Tabs */
+    .tab-nav {
+      background: rgba(30, 34, 40, 0.95);
+      border-bottom: 1px solid #444;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      position: sticky; top: 0; z-index: 1000;
+    }
+    .tab-nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; padding: 0 16px; }
+    .nav-brand { font-size: 20px; font-weight: 700; color: #ffb300; padding: 16px 0; margin-right: 32px; white-space: nowrap; display: flex; align-items: center; gap: 8px; text-shadow: 0 2px 8px #000a; }
+    .nav-brand img { height: 32px; width: auto; }
+    .tab-buttons {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      align-items: center;
+      height: 100px;
+    }
+    .tab-btn { 
+      padding: 12px 16px; 
+      background: none; 
+      border: none; 
+      color: #e0e0e0; 
+      font-size: 28px; 
+      font-weight: 500; 
+      border-bottom: 3px solid transparent; 
+      transition: all 0.2s; 
+      white-space: nowrap; 
+      text-decoration: none;
+      display: block;
+      cursor: pointer; 
+      position: relative; 
+    }
+    .tab-btn:hover { color: #ffb300; background: #232526; }
+    .tab-btn.active { color: #ffb300; border-bottom-color: #ffb300; }
+    .tab-btn[title]:hover::after {
+      content: attr(title);
+      position: absolute;
+      top: -42px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #232526;
+      color: #ffb300;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 1001;
+      border: 1px solid #444;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .tab-btn .tab-icon {
+      width: 56px;
+      height: 56px;
+      display: block;
+      margin: 0 auto;
+      filter: drop-shadow(0 2px 8px #000a);
+    }
+
+    /* Tab Content */
+    .tab-content { display: none; padding: 16px; max-width: 1400px; margin: 0 auto; background: rgba(30, 34, 40, 0.95); border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
+    .tab-content.active { display: block; }
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #ffb300; text-shadow: 0 2px 8px #000a; }
+    h2 { font-size: 18px; font-weight: 500; margin-top: 24px; margin-bottom: 12px; color: #e0e0e0; }
+    .loading { text-align: center; padding: 32px; color: #e0e0e0; }
+    .note { font-size: 12px; color: #e0e0e0; margin-top: 4px; }
+
+    /* Dashboard */
+    .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .card { background: #232526; border-radius: 8px; padding: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.25); text-align: center; border: 1px solid #444; }
+    .card-value { font-size: 28px; font-weight: 700; color: #ffb300; margin-bottom: 4px; text-shadow: 0 2px 8px #000a; }
+    .card-label { font-size: 12px; color: #e0e0e0; text-transform: uppercase; letter-spacing: 0.5px; }
+    .player-list { background: #232526; border-radius: 8px; padding: 0; box-shadow: 0 1px 6px rgba(0,0,0,0.25); margin-bottom: 16px; overflow: auto; max-height: 70vh; border: 1px solid #444; }
+    .chest-table { display: table; width: 100%; border-collapse: collapse; background: #232526; border-radius: 8px; overflow: hidden; }
+    .table-header { display: table-row; background: #232526; border-bottom: 2px solid #444; }
+    .header-cell { display: table-cell; padding: 12px 8px; font-weight: 600; font-size: 11px; color: #ffb300; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; border-right: 1px solid #444; white-space: nowrap; position: sticky; top: 0; background: #232526; z-index: 2; }
+    .header-cell:first-child { text-align: center; position: sticky; left: 0; z-index: 3; min-width: 45px; max-width: 50px; width: 50px; background: #232526; }
+    .header-cell:nth-child(2) { text-align: left; position: sticky; left: 50px; z-index: 3; min-width: 150px; background: #232526; }
+    .header-cell.rank-col { min-width: 45px !important; max-width: 50px !important; width: 50px !important; padding: 12px 4px; text-align: center !important; }
+    .cell.rank-col { min-width: 45px !important; max-width: 50px !important; width: 50px !important; padding: 12px 4px; text-align: center !important; }
+    .type-total-header { cursor: pointer; user-select: none; background: #33343a; font-weight: 600; color: #ffb300; }
+    .type-total-header:hover { background: #444; }
+    .toggle-icon { display: inline-block; width: 16px; text-align: center; margin-right: 4px; transition: transform 0.15s; }
+    .type-total-header.expanded .toggle-icon { transform: rotate(90deg); }
+    .level-header { background: #33343a; display: none; color: #ffb300; }
+    .level-header.visible { display: table-cell; }
+    .player-row { display: table-row; border-bottom: 1px solid #444; background: #232526; }
+    .player-row:hover { background: #33343a; }
+    .cell { display: table-cell; padding: 12px 8px; border-right: 1px solid #444; text-align: center; font-size: 13px; vertical-align: middle; white-space: nowrap; color: #e0e0e0; background: #232526; }
+    .cell:first-child { text-align: center; font-weight: 500; position: sticky; left: 0; background: #232526; z-index: 1; min-width: 45px; max-width: 50px; width: 50px; }
+    .cell:nth-child(2) { text-align: left; font-weight: 500; position: sticky; left: 50px; background: #232526; z-index: 1; min-width: 150px; }
+    .player-row:hover .cell:first-child, .player-row:hover .cell:nth-child(2) { background: #33343a; }
+    .level-cell { background: #33343a; display: none; font-size: 12px; color: #ffb300; }
+    .level-cell.visible { display: table-cell; }
+    .count-zero { color: #444; }
+    .player-red { color: #ff5252; font-weight: 500; }
+    .player-orange { color: #ffb300; font-weight: 500; }
+    .player-green { color: #8bc34a; font-weight: 600; }
+    .date-filter {
+      background: #232526;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+      margin-bottom: 16px;
+      border: 1px solid #444;
+    }
+    .date-filter-label { font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #ffb300; }
+    .date-preset-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .preset-btn {
+      padding: 6px 12px;
+      background: #232526;
+      border: 1px solid #444;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #e0e0e0;
+    }
+    .preset-btn:hover { background: #333; color: #ffb300; border-color: #ffb300; }
+    .preset-btn.active { background: #ffb300; color: #232526; border-color: #ffb300; }
+    .date-range-display {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #33343a;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #ffb300;
+      font-weight: 500;
+      border: 1px solid #444;
+    }
+    
+    /* READ-ONLY MODE STYLES */
+    .read-only-mode input,
+    .read-only-mode select,
+    .read-only-mode textarea {
+      pointer-events: none !important;
+      background: #f5f5f5 !important;
+      color: #666 !important;
+      cursor: not-allowed !important;
+      opacity: 0.7 !important;
+      border-color: #ddd !important;
+    }
+  </style>
+</head>
+<body>
   
   <nav class="tab-nav">
-    <div class="tab-nav-container">
-      <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO"> MOO Portal</div>
-      <div class="tab-buttons">
-        <a href="dashboard.html" class="tab-btn active" title="Dashboard"><img src="chests.png" alt="Dashboard" class="tab-icon"></a>
-        <a href="events.html" class="tab-btn" title="Events"><img src="events.png" alt="Events" class="tab-icon"></a>
-        <a href="members.html" class="tab-btn" title="Members"><img src="members.png" alt="Members" class="tab-icon"></a>
-        <a href="troops.html" class="tab-btn" title="Troops"><img src="troops.png" alt="Troops" class="tab-icon"></a>
-        <a href="progress.html" class="tab-btn" title="Progress"><img src="progress.png" alt="Progress" class="tab-icon"></a>
-        <a href="compensation.html" class="tab-btn" title="Compensation"><img src="compensation.png" alt="Compensation" class="tab-icon"></a>
-        <a href="points.html" class="tab-btn" title="Points Reference"><img src="chest_points.png" alt="Points Reference" class="tab-icon"></a>
+      <div class="tab-nav-container">
+        <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO"> MOO Portal</div>
+        <button class="hamburger" id="navHamburger" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="tab-buttons" id="navTabs">
+          <a href="dashboard.html" class="tab-btn active" title="Dashboard"><img src="chests.png" alt="Dashboard" class="tab-icon"></a>
+          <a href="events.html" class="tab-btn" title="Events"><img src="events.png" alt="Events" class="tab-icon"></a>
+          <a href="members.html" class="tab-btn" title="Members"><img src="members.png" alt="Members" class="tab-icon"></a>
+          <a href="troops.html" class="tab-btn" title="Troops"><img src="troops.png" alt="Troops" class="tab-icon"></a>
+          <a href="progress.html" class="tab-btn" title="Progress"><img src="progress.png" alt="Progress" class="tab-icon"></a>
+          <a href="compensation.html" class="tab-btn" title="Compensation"><img src="compensation.png" alt="Compensation" class="tab-icon"></a>
+          <a href="points.html" class="tab-btn" title="Points Reference"><img src="chest_points.png" alt="Points Reference" class="tab-icon"></a>
+        </div>
+        <div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
+        <div id="signedInUserBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #1a1b1c; border-radius: 4px; font-size: 12px; color: #ffb300; border: 1px solid #444;"></div>
+        <button id="logoutBtn" onclick="handleLogout()" style="display: none; margin-left: 8px; padding: 8px 10px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Log out</button>
       </div>
-      <div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
-      <div id="signedInUserBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #1a1b1c; border-radius: 4px; font-size: 12px; color: #ffb300; border: 1px solid #444;"></div>
-      <button id="logoutBtn" onclick="handleLogout()" style="display: none; margin-left: 8px; padding: 8px 10px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Log out</button>
-    </div>
   </nav>
 
   <div id="dashboard" class="tab-content active">

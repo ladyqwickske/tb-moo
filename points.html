@@ -1,17 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MOO Portal - Points Reference</title>
-  <script src="config.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+</body>
+<script>
+// Hamburger menu toggle for mobile navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const hamburger = document.getElementById('navHamburger');
+  const navTabs = document.getElementById('navTabs');
+  if (hamburger && navTabs) {
+    hamburger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      navTabs.classList.toggle('open');
+      hamburger.classList.toggle('open');
+    });
+    document.addEventListener('click', function(e) {
+      if (!navTabs.contains(e.target) && !hamburger.contains(e.target)) {
+        navTabs.classList.remove('open');
+        hamburger.classList.remove('open');
+      }
+    });
+  }
+});
+</script>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #1a1b1c 0%, #232526 100%);

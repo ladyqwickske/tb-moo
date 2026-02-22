@@ -1,17 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Masters Of Oops (MOO) - Progress</title>
-  <link rel="icon" href="moo-portal.png" type="image/png">
-  <script src="config.js"></script>
-  <script src="portal-shim.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+</body>
+<script>
+// Hamburger menu toggle for mobile navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const hamburger = document.getElementById('navHamburger');
+  const navTabs = document.getElementById('navTabs');
+  if (hamburger && navTabs) {
+    hamburger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      navTabs.classList.toggle('open');
+      hamburger.classList.toggle('open');
+    });
+    document.addEventListener('click', function(e) {
+      if (!navTabs.contains(e.target) && !hamburger.contains(e.target)) {
+        navTabs.classList.remove('open');
+        hamburger.classList.remove('open');
+      }
+    });
+  }
+});
+</script>
       background: linear-gradient(135deg, #232526 0%, #414345 100%);
       color: #f3f3f3;
       text-align: center;

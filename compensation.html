@@ -1,17 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MOO Portal - Compensation Calculator</title>
-  <script src="config.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+</body>
+<script>
+// Hamburger menu toggle for mobile navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const hamburger = document.getElementById('navHamburger');
+  const navTabs = document.getElementById('navTabs');
+  if (hamburger && navTabs) {
+    hamburger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      navTabs.classList.toggle('open');
+      hamburger.classList.toggle('open');
+    });
+    document.addEventListener('click', function(e) {
+      if (!navTabs.contains(e.target) && !hamburger.contains(e.target)) {
+        navTabs.classList.remove('open');
+        hamburger.classList.remove('open');
+      }
+    });
+  }
+});
+</script>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #1a1b1c 0%, #232526 100%);
@@ -791,7 +801,8 @@
     <div id="loginPrompt" class="login-container" style="display: none;">
       <h1>Sign in to MOO Portal</h1>
       <p>You need to be signed in to access the Compensation Calculator.</p>
-      <div class="google-signin" id="googleSignInContainer"></div>
+      <div class="google-signin" id="googleSignInContainer" style="display: none; text-align: center; padding: 20px;"></div>
+      <!-- Login prompt will only be shown when login button is clicked -->
     </div>
 
     <div id="mainContent" style="display: none;">
