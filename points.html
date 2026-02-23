@@ -19,7 +19,7 @@
       background: linear-gradient(135deg, #232526 0%, #414345 100%);
       color: #f3f3f3;
       text-align: center;
-      padding: 32px 16px 60px 16px;
+      padding: 32px 8px 60px 8px;
       min-height: 100vh;
       background-attachment: fixed;
     }
@@ -745,7 +745,7 @@
 
     // Check authentication and initialize
     window.addEventListener('DOMContentLoaded', () => {
-      const isSignedIn = localStorage.getItem('cccClanSignedIn') === 'true';
+      const isSignedIn = localStorage.getItem('mooClanSignedIn') === 'true';
       
       // Always show main content (guest mode)
       document.getElementById('mainContent').style.display = 'block';
@@ -771,9 +771,9 @@
     });
 
     function logout() {
-      if (confirm('Sign out of cCc Portal?')) {
-        localStorage.removeItem('cccClanSignedIn');
-        localStorage.removeItem('cccClanUser');
+      if (confirm('Sign out of MOO Portal?')) {
+        localStorage.removeItem('mooClanSignedIn');
+        localStorage.removeItem('mooClanUser');
         document.getElementById('mainContent').style.display = 'none';
         document.getElementById('loginPrompt').style.display = 'block';
         document.body.classList.remove('read-only-mode');
@@ -784,7 +784,7 @@
       const isReadOnly = document.body.classList.contains('read-only-mode');
       const navBrand = document.getElementById('navBrand');
       if (navBrand) {
-        navBrand.innerHTML = '<img src="favicon.png" alt="" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> cCc Champions';
+        navBrand.innerHTML = '<img src="moo-portal.png" alt="" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops';
       }
       const badge = document.getElementById('readOnlyBadge');
       if (badge) {
