@@ -1,3 +1,15 @@
+    // Format a date string as UTC (YYYY-MM-DD HH:mm UTC)
+    function formatDateUTC(dateStr) {
+      if (!dateStr) return '-';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      const yyyy = d.getUTCFullYear();
+      const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(d.getUTCDate()).padStart(2, '0');
+      const hh = String(d.getUTCHours()).padStart(2, '0');
+      const min = String(d.getUTCMinutes()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd} ${hh}:${min} UTC`;
+    }
 <!DOCTYPE html>
 <html>
 <head>
@@ -1021,7 +1033,7 @@
             const currentDate = member[currentDateKey];
 
             if (currentDate !== null && currentDate !== undefined) {
-              dateCell.textContent = formatSummaryDate(currentDate);
+              dateCell.textContent = formatDateUTC(currentDate);
               if (currentLevel !== startLevel) {
                 dateCell.style.color = '#ffb300';
               } else {
@@ -1040,15 +1052,7 @@
         tableDiv.style.display = 'table';
       }
 
-      function formatSummaryDate(value) {
-        try {
-          const date = new Date(value);
-          if (isNaN(date.getTime())) return '-';
-          return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        } catch (error) {
-          return '-';
-        }
-      }
+      // formatSummaryDate is now replaced by formatDateUTC for UTC display
 
       function loadPlayerList() {
         const select = document.getElementById('troopPlayerName');

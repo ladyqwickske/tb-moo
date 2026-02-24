@@ -1,3 +1,17 @@
+<script>
+// Format a date string as UTC (YYYY-MM-DD HH:mm UTC)
+function formatDateUTC(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(d.getUTCDate()).padStart(2, '0');
+  const hh = String(d.getUTCHours()).padStart(2, '0');
+  const min = String(d.getUTCMinutes()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${min} UTC`;
+}
+</script>
 <!DOCTYPE html>
 <html>
 <head>
@@ -557,7 +571,7 @@
 
   <nav class="tab-nav">
     <div class="tab-nav-container">
-      <div class="nav-brand" id="navBrand"><a href="index.html" style="text-decoration:none;color:inherit;"><img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</a></div>
+      <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</div>
       <button class="hamburger" id="navHamburger" aria-label="Toggle navigation">
         <span></span>
         <span></span>
@@ -860,14 +874,12 @@
           } else {
             methodBadge = '<span class="badge">' + escapeHtml(event.participationMethod || 'Unknown') + '</span>';
           }
-          
           // Only show View button for events that track participation
           const viewButton = event.participationMethod === 'period-marker' 
             ? '' 
             : `<button class="btn action-btn" onclick="EventsTab.viewEventParticipation('${escapeHtml(event.eventName)}')">👁 View</button>`;
-          
           const row = document.createElement('tr');
-          row.innerHTML = `<td class="event-name">${escapeHtml(event.eventName)}</td><td>${escapeHtml(event.eventType)}</td><td>${event.startDate}</td><td>${event.endDate}</td><td>${methodBadge}</td><td>${viewButton}<button class="btn action-btn" onclick="EventsTab.editEvent('${escapeHtml(event.eventName)}')">✏️ Edit</button><button class="btn action-btn btn-secondary" onclick="EventsTab.deleteEvent('${escapeHtml(event.eventName)}')">🗑️ Delete</button></td>`;
+          row.innerHTML = `<td class="event-name">${escapeHtml(event.eventName)}</td><td>${escapeHtml(event.eventType)}</td><td>${formatDateUTC(event.startDate)}</td><td>${formatDateUTC(event.endDate)}</td><td>${methodBadge}</td><td>${viewButton}<button class="btn action-btn" onclick="EventsTab.editEvent('${escapeHtml(event.eventName)}')">✏️ Edit</button><button class="btn action-btn btn-secondary" onclick="EventsTab.deleteEvent('${escapeHtml(event.eventName)}')">🗑️ Delete</button></td>`;
           tbody.appendChild(row);
         });
       }
@@ -1345,46 +1357,6 @@
       function renderManualParticipationData() {
         const thead = document.getElementById('manualParticipationTableHead');
         const tbody = document.getElementById('manualParticipationTableBody');
-        thead.innerHTML = '<tr><th>Member Name</th><th>G Level</th><th>Target</th><th>Achieved</th><th>Status</th></tr>';
-        tbody.innerHTML = '';
-        const eventTypeName = selectedEvent?.eventType || '';
-        const targets = getEventTroopTargets(eventTypeName);
-        const eventEndDate = parseDateSafe(selectedEvent?.endDate);
-
-        participationRawData.forEach(p => {
-          const pts = Number(p.value1 ?? 0);
-          const nameKey = normalizeName(p.memberName);
-          const troopSummary = troopSummaryMap[nameKey] || {};
-          const gLevelRaw = troopSummary.G_currentLevel ?? troopSummary.G ?? null;
-          const gLevel = gLevelRaw !== null && gLevelRaw !== undefined ? Number(gLevelRaw) : null;
-          const targetPoints = (targets && gLevel !== null && gLevel !== undefined)
-            ? Number(targets[String(gLevel)])
-            : null;
-          const joinDate = memberJoinDatesMap[nameKey] || null;
-          const notInClan = joinDate && eventEndDate && joinDate > eventEndDate;
-
-          let statusIcon = '<span class="status-icon na">—</span>';
-          if (!notInClan && targetPoints !== null && !isNaN(targetPoints)) {
-            if (pts >= targetPoints) {
-              statusIcon = '<span class="status-icon ok">✓</span>';
-            } else if (pts >= targetPoints * 0.9) {
-              statusIcon = '<span class="status-icon warn">!</span>';
-            } else {
-              statusIcon = '<span class="status-icon err">✕</span>';
-            }
-          }
-
-          const targetDisplay = targetPoints !== null && !isNaN(targetPoints) ? targetPoints : '—';
-          const gLevelDisplay = gLevel !== null && !isNaN(gLevel) ? gLevel : '—';
-          const row = document.createElement('tr');
-          row.innerHTML = `<td>${escapeHtml(p.memberName)}</td><td>${gLevelDisplay}</td><td>${targetDisplay}</td><td>${pts}</td><td style="text-align:center;">${statusIcon}</td>`;
-          tbody.appendChild(row);
-        });
-      }
-
-      function renderTroopParticipationData() {
-        const thead = document.getElementById('troopParticipationTableHead');
-        const tbody = document.getElementById('troopParticipationTableBody');
         thead.innerHTML = '<tr><th>Member Name</th><th>G Level</th><th>Target</th><th>Achieved</th><th>Status</th></tr>';
         tbody.innerHTML = '';
         const eventTypeName = selectedEvent?.eventType || '';

@@ -725,37 +725,64 @@
       return { success: true, data: result }; // Default
     }
 
+    // Format a date as UTC string (YYYY-MM-DD HH:mm UTC)
+    function formatDateUTC(date) {
+      if (!(date instanceof Date)) date = new Date(date);
+      const y = date.getUTCFullYear();
+      const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const d = String(date.getUTCDate()).padStart(2, '0');
+      const hh = String(date.getUTCHours()).padStart(2, '0');
+      const mm = String(date.getUTCMinutes()).padStart(2, '0');
+      return `${y}-${m}-${d} ${hh}:${mm} UTC`;
+    }
+
+    // Parse a date string as UTC (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss)
+    function parseDateUTC(str) {
+      if (!str) return null;
+      // Accepts YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss
+      const parts = str.split(/[-T:]/);
+      if (parts.length >= 3) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        const hh = parts[3] ? parseInt(parts[3], 10) : 0;
+        const mm = parts[4] ? parseInt(parts[4], 10) : 0;
+        const ss = parts[5] ? parseInt(parts[5], 10) : 0;
+        return new Date(Date.UTC(y, m, d, hh, mm, ss));
+      }
+      return new Date(str);
+    }
+
     function updateCountdownTimer(endDateStr) {
-      const endInput = document.getElementById('endDate');
       const countdownPanel = document.getElementById('countdownPanel');
       const countdownParts = document.getElementById('countdownParts');
       const countdownSubtitle = document.getElementById('countdownSubtitle');
-      
       if (!endDateStr) {
         countdownPanel.style.display = 'none';
         return;
       }
-      
       function updateDisplay() {
         const now = new Date();
-        const endDate = new Date(endDateStr + 'T23:59:59');
-        const timeLeft = endDate - now;
-        
+        // Always use UTC for both now and end date
+        const nowUTC = new Date(Date.UTC(
+          now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
+          now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()
+        ));
+        // Parse end date as UTC midnight (23:59:59 UTC)
+        const endDate = parseDateUTC(endDateStr + 'T23:59:59');
+        const timeLeft = endDate - nowUTC;
         if (timeLeft <= 0) {
           countdownPanel.style.display = 'block';
           countdownSubtitle.textContent = 'Active Period has ended! 🔄';
           countdownParts.innerHTML = '';
           return;
         }
-        
         countdownPanel.style.display = 'block';
-        countdownSubtitle.textContent = '';
-        
+        countdownSubtitle.textContent = 'All times shown in UTC';
         const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-        
         countdownParts.innerHTML = `
           <div class="countdown-part">
             <div class="countdown-value">${days}</div>
@@ -775,7 +802,6 @@
           </div>
         `;
       }
-      
       updateDisplay();
       setInterval(updateDisplay, 1000);
     }
@@ -791,14 +817,19 @@
       const endInput = document.getElementById('endDate');
       const displayElement = document.getElementById('dateRangeDisplay');
       
-      // Format date as YYYY-MM-DD using LOCAL timezone (not UTC)
+      // Format date as YYYY-MM-DD using UTC
       const formatDate = (date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
+        if (!(date instanceof Date)) date = new Date(date);
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
       };
-      const formatDisplayDate = (date) => date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      // Format display date as UTC
+      const formatDisplayDate = (date) => {
+        if (!(date instanceof Date)) date = new Date(date);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+      };
       document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`[data-preset="${preset}"]`)?.classList.add('active');
       if (preset === 'lastday') {
@@ -1116,6 +1147,11 @@
         if (timestampText === 'Never' || timestampText === 'No imports yet') {
           display.innerHTML = 'Last Imported: <span class="no-date">No date</span> | Required Points: 10000';
         } else {
+          // Try to parse and format as UTC if possible
+          let parsed = parseDateUTC(timestampText);
+          if (parsed && !isNaN(parsed)) {
+            timestampText = formatDateUTC(parsed);
+          }
           display.innerHTML = `Last Imported: ${timestampText} | Required Points: 10000`;
         }
       }
@@ -1187,14 +1223,18 @@
         let isNewMember = false;
         let joinDateLabel = '';
         if (currentViewingStartDate && player.joinDate) {
-          const viewingStart = new Date(currentViewingStartDate);
-          const playerJoinDate = new Date(player.joinDate);
+          const viewingStart = parseDateUTC(currentViewingStartDate);
+          const playerJoinDate = parseDateUTC(player.joinDate);
           if (playerJoinDate > viewingStart) {
             isNewMember = true;
-            const timeDiff = new Date() - playerJoinDate;
+            const nowUTC = new Date(Date.UTC(
+              (new Date()).getUTCFullYear(), (new Date()).getUTCMonth(), (new Date()).getUTCDate(),
+              (new Date()).getUTCHours(), (new Date()).getUTCMinutes(), (new Date()).getUTCSeconds()
+            ));
+            const timeDiff = nowUTC - playerJoinDate;
             const daysAgo = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
             const daysLabel = daysAgo === 0 ? 'today' : daysAgo === 1 ? '1 day ago' : `${daysAgo} days ago`;
-            joinDateLabel = ` <span style="font-size:10px;opacity:0.8;">(Joined: ${daysLabel})</span>`;
+            joinDateLabel = ` <span style="font-size:10px;opacity:0.8;">(Joined: ${daysLabel} UTC)</span>`;
           }
         }
         
