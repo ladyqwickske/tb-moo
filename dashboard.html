@@ -148,6 +148,20 @@
     }
     .date-filter-label { font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #ffb300; }
     .date-preset-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
+    /* Countdown Timer */
+    .countdown-panel { background: linear-gradient(135deg, #1a1f26 0%, #252b33 100%); border: 2px solid #ffb300; border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 0 20px rgba(255, 179, 0, 0.2); }
+    .countdown-title { font-size: 16px; font-weight: 600; color: #ffb300; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .countdown-display { font-size: 36px; font-weight: 700; font-family: 'Courier New', monospace; color: #ffb300; margin: 12px 0; text-shadow: 0 0 10px rgba(255, 179, 0, 0.5); letter-spacing: 2px; }
+    .countdown-parts { display: flex; justify-content: center; gap: 20px; margin: 16px 0; }
+    .countdown-part { display: flex; flex-direction: column; align-items: center; }
+    .countdown-value { font-size: 28px; font-weight: 700; color: #ffb300; line-height: 1; }
+    .countdown-label { font-size: 11px; color: #b0b0b0; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .countdown-subtitle { font-size: 13px; color: #e0e0e0; margin-top: 12px; }
+    .countdown-expired { color: #ff5252; font-weight: 600; }
+
+    /* New Member Highlighting */
+    .new-member-row .cell:nth-child(2) { color: #64b5f6; font-style: italic; }
     .preset-btn {
       padding: 6px 12px;
       background: #232526;
@@ -564,6 +578,11 @@
 
   <div id="dashboard" class="tab-content active">
     <h1><img src="chests.png" alt="" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Chest Tracker Dashboard</h1>
+    <div class="countdown-panel" id="countdownPanel" style="display:none;">
+      <div class="countdown-title">⏳ Period Ends In</div>
+      <div class="countdown-parts" id="countdownParts"></div>
+      <div class="countdown-subtitle" id="countdownSubtitle">Resets at 23:59 on the period end date</div>
+    </div>
     <div class="date-filter">
       <div class="date-filter-label">📅 Date Range Filter</div>
       <div class="date-preset-btns">
@@ -665,6 +684,7 @@
 
     const isSidebar = false;
     const expandedTypes = new Set();
+    let currentViewingStartDate = null; // Store start date for highlighting new members
     
     // Update UI based on read-only mode
     function updateReadOnlyUI() {
@@ -695,6 +715,61 @@
         return { success: true, data: result, ...result };
       }
       return { success: true, data: result }; // Default
+    }
+
+    function updateCountdownTimer(endDateStr) {
+      const endInput = document.getElementById('endDate');
+      const countdownPanel = document.getElementById('countdownPanel');
+      const countdownParts = document.getElementById('countdownParts');
+      const countdownSubtitle = document.getElementById('countdownSubtitle');
+      
+      if (!endDateStr) {
+        countdownPanel.style.display = 'none';
+        return;
+      }
+      
+      function updateDisplay() {
+        const now = new Date();
+        const endDate = new Date(endDateStr + 'T23:59:59');
+        const timeLeft = endDate - now;
+        
+        if (timeLeft <= 0) {
+          countdownPanel.style.display = 'block';
+          countdownSubtitle.textContent = 'Active Period has ended! 🔄';
+          countdownParts.innerHTML = '';
+          return;
+        }
+        
+        countdownPanel.style.display = 'block';
+        countdownSubtitle.textContent = '';
+        
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        
+        countdownParts.innerHTML = `
+          <div class="countdown-part">
+            <div class="countdown-value">${days}</div>
+            <div class="countdown-label">Days</div>
+          </div>
+          <div class="countdown-part">
+            <div class="countdown-value">${String(hours).padStart(2, '0')}</div>
+            <div class="countdown-label">Hours</div>
+          </div>
+          <div class="countdown-part">
+            <div class="countdown-value">${String(minutes).padStart(2, '0')}</div>
+            <div class="countdown-label">Minutes</div>
+          </div>
+          <div class="countdown-part">
+            <div class="countdown-value">${String(seconds).padStart(2, '0')}</div>
+            <div class="countdown-label">Seconds</div>
+          </div>
+        `;
+      }
+      
+      updateDisplay();
+      setInterval(updateDisplay, 1000);
     }
 
     // Dashboard
@@ -968,6 +1043,8 @@
     function loadDashboard() {
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
+      currentViewingStartDate = startDate; // Store start date for new member highlighting
+      updateCountdownTimer(endDate); // Update countdown timer with end date
       document.getElementById('playerList').innerHTML = '<div class="loading">Loading...</div>';
       
       // Store for re-rendering after splits load
@@ -1097,8 +1174,25 @@
         const commonCryptInfo = player.chestsByTypeGrouped?.['Common Crypt'];
         const totalPointsVal = player.totalPoints || 0;
         const pointsClass = totalPointsVal >= 10000 ? 'player-green' : (totalPointsVal >= 9000 ? 'player-orange' : 'player-red');
-        rowsHtml += '<div class="player-row">';
-        rowsHtml += `<div class="cell rank-col">${idx+1}</div><div class="cell ${pointsClass}">${player.player}</div><div class="cell">${totalPointsVal || '-'}</div>`;
+        
+        // Check if player joined after the viewing period start date
+        let isNewMember = false;
+        let joinDateLabel = '';
+        if (currentViewingStartDate && player.joinDate) {
+          const viewingStart = new Date(currentViewingStartDate);
+          const playerJoinDate = new Date(player.joinDate);
+          if (playerJoinDate > viewingStart) {
+            isNewMember = true;
+            const timeDiff = new Date() - playerJoinDate;
+            const daysAgo = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const daysLabel = daysAgo === 0 ? 'today' : daysAgo === 1 ? '1 day ago' : `${daysAgo} days ago`;
+            joinDateLabel = ` <span style="font-size:10px;opacity:0.8;">(Joined: ${daysLabel})</span>`;
+          }
+        }
+        
+        const rowClass = isNewMember ? 'player-row new-member-row' : 'player-row';
+        rowsHtml += `<div class="${rowClass}">`;
+        rowsHtml += `<div class="cell rank-col">${idx+1}</div><div class="cell ${pointsClass}">${player.player}${joinDateLabel}</div><div class="cell">${totalPointsVal || '-'}</div>`;
         // Calculate total chests: use totalChests if available, otherwise sum from chestsByTypeGrouped (don't double-count eventChests!)
         let totalChests = player.totalChests || 0;
         if (totalChests === 0 && player.chestsByTypeGrouped) {
