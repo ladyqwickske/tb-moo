@@ -363,6 +363,14 @@
   </style>
 </head>
 <body>
+  <!-- Google Translate Widget -->
+  <div id="google_translate_element" style="position:fixed;top:8px;right:8px;z-index:99999;"></div>
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
   <!-- Google Sign-In integration -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
@@ -518,7 +526,7 @@
 
   <nav class="tab-nav">
     <div class="tab-nav-container">
-      <div class="nav-brand" id="navBrand"><img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</div>
+      <div class="nav-brand" id="navBrand"><a href="index.html" style="text-decoration:none;color:inherit;"><img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</a></div>
       <button class="hamburger" id="navHamburger" aria-label="Toggle navigation">
         <span></span>
         <span></span>
