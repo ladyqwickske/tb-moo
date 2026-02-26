@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MOO Portal - Dashboard</title>
+  <title>Masters Of Oops - Dashboard</title>
   <link rel="icon" href="moo-portal.png" type="image/png">
   <script src="config.js"></script>
   <script src="portal-shim.js"></script>
@@ -15,7 +15,7 @@
       background: linear-gradient(135deg, #232526 0%, #414345 100%);
       color: #f3f3f3;
       text-align: center;
-      padding: 32px 8px 60px 8px;
+      padding: 32px 16px 60px 16px;
       min-height: 100vh;
       background-attachment: fixed;
     }
@@ -107,6 +107,17 @@
     .loading { text-align: center; padding: 32px; color: #e0e0e0; }
     .note { font-size: 12px; color: #e0e0e0; margin-top: 4px; }
 
+    /* Countdown Timer */
+    .countdown-panel { background: linear-gradient(135deg, #1a1f26 0%, #252b33 100%); border: 2px solid #ffb300; border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 0 20px rgba(255, 179, 0, 0.2); }
+    .countdown-title { font-size: 16px; font-weight: 600; color: #ffb300; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .countdown-display { font-size: 36px; font-weight: 700; font-family: 'Courier New', monospace; color: #ffb300; margin: 12px 0; text-shadow: 0 0 10px rgba(255, 179, 0, 0.5); letter-spacing: 2px; }
+    .countdown-parts { display: flex; justify-content: center; gap: 20px; margin: 16px 0; }
+    .countdown-part { display: flex; flex-direction: column; align-items: center; }
+    .countdown-value { font-size: 28px; font-weight: 700; color: #ffb300; line-height: 1; }
+    .countdown-label { font-size: 11px; color: #b0b0b0; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .countdown-subtitle { font-size: 13px; color: #e0e0e0; margin-top: 12px; }
+    .countdown-expired { color: #ff5252; font-weight: 600; }
+
     /* Dashboard */
     .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
     .card { background: #232526; border-radius: 8px; padding: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.25); text-align: center; border: 1px solid #444; }
@@ -138,6 +149,7 @@
     .player-red { color: #ff5252; font-weight: 500; }
     .player-orange { color: #ffb300; font-weight: 500; }
     .player-green { color: #8bc34a; font-weight: 600; }
+    .new-member-row .cell:nth-child(2) { color: #64b5f6; font-style: italic; }
     .date-filter {
       background: #232526;
       border-radius: 8px;
@@ -148,20 +160,6 @@
     }
     .date-filter-label { font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #ffb300; }
     .date-preset-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-
-    /* Countdown Timer */
-    .countdown-panel { background: linear-gradient(135deg, #1a1f26 0%, #252b33 100%); border: 2px solid #ffb300; border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 0 20px rgba(255, 179, 0, 0.2); }
-    .countdown-title { font-size: 16px; font-weight: 600; color: #ffb300; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
-    .countdown-display { font-size: 36px; font-weight: 700; font-family: 'Courier New', monospace; color: #ffb300; margin: 12px 0; text-shadow: 0 0 10px rgba(255, 179, 0, 0.5); letter-spacing: 2px; }
-    .countdown-parts { display: flex; justify-content: center; gap: 20px; margin: 16px 0; }
-    .countdown-part { display: flex; flex-direction: column; align-items: center; }
-    .countdown-value { font-size: 28px; font-weight: 700; color: #ffb300; line-height: 1; }
-    .countdown-label { font-size: 11px; color: #b0b0b0; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .countdown-subtitle { font-size: 13px; color: #e0e0e0; margin-top: 12px; }
-    .countdown-expired { color: #ff5252; font-weight: 600; }
-
-    /* New Member Highlighting */
-    .new-member-row .cell:nth-child(2) { color: #64b5f6; font-style: italic; }
     .preset-btn {
       padding: 6px 12px;
       background: #232526;
@@ -542,7 +540,7 @@
   
   <nav class="tab-nav">
     <div class="tab-nav-container">
-      <div class="nav-brand" id="navBrand"><a href="index.html" style="text-decoration:none;color:inherit;"><img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</a></div>
+      <div class="nav-brand" id="navBrand"><img src="favicon.png" alt="" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</div>
       <button class="hamburger" id="navHamburger" aria-label="Toggle navigation">
         <span></span>
         <span></span>
@@ -586,11 +584,13 @@
 
   <div id="dashboard" class="tab-content active">
     <h1><img src="chests.png" alt="" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Chest Tracker Dashboard</h1>
+    
     <div class="countdown-panel" id="countdownPanel" style="display:none;">
       <div class="countdown-title">⏳ Period Ends In</div>
       <div class="countdown-parts" id="countdownParts"></div>
-      <div class="countdown-subtitle" id="countdownSubtitle">Resets at 23:59 on the period end date</div>
+      <div class="countdown-subtitle" id="countdownSubtitle">Resets at 23:59 UTC on the period end date</div>
     </div>
+    
     <div class="date-filter">
       <div class="date-filter-label">📅 Date Range Filter</div>
       <div class="date-preset-btns">
@@ -600,7 +600,7 @@
         <button class="preset-btn" data-preset="lastmonth" onclick="setDateRange('lastmonth')">Last Month</button>
       </div>
       <div class="date-range-display" id="dateRangeDisplay">Viewing: All Time</div>
-      <div class="date-range-display" id="lastImportedDisplay" style="font-size: 12px; color: #ffb300; margin-top: 8px;">Last Imported: <span class="no-date">Loading...</span> | Required Points: 10000</div>
+      <div class="date-range-display" id="lastImportedDisplay" style="font-size: 12px; color: #ffb300; margin-top: 8px;">Last Imported: <span class="no-date">Loading...</span> | Required Points: 3000</div>
       <input type="date" id="startDate" style="display:none;">
       <input type="date" id="endDate" style="display:none;">
     </div>
@@ -620,8 +620,145 @@
   </div>
 
   <script>
-    // --- Table filter and sort functions must be defined before any inline event handler usage ---
-    function filterPlayerTable() {
+    // Helper: Format date in UTC
+function formatDateUTC(date) {
+  if (!(date instanceof Date)) return '';
+  return date.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+}
+
+// Helper: Get UTC components (year, month, day) from a Date object
+function getUTCComponents(date) {
+  if (!(date instanceof Date)) return null;
+  return {
+    year: date.getUTCFullYear(),
+    month: date.getUTCMonth() + 1,
+    day: date.getUTCDate(),
+    hours: date.getUTCHours(),
+    minutes: date.getUTCMinutes(),
+    seconds: date.getUTCSeconds()
+  };
+}
+
+// Helper: Format date as YYYY-MM-DD using UTC timezone
+function formatDateAsUTC(date) {
+  const utc = getUTCComponents(date);
+  if (!utc) return '';
+  return `${utc.year}-${String(utc.month).padStart(2, '0')}-${String(utc.day).padStart(2, '0')}`;
+}
+
+// Helper: Create a Date object at start of day UTC (00:00:00 UTC)
+function getUTCStartOfDay(year, month, day) {
+  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+}
+
+// Helper: Create a Date object at end of day UTC (23:59:59 UTC)
+function getUTCEndOfDay(year, month, day) {
+  return new Date(Date.UTC(year, month - 1, day, 23, 59, 59));
+}
+
+// Helper: Get current UTC date (midnight UTC)
+function getTodayUTC() {
+  const now = new Date();
+  const utc = getUTCComponents(now);
+  return getUTCStartOfDay(utc.year, utc.month, utc.day);
+}
+
+// Helper: Parse date string as UTC
+function parseDateUTC(str) {
+  // Accepts ISO, 'YYYY-MM-DD', or 'YYYY-MM-DD HH:MM:SS'
+  if (!str) return null;
+  if (str instanceof Date) return str;
+  let d = null;
+  // ISO 8601 with Z or offset
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(str)) {
+    d = new Date(str);
+  } else if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    d = new Date(str + 'T00:00:00Z');
+  } else if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(str)) {
+    d = new Date(str.replace(' ', 'T') + 'Z');
+  } else {
+    d = new Date(str);
+  }
+  if (isNaN(d.getTime())) {
+    return null;
+  }
+  return d;
+}
+// Patch countdown and period display to use UTC
+function updateCountdownTimer(endDateStr) {
+  // Always treat endDateStr as UTC and append 'T23:59:59Z' if only a date is provided
+  let endDate;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(endDateStr)) {
+    endDate = new Date(endDateStr + 'T23:59:59Z');
+    //console.log('[Countdown][DEBUG] Parsed endDate from date only:', endDateStr, '->', endDate.toISOString());
+  } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(endDateStr)) {
+    endDate = new Date(endDateStr);
+    //console.log('[Countdown][DEBUG] Parsed endDate from ISO string:', endDateStr, '->', endDate.toISOString());
+  } else {
+    // fallback: try to parse as UTC
+    endDate = new Date(endDateStr + 'Z');
+    //console.log('[Countdown][DEBUG] Fallback parse endDate:', endDateStr, '->', endDate.toISOString());
+  }
+  if (!endDateStr || !(endDate instanceof Date) || isNaN(endDate.getTime())) {
+    console.warn('[Countdown][DEBUG] Invalid endDate:', endDateStr, endDate);
+    // Show 00 for all fields if invalid
+    const countdownPanel = document.getElementById('countdownPanel');
+    const countdownSubtitle = document.getElementById('countdownSubtitle');
+    const countdownParts = document.getElementById('countdownParts');
+    if (!countdownPanel || !countdownSubtitle || !countdownParts) return;
+    countdownPanel.style.display = 'block';
+    countdownSubtitle.textContent = '';
+    countdownParts.innerHTML = '<div class="countdown-part"><span class="countdown-value">00</span><span class="countdown-label">Days</span></div>' +
+      '<div class="countdown-part"><span class="countdown-value">00</span><span class="countdown-label">Hours</span></div>' +
+      '<div class="countdown-part"><span class="countdown-value">00</span><span class="countdown-label">Minutes</span></div>' +
+      '<div class="countdown-part"><span class="countdown-value">00</span><span class="countdown-label">Seconds</span></div>';
+    return;
+  }
+
+  function updateDisplay() {
+    const countdownPanel = document.getElementById('countdownPanel');
+    const countdownSubtitle = document.getElementById('countdownSubtitle');
+    const countdownParts = document.getElementById('countdownParts');
+    if (!countdownPanel || !countdownSubtitle || !countdownParts) return;
+    // Use current UTC time (new Date() is always UTC for arithmetic)
+    const now = new Date();
+    const timeLeft = endDate - now;
+    //console.log('[Countdown][DEBUG] now:', now.toISOString(), 'endDate:', endDate.toISOString(), 'timeLeft(ms):', timeLeft);
+    if (timeLeft <= 0) {
+      countdownPanel.style.display = 'block';
+      countdownSubtitle.textContent = 'Event period has ended.';
+      countdownParts.innerHTML = '<div class="countdown-part"><span class="countdown-value">00</span><span class="countdown-label">Days</span></div>' +
+        '<div class="countdown-part"><span class="countdown-value">00</span><span class="countdown-label">Hours</span></div>' +
+        '<div class="countdown-part"><span class="countdown-value">00</span><span class="countdown-label">Minutes</span></div>' +
+        '<div class="countdown-part"><span class="countdown-value">00</span><span class="countdown-label">Seconds</span></div>';
+     // console.log('[Countdown][DEBUG] Timer ended.');
+      return;
+    }
+    countdownPanel.style.display = 'block';
+    countdownSubtitle.textContent = 'All times are shown in UTC.';
+    let seconds = Math.floor(timeLeft / 1000);
+    const days = Math.floor(seconds / 86400);
+    seconds %= 86400;
+    const hours = Math.floor(seconds / 3600);
+    seconds %= 3600;
+    const minutes = Math.floor(seconds / 60);
+    seconds %= 60;
+    countdownParts.innerHTML =
+      `<div class="countdown-part"><span class="countdown-value">${String(days).padStart(2, '0')}</span><span class="countdown-label">Days</span></div>` +
+      `<div class="countdown-part"><span class="countdown-value">${String(hours).padStart(2, '0')}</span><span class="countdown-label">Hours</span></div>` +
+      `<div class="countdown-part"><span class="countdown-value">${String(minutes).padStart(2, '0')}</span><span class="countdown-label">Minutes</span></div>` +
+      `<div class="countdown-part"><span class="countdown-value">${String(seconds).padStart(2, '0')}</span><span class="countdown-label">Seconds</span></div>`;
+    //console.log('[Countdown][DEBUG] Timer running. Days:', days, 'Hours:', hours, 'Minutes:', minutes, 'Seconds:', seconds);
+  }
+  updateDisplay();
+  setInterval(updateDisplay, 1000);
+window.addEventListener('error', function(e) {
+  console.error('[Countdown] GLOBAL JS ERROR:', e.message, e.filename, e.lineno, e.colno, e.error);
+});
+}
+
+// --- Table filter and sort functions must be defined before any inline event handler usage ---
+function filterPlayerTable() {
       const input = document.getElementById('playerFilterInput');
       const filter = input ? input.value.trim().toLowerCase() : '';
       const table = document.getElementById('playerTable');
@@ -698,12 +835,12 @@
     function updateReadOnlyUI() {
       if (document.documentElement.classList.contains('read-only-mode')) {
         const navBrand = document.getElementById('navBrand');
-        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops';
+        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops';
         const badge = document.getElementById('readOnlyBadge');
         if (badge) badge.style.display = 'block';
       } else {
         const navBrand = document.getElementById('navBrand');
-        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops';
+        if (navBrand) navBrand.innerHTML = '<img src="moo-portal.png" alt="" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops';
         const badge = document.getElementById('readOnlyBadge');
         if (badge) badge.style.display = 'none';
       }
@@ -725,111 +862,25 @@
       return { success: true, data: result }; // Default
     }
 
-    // Format a date as UTC string (YYYY-MM-DD HH:mm UTC)
-    function formatDateUTC(date) {
-      if (!(date instanceof Date)) date = new Date(date);
-      const y = date.getUTCFullYear();
-      const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-      const d = String(date.getUTCDate()).padStart(2, '0');
-      const hh = String(date.getUTCHours()).padStart(2, '0');
-      const mm = String(date.getUTCMinutes()).padStart(2, '0');
-      return `${y}-${m}-${d} ${hh}:${mm} UTC`;
-    }
-
-    // Parse a date string as UTC (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss)
-    function parseDateUTC(str) {
-      if (!str) return null;
-      // Accepts YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss
-      const parts = str.split(/[-T:]/);
-      if (parts.length >= 3) {
-        const y = parseInt(parts[0], 10);
-        const m = parseInt(parts[1], 10) - 1;
-        const d = parseInt(parts[2], 10);
-        const hh = parts[3] ? parseInt(parts[3], 10) : 0;
-        const mm = parts[4] ? parseInt(parts[4], 10) : 0;
-        const ss = parts[5] ? parseInt(parts[5], 10) : 0;
-        return new Date(Date.UTC(y, m, d, hh, mm, ss));
-      }
-      return new Date(str);
-    }
-
-    function updateCountdownTimer(endDateStr) {
-      const countdownPanel = document.getElementById('countdownPanel');
-      const countdownParts = document.getElementById('countdownParts');
-      const countdownSubtitle = document.getElementById('countdownSubtitle');
-      if (!endDateStr) {
-        countdownPanel.style.display = 'none';
-        return;
-      }
-      function updateDisplay() {
-        const now = new Date();
-        // Always use UTC for both now and end date
-        const nowUTC = new Date(Date.UTC(
-          now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
-          now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()
-        ));
-        // Parse end date as UTC midnight (23:59:59 UTC)
-        const endDate = parseDateUTC(endDateStr + 'T23:59:59');
-        const timeLeft = endDate - nowUTC;
-        if (timeLeft <= 0) {
-          countdownPanel.style.display = 'block';
-          countdownSubtitle.textContent = 'Active Period has ended! 🔄';
-          countdownParts.innerHTML = '';
-          return;
-        }
-        countdownPanel.style.display = 'block';
-        countdownSubtitle.textContent = 'All times shown in UTC';
-        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-        countdownParts.innerHTML = `
-          <div class="countdown-part">
-            <div class="countdown-value">${days}</div>
-            <div class="countdown-label">Days</div>
-          </div>
-          <div class="countdown-part">
-            <div class="countdown-value">${String(hours).padStart(2, '0')}</div>
-            <div class="countdown-label">Hours</div>
-          </div>
-          <div class="countdown-part">
-            <div class="countdown-value">${String(minutes).padStart(2, '0')}</div>
-            <div class="countdown-label">Minutes</div>
-          </div>
-          <div class="countdown-part">
-            <div class="countdown-value">${String(seconds).padStart(2, '0')}</div>
-            <div class="countdown-label">Seconds</div>
-          </div>
-        `;
-      }
-      updateDisplay();
-      setInterval(updateDisplay, 1000);
-    }
-
-    // Dashboard
+      // Dashboard
     window.onload = function() { 
       setDateRange('lastday');
     };
     
     function setDateRange(preset) {
-      const today = new Date();
+      const todayUTC = getTodayUTC();
       const startInput = document.getElementById('startDate');
       const endInput = document.getElementById('endDate');
       const displayElement = document.getElementById('dateRangeDisplay');
       
-      // Format date as YYYY-MM-DD using UTC
-      const formatDate = (date) => {
-        if (!(date instanceof Date)) date = new Date(date);
-        const year = date.getUTCFullYear();
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
-      // Format display date as UTC
+      // Format date as YYYY-MM-DD using UTC timezone
       const formatDisplayDate = (date) => {
-        if (!(date instanceof Date)) date = new Date(date);
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+        const utc = getUTCComponents(date);
+        if (!utc) return '';
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${monthNames[utc.month - 1]} ${utc.day}, ${utc.year}`;
       };
+      
       document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`[data-preset="${preset}"]`)?.classList.add('active');
       if (preset === 'lastday') {
@@ -844,14 +895,19 @@
           .then(result => {
             if (!result || !result.success) {
               console.error('Error loading events for active period');
-              // Fallback to Sunday-Saturday
-              const start = new Date(today);
-              start.setDate(start.getDate() - start.getDay());
+              // Fallback to Sunday-Saturday (UTC)
+              const start = new Date(todayUTC);
+              const dayOfWeekUTC = start.getUTCDay();
+              start.setUTCDate(start.getUTCDate() - dayOfWeekUTC);
               const end = new Date(start);
-              end.setDate(start.getDate() + 6);
-              startInput.value = formatDate(start);
-              endInput.value = formatDate(end);
+              end.setUTCDate(start.getUTCDate() + 6);
+              startInput.value = formatDateAsUTC(start);
+              endInput.value = formatDateAsUTC(end);
               displayElement.textContent = `Viewing: Active Period (Fallback): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
+              // Use end of day UTC for countdown
+              const endDateStr = formatDateAsUTC(end) + 'T23:59:59Z';
+             // console.log('[Countdown] Calling updateCountdownTimer (Fallback) with:', endDateStr);
+              updateCountdownTimer(endDateStr);
               loadDashboard();
               return;
             }
@@ -864,14 +920,18 @@
             
             if (periodEvents.length === 0) {
               console.warn('No Ruthless Slaughter events found, using fallback');
-              // Fallback to Sunday-Saturday
-              const start = new Date(today);
-              start.setDate(start.getDate() - start.getDay());
+              // Fallback to Sunday-Saturday (UTC)
+              const start = new Date(todayUTC);
+              const dayOfWeekUTC = start.getUTCDay();
+              start.setUTCDate(start.getUTCDate() - dayOfWeekUTC);
               const end = new Date(start);
-              end.setDate(start.getDate() + 6);
-              startInput.value = formatDate(start);
-              endInput.value = formatDate(end);
+              end.setUTCDate(end.getUTCDate() + 6);
+              startInput.value = formatDateAsUTC(start);
+              endInput.value = formatDateAsUTC(end);
               displayElement.textContent = `Viewing: Active Period (No Events): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
+              const endDateStr = formatDateAsUTC(end) + 'T23:59:59Z';
+              console.log('[Countdown] Calling updateCountdownTimer (No Events) with:', endDateStr);
+              updateCountdownTimer(endDateStr);
               loadDashboard();
               return;
             }
@@ -880,7 +940,7 @@
             periodEvents.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
             
             // Find the current active period
-            const todayStr = formatDate(today);
+            const todayStr = formatDateAsUTC(todayUTC);
             let activePeriod = null;
             
             // Look for the event that is currently active (today is between start and end)
@@ -907,12 +967,12 @@
               
               // If we're between two events, use the end of the last and start of the next
               if (lastPastEvent && nextFutureEvent) {
-                const start = new Date(lastPastEvent.endDate);
-                start.setDate(start.getDate() + 1); // Day after last period ended
-                const end = new Date(nextFutureEvent.startDate);
-                end.setDate(end.getDate() - 1); // Day before next period starts
-                startInput.value = formatDate(start);
-                endInput.value = formatDate(end);
+                const start = parseDateUTC(lastPastEvent.endDate);
+                start.setUTCDate(start.getUTCDate() + 1); // Day after last period ended
+                const end = parseDateUTC(nextFutureEvent.startDate);
+                end.setUTCDate(end.getUTCDate() - 1); // Day before next period starts
+                startInput.value = formatDateAsUTC(start);
+                endInput.value = formatDateAsUTC(end);
                 displayElement.textContent = `Viewing: Active Period (Between Events): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
                 loadDashboard();
                 return;
@@ -923,23 +983,30 @@
             }
             
             // Use the active period dates
-            const start = new Date(activePeriod.startDate);
-            const end = new Date(activePeriod.endDate);
-            startInput.value = formatDate(start);
-            endInput.value = formatDate(end);
+            const start = parseDateUTC(activePeriod.startDate);
+            const end = parseDateUTC(activePeriod.endDate);
+            startInput.value = formatDateAsUTC(start);
+            endInput.value = formatDateAsUTC(end);
             displayElement.textContent = `Viewing: Active Period (${activePeriod.eventName}): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
+            const endDateStr = formatDateAsUTC(end) + 'T23:59:59Z';
+       //     console.log('[Countdown] Calling updateCountdownTimer (Active Period) with:', endDateStr);
+            updateCountdownTimer(endDateStr);
             loadDashboard();
           })
           .catch(error => {
             console.error('Error fetching events:', error);
-            // Fallback to Sunday-Saturday
-            const start = new Date(today);
-            start.setDate(start.getDate() - start.getDay());
+            // Fallback to Sunday-Saturday (UTC)
+            const start = new Date(todayUTC);
+            const dayOfWeekUTC = start.getUTCDay();
+            start.setUTCDate(start.getUTCDate() - dayOfWeekUTC);
             const end = new Date(start);
-            end.setDate(start.getDate() + 6);
-            startInput.value = formatDate(start);
-            endInput.value = formatDate(end);
+            end.setUTCDate(end.getUTCDate() + 6);
+            startInput.value = formatDateAsUTC(start);
+            endInput.value = formatDateAsUTC(end);
             displayElement.textContent = `Viewing: Active Period (Error): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
+            const endDateStr = formatDateAsUTC(end) + 'T23:59:59Z';
+            console.log('[Countdown] Calling updateCountdownTimer (Error) with:', endDateStr);
+            updateCountdownTimer(endDateStr);
             loadDashboard();
           });
         return;
@@ -955,13 +1022,14 @@
           .then(res => res.json())
           .then(result => {
             if (!result || !result.success || !result.events || result.events.length === 0) {
-              // Fallback to previous Sunday-Saturday
-              const start = new Date(today);
-              start.setDate(start.getDate() - start.getDay() - 7);
+              // Fallback to previous Sunday-Saturday (UTC)
+              const start = new Date(todayUTC);
+              const dayOfWeekUTC = start.getUTCDay();
+              start.setUTCDate(start.getUTCDate() - dayOfWeekUTC - 7);
               const end = new Date(start);
-              end.setDate(end.getDate() + 6);
-              startInput.value = formatDate(start);
-              endInput.value = formatDate(end);
+              end.setUTCDate(end.getUTCDate() + 6);
+              startInput.value = formatDateAsUTC(start);
+              endInput.value = formatDateAsUTC(end);
               displayElement.textContent = `Viewing: Previous Period (Fallback): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
               loadDashboard();
               return;
@@ -974,13 +1042,14 @@
             );
             
             if (periodEvents.length === 0) {
-              // Fallback to previous Sunday-Saturday
-              const start = new Date(today);
-              start.setDate(start.getDate() - start.getDay() - 7);
+              // Fallback to previous Sunday-Saturday (UTC)
+              const start = new Date(todayUTC);
+              const dayOfWeekUTC = start.getUTCDay();
+              start.setUTCDate(start.getUTCDate() - dayOfWeekUTC - 7);
               const end = new Date(start);
-              end.setDate(end.getDate() + 6);
-              startInput.value = formatDate(start);
-              endInput.value = formatDate(end);
+              end.setUTCDate(end.getUTCDate() + 6);
+              startInput.value = formatDateAsUTC(start);
+              endInput.value = formatDateAsUTC(end);
               displayElement.textContent = `Viewing: Previous Period (No Events): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
               loadDashboard();
               return;
@@ -989,7 +1058,7 @@
             // Sort events by start date
             periodEvents.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
             
-            const todayStr = formatDate(today);
+            const todayStr = formatDateAsUTC(todayUTC);
             
             // Find the current active period first
             let activePeriod = null;
@@ -1024,55 +1093,61 @@
             }
             
             if (!previousPeriod) {
-              // Fallback to previous Sunday-Saturday
-              const start = new Date(today);
-              start.setDate(start.getDate() - start.getDay() - 7);
+              // Fallback to previous Sunday-Saturday (UTC)
+              const start = new Date(todayUTC);
+              const dayOfWeekUTC = start.getUTCDay();
+              start.setUTCDate(start.getUTCDate() - dayOfWeekUTC - 7);
               const end = new Date(start);
-              end.setDate(end.getDate() + 6);
-              startInput.value = formatDate(start);
-              endInput.value = formatDate(end);
+              end.setUTCDate(end.getUTCDate() + 6);
+              startInput.value = formatDateAsUTC(start);
+              endInput.value = formatDateAsUTC(end);
               displayElement.textContent = `Viewing: Previous Period (Fallback): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
               loadDashboard();
               return;
             }
             
             // Use the previous period dates
-            const start = new Date(previousPeriod.startDate);
-            const end = new Date(previousPeriod.endDate);
-            startInput.value = formatDate(start);
-            endInput.value = formatDate(end);
+            const start = parseDateUTC(previousPeriod.startDate);
+            const end = parseDateUTC(previousPeriod.endDate);
+            startInput.value = formatDateAsUTC(start);
+            endInput.value = formatDateAsUTC(end);
             displayElement.textContent = `Viewing: Previous Period (${previousPeriod.eventName}): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
             loadDashboard();
           })
           .catch(error => {
             console.error('Error fetching events:', error);
-            // Fallback to previous Sunday-Saturday
-            const start = new Date(today);
-            start.setDate(start.getDate() - start.getDay() - 7);
+            // Fallback to previous Sunday-Saturday (UTC)
+            const start = new Date(todayUTC);
+            const dayOfWeekUTC = start.getUTCDay();
+            start.setUTCDate(start.getUTCDate() - dayOfWeekUTC - 7);
             const end = new Date(start);
-            end.setDate(end.getDate() + 6);
-            startInput.value = formatDate(start);
-            endInput.value = formatDate(end);
+            end.setUTCDate(end.getUTCDate() + 6);
+            startInput.value = formatDateAsUTC(start);
+            endInput.value = formatDateAsUTC(end);
             displayElement.textContent = `Viewing: Previous Period (Error): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
             loadDashboard();
           });
         return;
       }
       if (preset === 'currentmonth') {
-        const start = new Date(today.getFullYear(), today.getMonth(), 1);
-        // Get the last day of current month
-        const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        startInput.value = formatDate(start);
-        endInput.value = formatDate(end);
+        const start = getUTCStartOfDay(todayUTC.getUTCFullYear(), todayUTC.getUTCMonth() + 1, 1);
+        const endUTC = getUTCComponents(todayUTC);
+        const end = getUTCEndOfDay(endUTC.year, endUTC.month + 1, 0);
+        startInput.value = formatDateAsUTC(start);
+        endInput.value = formatDateAsUTC(end);
         displayElement.textContent = `Viewing: Current Month: ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
         loadDashboard();
         return;
       }
       if (preset === 'lastmonth') {
-        const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        const end = new Date(today.getFullYear(), today.getMonth(), 0);
-        startInput.value = formatDate(start);
-        endInput.value = formatDate(end);
+        const prevMonth = todayUTC.getUTCMonth();
+        const prevYear = prevMonth === 0 ? todayUTC.getUTCFullYear() - 1 : todayUTC.getUTCFullYear();
+        const month = prevMonth === 0 ? 12 : prevMonth;
+        const start = getUTCStartOfDay(prevYear, month, 1);
+        const endUtc = getUTCComponents(start);
+        const end = getUTCEndOfDay(endUtc.year, endUtc.month + 1, 0);
+        startInput.value = formatDateAsUTC(start);
+        endInput.value = formatDateAsUTC(end);
         displayElement.textContent = `Viewing: Last Month: ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
         loadDashboard();
         return;
@@ -1082,8 +1157,7 @@
     function loadDashboard() {
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
-      currentViewingStartDate = startDate; // Store start date for new member highlighting
-      updateCountdownTimer(endDate); // Update countdown timer with end date
+      currentViewingStartDate = startDate; // Store for new member highlighting
       document.getElementById('playerList').innerHTML = '<div class="loading">Loading...</div>';
       
       // Store for re-rendering after splits load
@@ -1145,14 +1219,9 @@
       if (display && data.lastImportTimestamp) {
         let timestampText = data.lastImportTimestamp;
         if (timestampText === 'Never' || timestampText === 'No imports yet') {
-          display.innerHTML = 'Last Imported: <span class="no-date">No date</span> | Required Points: 10000';
+          display.innerHTML = 'Last Imported: <span class="no-date">No date</span> | Required Points: 3000';
         } else {
-          // Try to parse and format as UTC if possible
-          let parsed = parseDateUTC(timestampText);
-          if (parsed && !isNaN(parsed)) {
-            timestampText = formatDateUTC(parsed);
-          }
-          display.innerHTML = `Last Imported: ${timestampText} | Required Points: 10000`;
+          display.innerHTML = `Last Imported: ${timestampText} | Required Points: 3000`;
         }
       }
     }
@@ -1217,24 +1286,22 @@
       playerArray.forEach((player,idx)=>{
         const commonCryptInfo = player.chestsByTypeGrouped?.['Common Crypt'];
         const totalPointsVal = player.totalPoints || 0;
-        const pointsClass = totalPointsVal >= 10000 ? 'player-green' : (totalPointsVal >= 9000 ? 'player-orange' : 'player-red');
+        const pointsClass = totalPointsVal >= 3000 ? 'player-green' : (totalPointsVal >= 2700 ? 'player-orange' : 'player-red');
         
-        // Check if player joined after the viewing period start date
+        // Check if member joined after the current viewing start date
         let isNewMember = false;
         let joinDateLabel = '';
-        if (currentViewingStartDate && player.joinDate) {
-          const viewingStart = parseDateUTC(currentViewingStartDate);
-          const playerJoinDate = parseDateUTC(player.joinDate);
-          if (playerJoinDate > viewingStart) {
-            isNewMember = true;
-            const nowUTC = new Date(Date.UTC(
-              (new Date()).getUTCFullYear(), (new Date()).getUTCMonth(), (new Date()).getUTCDate(),
-              (new Date()).getUTCHours(), (new Date()).getUTCMinutes(), (new Date()).getUTCSeconds()
-            ));
-            const timeDiff = nowUTC - playerJoinDate;
+        if (player.joinDate && currentViewingStartDate) {
+          const joinDate = new Date(player.joinDate);
+          const viewStartDate = new Date(currentViewingStartDate);
+          isNewMember = joinDate > viewStartDate;
+          if (isNewMember) {
+            // Calculate days ago from today
+            const today = new Date();
+            const timeDiff = today - joinDate;
             const daysAgo = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
             const daysLabel = daysAgo === 0 ? 'today' : daysAgo === 1 ? '1 day ago' : `${daysAgo} days ago`;
-            joinDateLabel = ` <span style="font-size:10px;opacity:0.8;">(Joined: ${daysLabel} UTC)</span>`;
+            joinDateLabel = ` <span style="font-size:10px;opacity:0.8;">(Joined: ${daysLabel})</span>`;
           }
         }
         
