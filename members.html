@@ -8,14 +8,44 @@
   <link rel="icon" href="moo-portal.png" type="image/png">
   <script src="config.js"></script>
   <script src="portal-shim.js"></script>
+  <script>
+  // Helper: Parse date string as UTC with proper timezone handling
+  function parseDateUTC(str) {
+    if (!str) return null;
+    if (str instanceof Date) return str;
+    const strTrim = String(str).trim();
+    if (!strTrim) return null;
+    // ISO 8601 with Z or offset
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(strTrim)) {
+      const d = new Date(strTrim);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    // YYYY-MM-DD (treat as UTC start of day)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(strTrim)) {
+      const d = new Date(strTrim + 'T00:00:00Z');
+      return isNaN(d.getTime()) ? null : d;
+    }
+    // Fallback: try direct parsing with Z suffix for UTC
+    const d = new Date(strTrim + 'Z');
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // Helper: Get today's date at midnight UTC (YYYY-MM-DD format)
+  function getTodayUTCString() {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  </script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
       background: linear-gradient(135deg, #232526 0%, #414345 100%);
       color: #f3f3f3;
       text-align: center;
-      padding: 32px 8px 60px 8px;
+      padding: 32px 16px 60px 16px;
       min-height: 100vh;
       background-attachment: fixed;
     }
@@ -148,6 +178,11 @@
       border-color: #ffb300; 
       box-shadow: 0 0 0 3px rgba(255,179,0,0.15);
     }
+
+    /* Date inputs - narrower for compact layout */
+    input[type="date"] {
+      max-width: 140px;
+    }
     
     /* Buttons */
     .btn { 
@@ -178,7 +213,7 @@
       text-transform: uppercase; 
       letter-spacing: 0.5px;
       border-bottom: 2px solid #444;
-      text-align: left;
+      text-align: center;
       position: sticky;
       top: 0;
       background: #1a1b1c;
@@ -526,7 +561,7 @@
 
   <nav class="tab-nav">
     <div class="tab-nav-container">
-      <div class="nav-brand" id="navBrand"><a href="index.html" style="text-decoration:none;color:inherit;"><img src="moo-portal.png" alt="MOO" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</a></div>
+      <div class="nav-brand" id="navBrand"><img src="favicon.png" alt="" style="height: 32px; width: 32px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops</div>
       <button class="hamburger" id="navHamburger" aria-label="Toggle navigation">
         <span></span>
         <span></span>
@@ -569,7 +604,7 @@
   </nav>
 
   <div id="members" class="tab-content active">
-    <div class="header"><h1><img src="members.png" alt="Members" class="tab-icon" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Member Management</h1><p>View and manage clan members</p></div>
+    <div class="header"><h1><img src="members.png" alt="Members" class="tab-icon" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Masters Of Oops - Member Management</h1><p>View and manage clan members</p></div>
     <div class="stats-cards" id="memberStatsCards">
       <div class="stat-card"><h3>Total Members</h3><div class="value" id="memberTotal">-</div></div>
       <div class="stat-card"><h3>Total Might</h3><div class="value" id="memberTotalMight">-</div></div>
@@ -738,10 +773,10 @@
           let aVal, bVal;
           switch (column) {
             case 'name': aVal = a.name.toLowerCase(); bVal = b.name.toLowerCase(); break;
-            case 'joinDate': aVal = new Date(a.joinDate); bVal = new Date(b.joinDate); break;
+            case 'joinDate': aVal = parseDateUTC(a.joinDate); bVal = parseDateUTC(b.joinDate); break;
             case 'startMight': aVal = a.startMight || 0; bVal = b.startMight || 0; break;
             case 'latestMight': aVal = a.latestMight || 0; bVal = b.latestMight || 0; break;
-            case 'latestMightDate': aVal = a.latestMightDate ? new Date(a.latestMightDate) : new Date(0); bVal = b.latestMightDate ? new Date(b.latestMightDate) : new Date(0); break;
+            case 'latestMightDate': aVal = parseDateUTC(a.latestMightDate) || new Date(0); bVal = parseDateUTC(b.latestMightDate) || new Date(0); break;
             case 'growth': aVal = (a.startMight && a.latestMight && a.startMight > 0) ? ((a.latestMight - a.startMight) / a.startMight) * 100 : -Infinity; bVal = (b.startMight && b.latestMight && b.startMight > 0) ? ((b.latestMight - b.startMight) / b.startMight) * 100 : -Infinity; break;
             case 'recentGrowth': aVal = a.recentGrowthPercent || 0; bVal = b.recentGrowthPercent || 0; break;
             default: aVal = 0; bVal = 0;
@@ -790,7 +825,7 @@
       }
 
       function setTodayDefault() {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getTodayUTCString();
         ['mightDate', 'joinDate', 'endDate'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.value = today;
@@ -945,18 +980,19 @@
       }
 
       function formatDate(dateStr) {
-          if (!dateStr) return '-';
-          const d = new Date(dateStr);
-          if (isNaN(d.getTime())) return dateStr;
-          const yyyy = d.getUTCFullYear();
-          const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
-          const dd = String(d.getUTCDate()).padStart(2, '0');
-          const hh = String(d.getUTCHours()).padStart(2, '0');
-          const min = String(d.getUTCMinutes()).padStart(2, '0');
-          return `${yyyy}-${mm}-${dd} ${hh}:${min} UTC`;
+        if (!dateStr) return '-';
+        try {
+          const date = parseDateUTC(dateStr);
+          if (!date) return dateStr;
+          // Format as UTC date string
+          const year = date.getUTCFullYear();
+          const month = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+          const day = date.getUTCDate();
+          return `${month} ${day}, ${year} (UTC)`;
+        } catch (e) {
+          return dateStr;
+        }
       }
-          row.innerHTML = `<td class="member-name">${escapeHtml(member.name)}</td><td class="might-value">${formatMight(member.startMight)}</td><td class="date-value">${formatDateUTC(member.joinDate)}</td><td class="might-value">${growthPercent}</td><td class="might-value">${formatMight(member.latestMight)}</td><td class="date-value">${formatDateUTC(member.latestMightDate)}</td><td class="might-value">${recentGrowthPercent}</td>`;
-              status.textContent = `Saved ${member} at ${formatMight(might)} for ${formatDateUTC(date)}.`;
 
       function escapeHtml(text) {
         const div = document.createElement('div');
