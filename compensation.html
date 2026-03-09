@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -893,7 +893,7 @@
 <body>
     <!-- Google Translate Widget -->
     <div id="google_translate_element" style="position:fixed;bottom:8px;right:8px;z-index:7000;"></div>
-    <button id="translateToggleBtn" type="button" aria-label="Toggle translation" style="position:fixed;bottom:8px;right:8px;z-index:7001;display:none;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid #444;border-radius:8px;background:#232526;color:#ffb300;font-size:18px;cursor:pointer;">🌐</button>
+    <button id="translateToggleBtn" type="button" aria-label="Toggle translation" style="position:fixed;bottom:8px;right:8px;z-index:7001;display:none;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid #444;border-radius:8px;background:#232526;color:#ffb300;font-size:18px;cursor:pointer;">ðŸŒ</button>
     <style>
       @media (max-width: 800px) {
         #google_translate_element {
@@ -941,8 +941,8 @@
   <script>
     // --- Google Sign-In for edit access ---
     const BACKEND_VERIFY_URL = window.GAS_WEB_APP_URL;
-    const AUTH_KEY = 'ccc_portal_google_auth';
-    const AUTH_EMAIL_KEY = 'ccc_portal_google_email';
+    const AUTH_KEY = 'moo_portal_google_auth';
+    const AUTH_EMAIL_KEY = 'moo_portal_google_email';
 
     function setReadOnlyMode(enabled) {
       if (enabled) {
@@ -1095,7 +1095,7 @@
         if (nav && !document.getElementById('signInManageBtn')) {
           const btn = document.createElement('button');
           btn.id = 'signInManageBtn';
-          btn.textContent = '🔑 Sign in to Manage';
+          btn.textContent = 'ðŸ”‘ Sign in to Manage';
           btn.style = 'margin-left:16px;padding:8px 18px;background:#1a73e8;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;';
           btn.onclick = showGoogleLogin;
           nav.appendChild(btn);
@@ -1151,7 +1151,7 @@
           <span class="tab-label mobile-only">Bank</span>
         </a>
       </div>
-      <div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
+      <div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">ðŸ”’ Read-Only Mode</div>
       <div id="signedInUserBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #1a1b1c; border-radius: 4px; font-size: 12px; color: #ffb300; border: 1px solid #444;"></div>
       <button id="logoutBtn" onclick="handleLogout()" style="display: none; margin-left: 8px; padding: 8px 10px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Log out</button>
     </div>
@@ -1173,7 +1173,7 @@
 
       <!-- Quick Add Section -->
       <div class="quick-add-section">
-        <h3>⚡ Quick Add</h3>
+        <h3>âš¡ Quick Add</h3>
         <div class="quick-add-grid">
           <!-- Quick Add Leaders -->
           <div class="quick-add-form">
@@ -1246,7 +1246,7 @@
 
       <!-- Incidents Section -->
       <div id="incidentsSection" class="incidents-section">
-        <h2>📋 Incident Details</h2>
+        <h2>ðŸ“‹ Incident Details</h2>
         <div class="incident-form">
           <input type="text" id="compensationName" placeholder="Enter incident name (e.g., 'Guild War - 2024-11-15')">
         </div>
@@ -1258,7 +1258,7 @@
 
       <!-- Troops Entry -->
       <div class="troop-grid-section">
-        <h3>⚔️ Guardsmen (Levels 1-9)</h3>
+        <h3>âš”ï¸ Guardsmen (Levels 1-9)</h3>
         <div class="level-grid">
           <div class="level-input"><label>Lvl 1</label><input type="number" id="guardsmenL1" placeholder="0" min="0"></div>
           <div class="level-input"><label>Lvl 2</label><input type="number" id="guardsmenL2" placeholder="0" min="0"></div>
@@ -1271,7 +1271,7 @@
           <div class="level-input"><label>Lvl 9</label><input type="number" id="guardsmenL9" placeholder="0" min="0"></div>
         </div>
 
-        <h3>🛡️ Specialists (Levels 1-9)</h3>
+        <h3>ðŸ›¡ï¸ Specialists (Levels 1-9)</h3>
         <div class="level-grid">
           <div class="level-input"><label>Lvl 1</label><input type="number" id="specialistsL1" placeholder="0" min="0"></div>
           <div class="level-input"><label>Lvl 2</label><input type="number" id="specialistsL2" placeholder="0" min="0"></div>
@@ -1284,7 +1284,7 @@
           <div class="level-input"><label>Lvl 9</label><input type="number" id="specialistsL9" placeholder="0" min="0"></div>
         </div>
 
-        <h3>🏹 Siege (Levels 1-9)</h3>
+        <h3>ðŸ¹ Siege (Levels 1-9)</h3>
         <div class="level-grid">
           <div class="level-input"><label>Lvl 1</label><input type="number" id="siegeL1" placeholder="0" min="0"></div>
           <div class="level-input"><label>Lvl 2</label><input type="number" id="siegeL2" placeholder="0" min="0"></div>
@@ -1297,7 +1297,7 @@
           <div class="level-input"><label>Lvl 9</label><input type="number" id="siegeL9" placeholder="0" min="0"></div>
         </div>
 
-        <h3>💼 Mercenary (Levels 1-9)</h3>
+        <h3>ðŸ’¼ Mercenary (Levels 1-9)</h3>
         <div class="level-grid">
           <div class="level-input"><label>Lvl 1</label><input type="number" id="mercenaryL1" placeholder="0" min="0"></div>
           <div class="level-input"><label>Lvl 2</label><input type="number" id="mercenaryL2" placeholder="0" min="0"></div>
@@ -1313,7 +1313,7 @@
 
       <!-- Monsters Section -->
       <div class="monster-grid-section">
-        <h3>👹 Monsters & Creatures</h3>
+        <h3>ðŸ‘¹ Monsters & Creatures</h3>
         <div class="monster-grid">
           <div class="monster-input"><label>Monster III</label><input type="number" id="monsterIII" placeholder="0" min="0"></div>
           <div class="monster-input"><label>Monster IV</label><input type="number" id="monsterIV" placeholder="0" min="0"></div>
@@ -1332,7 +1332,7 @@
 
       <!-- Buildings Section -->
       <div class="building-section">
-        <h3>🏰 Buildings & Resources</h3>
+        <h3>ðŸ° Buildings & Resources</h3>
         <div class="building-fields">
           <div class="building-field">
             <label>Clan Capital Lost</label>
@@ -1367,8 +1367,8 @@
       <!-- Results & Action Section -->
       <div id="compensationStatus" class="status"></div>
       <div class="button-group">
-        <button class="btn btn-primary" onclick="CompensationTab.calculate()">💾 Calculate & Save</button>
-        <button class="btn btn-secondary" onclick="CompensationTab.clearForm()">🔄 Clear Form</button>
+        <button class="btn btn-primary" onclick="CompensationTab.calculate()">ðŸ’¾ Calculate & Save</button>
+        <button class="btn btn-secondary" onclick="CompensationTab.clearForm()">ðŸ”„ Clear Form</button>
       </div>
 
       <!-- Results Display -->
@@ -1399,7 +1399,7 @@
 
       <!-- Reports History -->
       <div class="reports-section">
-        <h2>📜 Compensation Reports</h2>
+        <h2>ðŸ“œ Compensation Reports</h2>
         <div id="compensationReportsLoading" class="reports-loading" style="display: none;">Loading reports...</div>
         <div id="compensationReportsList" class="reports-list"></div>
         <div id="compensationReportsEmpty" class="reports-empty">No compensation reports yet. Create one above!</div>
@@ -1593,7 +1593,7 @@
           buildings: buildings
         };
 
-        showStatus('⏳ Saving...', '');
+        showStatus('â³ Saving...', '');
 
         fetch(window.GAS_WEB_APP_URL, {
           method: 'POST',
@@ -1617,14 +1617,14 @@
               document.getElementById('resultGrandTotal').textContent = grandTotal.toLocaleString() + ' silver';
               document.getElementById('resultSheetName').textContent = result.sheetName;
               document.getElementById('compensationResult').style.display = 'block';
-              showStatus('✓ Compensation calculated and saved!', 'ok');
+              showStatus('âœ“ Compensation calculated and saved!', 'ok');
               loadReports();
             } else {
-              showStatus('✕ Error: ' + (result.error || 'Unknown error'), 'err');
+              showStatus('âœ• Error: ' + (result.error || 'Unknown error'), 'err');
             }
           })
           .catch(error => {
-            showStatus('✕ Error: ' + error.message, 'err');
+            showStatus('âœ• Error: ' + error.message, 'err');
           });
       }
 
@@ -1708,7 +1708,7 @@
         displayAddedLeaders();
         
         const typeName = type.charAt(0).toUpperCase() + type.slice(1);
-        showQuickStatus(`✓ Added level ${level} ${typeName}`, 'ok');
+        showQuickStatus(`âœ“ Added level ${level} ${typeName}`, 'ok');
         document.getElementById('quickLeaderLevel').value = '1';
         document.getElementById('quickLeaderLevel').focus();
       }
@@ -1760,7 +1760,7 @@
           field.value = currentValue + amount;
           field.style.background = '#e8f5e9';
           setTimeout(() => field.style.background = '#232526', 500);
-          showQuickStatus(`✓ Added ${amount} item(s)`, 'ok');
+          showQuickStatus(`âœ“ Added ${amount} item(s)`, 'ok');
           document.getElementById('quickMonsterAmount').value = '';
           document.getElementById('quickMonsterAmount').focus();
         }
@@ -1775,7 +1775,7 @@
             document.getElementById(type).value = '1';
             document.getElementById(type).style.background = '#e8f5e9';
             setTimeout(() => document.getElementById(type).style.background = '#232526', 500);
-            showQuickStatus(`✓ Clan Capital marked as lost`, 'ok');
+            showQuickStatus(`âœ“ Clan Capital marked as lost`, 'ok');
             document.getElementById('quickBuildingAmount').value = '';
           } else {
             showQuickStatus('Set amount to 1 to mark Clan Capital as lost', 'err');
@@ -1794,7 +1794,7 @@
           field.value = currentValue + amount;
           field.style.background = '#e8f5e9';
           setTimeout(() => field.style.background = '#232526', 500);
-          showQuickStatus(`✓ Added ${amount} item(s)`, 'ok');
+          showQuickStatus(`âœ“ Added ${amount} item(s)`, 'ok');
           document.getElementById('quickBuildingAmount').value = '';
         }
       }
@@ -1813,7 +1813,7 @@
                 <div style="margin-bottom: 20px;">
                   <div style="font-size: 13px; color: #ccc; margin-bottom: 4px;">INCIDENT</div>
                   <div style="font-size: 20px; font-weight: 600; color: #ffb300;">${result.incidentName}</div>
-                  <div style="font-size: 13px; color: #e0e0e0; margin-top: 4px;">📅 ${result.date}</div>
+                  <div style="font-size: 13px; color: #e0e0e0; margin-top: 4px;">ðŸ“… ${result.date}</div>
                 </div>
 
                 <div style="display: grid; gap: 12px; margin-bottom: 20px;">
@@ -1841,8 +1841,8 @@
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
-                  <button onclick="CompensationTab.editReport('${result.sheetName}')" style="padding: 10px 16px; background: #ffb300; color: #232526; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">✏️ Edit</button>
-                  <button onclick="CompensationTab.deleteReport('${result.sheetName}')" style="padding: 10px 16px; background: #ff5252; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">🗑️ Delete</button>
+                  <button onclick="CompensationTab.editReport('${result.sheetName}')" style="padding: 10px 16px; background: #ffb300; color: #232526; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">âœï¸ Edit</button>
+                  <button onclick="CompensationTab.deleteReport('${result.sheetName}')" style="padding: 10px 16px; background: #ff5252; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">ðŸ—‘ï¸ Delete</button>
                 </div>
               `;
               document.getElementById('compensationDetailModal').style.display = 'flex';
@@ -1859,7 +1859,7 @@
 
       function editReport(sheetName) {
         closeDetail();
-        showStatus('⏳ Loading report data...', '');
+        showStatus('â³ Loading report data...', '');
         fetch(window.GAS_WEB_APP_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1941,19 +1941,19 @@
               if (incidentsSection) {
                 incidentsSection.scrollIntoView({ behavior: 'smooth' });
               }
-              showStatus('✓ Report loaded! Make changes and click Calculate to save.', 'ok');
+              showStatus('âœ“ Report loaded! Make changes and click Calculate to save.', 'ok');
             } else {
-              showStatus('✕ Error: ' + (result.error || 'Unknown error loading parameters'), 'err');
+              showStatus('âœ• Error: ' + (result.error || 'Unknown error loading parameters'), 'err');
             }
           })
           .catch(error => {
-            showStatus('✕ Error: ' + error.message, 'err');
+            showStatus('âœ• Error: ' + error.message, 'err');
           });
       }
 
       function deleteReport(sheetName) {
-        if (confirm('⚠️ Delete this compensation report? This cannot be undone.')) {
-          showStatus('⏳ Deleting...', '');
+        if (confirm('âš ï¸ Delete this compensation report? This cannot be undone.')) {
+          showStatus('â³ Deleting...', '');
           fetch(window.GAS_WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1964,13 +1964,13 @@
               if (result.success) {
                 closeDetail();
                 loadReports();
-                showStatus('✓ Report deleted successfully!', 'ok');
+                showStatus('âœ“ Report deleted successfully!', 'ok');
               } else {
-                showStatus('✕ Error: ' + (result.error || 'Unknown error'), 'err');
+                showStatus('âœ• Error: ' + (result.error || 'Unknown error'), 'err');
               }
             })
             .catch(error => {
-              showStatus('✕ Error: ' + error.message, 'err');
+              showStatus('âœ• Error: ' + error.message, 'err');
             });
         }
       }
@@ -2003,8 +2003,8 @@
                 
                 card.innerHTML = `
                   <div style="font-size: 14px; font-weight: 600; color: #ffb300; margin-bottom: 8px;">${report.incidentName}</div>
-                  <div style="font-size: 12px; color: #e0e0e0; margin-bottom: 12px;">📅 ${report.date}</div>
-                  <button onclick="CompensationTab.viewDetail('${report.sheetName}')" style="padding: 8px 12px; background: #ffb300; color: #232526; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; margin-right: 8px;">👁️ View</button>
+                  <div style="font-size: 12px; color: #e0e0e0; margin-bottom: 12px;">ðŸ“… ${report.date}</div>
+                  <button onclick="CompensationTab.viewDetail('${report.sheetName}')" style="padding: 8px 12px; background: #ffb300; color: #232526; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; margin-right: 8px;">ðŸ‘ï¸ View</button>
                 `;
                 listDiv.appendChild(card);
               });
@@ -2049,3 +2049,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+

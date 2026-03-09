@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
@@ -310,7 +310,7 @@
 <body>
 	<!-- Google Translate Widget -->
 	<div id="google_translate_element" style="position:fixed;bottom:8px;right:8px;z-index:7000;"></div>
-	<button id="translateToggleBtn" type="button" aria-label="Toggle translation" style="position:fixed;bottom:8px;right:8px;z-index:7001;display:none;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid #444;border-radius:8px;background:#232526;color:#ffb300;font-size:18px;cursor:pointer;">🌐</button>
+	<button id="translateToggleBtn" type="button" aria-label="Toggle translation" style="position:fixed;bottom:8px;right:8px;z-index:7001;display:none;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid #444;border-radius:8px;background:#232526;color:#ffb300;font-size:18px;cursor:pointer;">ðŸŒ</button>
 	<style>
 		@media (max-width: 800px) {
 			#google_translate_element {
@@ -356,8 +356,8 @@
 	<script src="https://accounts.google.com/gsi/client" async defer></script>
 	<script>
 		const BACKEND_VERIFY_URL = window.GAS_WEB_APP_URL;
-		const AUTH_KEY = 'ccc_portal_google_auth';
-		const AUTH_EMAIL_KEY = 'ccc_portal_google_email';
+		const AUTH_KEY = 'moo_portal_google_auth';
+		const AUTH_EMAIL_KEY = 'moo_portal_google_email';
 
 		function setReadOnlyMode(enabled) {
 			if (enabled) {
@@ -507,7 +507,7 @@
 			if (nav && !document.getElementById('signInManageBtn')) {
 				const btn = document.createElement('button');
 				btn.id = 'signInManageBtn';
-				btn.textContent = '🔑 Sign in to Manage';
+				btn.textContent = 'ðŸ”‘ Sign in to Manage';
 				btn.style = 'margin-left:16px;padding:8px 18px;background:#1a73e8;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;';
 				btn.onclick = showGoogleLogin;
 				nav.appendChild(btn);
@@ -545,7 +545,7 @@
 				<a href="points.html" class="tab-btn" title="Points Reference"><img src="chest_points.png" alt="Points" class="tab-icon desktop-only"><span class="tab-label mobile-only">Points Reference</span></a>
 				<a href="bank.html" class="tab-btn" id="bankTabBtn" title="Bank" style="display:none;"><img src="bank.png" alt="Bank" class="tab-icon desktop-only"><span class="tab-label mobile-only">Bank</span></a>
 			</div>
-			<div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
+			<div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">ðŸ”’ Read-Only Mode</div>
 			<div id="signedInUserBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #1a1b1c; border-radius: 4px; font-size: 12px; color: #ffb300; border: 1px solid #444;"></div>
 			<button id="logoutBtn" onclick="handleLogout()" style="display: none; margin-left: 8px; padding: 8px 10px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Log out</button>
 		</div>
@@ -679,3 +679,4 @@
 	</script>
 </body>
 </html>
+
