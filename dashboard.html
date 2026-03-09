@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <base target="_top">
@@ -348,7 +348,7 @@
 <body>
   <!-- Google Translate Widget -->
   <div id="google_translate_element" style="position:fixed;bottom:8px;right:8px;z-index:7000;"></div>
-  <button id="translateToggleBtn" type="button" aria-label="Toggle translation" style="position:fixed;bottom:8px;right:8px;z-index:7001;display:none;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid #444;border-radius:8px;background:#232526;color:#ffb300;font-size:18px;cursor:pointer;">ðŸŒ</button>
+  <button id="translateToggleBtn" type="button" aria-label="Toggle translation" style="position:fixed;bottom:8px;right:8px;z-index:7001;display:none;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid #444;border-radius:8px;background:#232526;color:#ffb300;font-size:18px;cursor:pointer;">🌐</button>
   <style>
     @media (max-width: 800px) {
       #google_translate_element {
@@ -557,7 +557,7 @@
           setReadOnlyMode(true);
           updateSignedInBadge(null);
           const errorMsg = data.error || 'Access denied: not an authorized user.';
-          const debugInfo = data.debug ? `\n\nðŸ“‹ DEBUG INFO:\n${data.debug}` : '';
+          const debugInfo = data.debug ? `\n\n📋 DEBUG INFO:\n${data.debug}` : '';
           const emailInfo = `\n\nYour email: ${email}`;
           const finalMsg = errorMsg + emailInfo + debugInfo;
           document.getElementById('login-error').textContent = finalMsg;
@@ -599,7 +599,7 @@
       if (nav && !document.getElementById('signInManageBtn')) {
         const btn = document.createElement('button');
         btn.id = 'signInManageBtn';
-        btn.textContent = 'ðŸ”‘ Sign in to Manage';
+        btn.textContent = '🔑 Sign in to Manage';
         btn.style = 'margin-left:16px;padding:8px 18px;background:#1a73e8;color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;';
         btn.onclick = showGoogleLogin;
         nav.appendChild(btn);
@@ -663,7 +663,7 @@
           <span class="tab-label mobile-only">Bank</span>
         </a>
       </div>
-      <div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">ðŸ”’ Read-Only Mode</div>
+      <div id="readOnlyBadge" style="display: none; padding: 8px 12px; background: #fff3cd; border-radius: 4px; font-size: 12px; color: #856404;">🔒 Read-Only Mode</div>
       <div id="signedInUserBadge" style="display: none; margin-left: auto; padding: 8px 12px; background: #1a1b1c; border-radius: 4px; font-size: 12px; color: #ffb300; border: 1px solid #444;"></div>
       <button id="logoutBtn" onclick="handleLogout()" style="display: none; margin-left: 8px; padding: 8px 10px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Log out</button>
     </div>
@@ -673,13 +673,13 @@
     <h1><img src="chests.png" alt="" style="height: 64px; vertical-align: middle; margin-right: 8px;"> Chest Tracker Dashboard</h1>
     
     <div class="countdown-panel" id="countdownPanel" style="display:none;">
-      <div class="countdown-title">â³ Period Ends In</div>
+      <div class="countdown-title">⏳ Period Ends In</div>
       <div class="countdown-parts" id="countdownParts"></div>
       <div class="countdown-subtitle" id="countdownSubtitle">Resets at 23:59 UTC on the period end date</div>
     </div>
     
     <div class="date-filter">
-      <div class="date-filter-label">ðŸ“… Date Range Filter</div>
+      <div class="date-filter-label">📅 Date Range Filter</div>
       <div class="date-preset-btns">
         <button class="preset-btn" data-preset="lastday" onclick="setDateRange('lastday')">Active Period</button>
         <button class="preset-btn" data-preset="prevweek" onclick="setDateRange('prevweek')">Previous Period</button>
@@ -699,9 +699,9 @@
       <div class="card"><div class="card-value" id="totalPoints">-</div><div class="card-label">Total Points</div></div>
     </div>
 
-    <h2>ðŸ¥‡ Player Rankings</h2>
+    <h2>🥇 Player Rankings</h2>
     <div style="margin-bottom:16px;max-width:400px;margin-left:auto;margin-right:auto;">
-      <input type="text" id="playerFilterInput" placeholder="ðŸ” Filter by member name..." style="width:100%;padding:10px 14px;font-size:15px;border-radius:6px;border:1px solid #444;background:#232526;color:#ffb300;outline:none;box-shadow:0 1px 6px rgba(0,0,0,0.15);margin-bottom:4px;" oninput="filterPlayerTable()">
+      <input type="text" id="playerFilterInput" placeholder="🔍 Filter by member name..." style="width:100%;padding:10px 14px;font-size:15px;border-radius:6px;border:1px solid #444;background:#232526;color:#ffb300;outline:none;box-shadow:0 1px 6px rgba(0,0,0,0.15);margin-bottom:4px;" oninput="filterPlayerTable()">
     </div>
     <div class="player-list" id="playerList"><div class="loading">Loading player stats...</div></div>
   </div>
@@ -879,10 +879,10 @@ function filterPlayerTable() {
           // Update sort icons
           headers.forEach(h => {
             const icon = h.querySelector('.sort-icon');
-            if (icon) icon.textContent = 'â–²â–¼';
+            if (icon) icon.textContent = '▲▼';
           });
           const icon = header.querySelector('.sort-icon');
-          if (icon) icon.textContent = dir === 'asc' ? 'â–²' : 'â–¼';
+          if (icon) icon.textContent = dir === 'asc' ? '▲' : '▼';
         };
       });
     }
@@ -992,7 +992,7 @@ function filterPlayerTable() {
               end.setUTCDate(end.getUTCDate() + 6);
               startInput.value = formatDateAsUTC(start);
               endInput.value = formatDateAsUTC(end);
-              displayElement.textContent = `Viewing: Active Period (Fallback): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+              displayElement.textContent = `Viewing: Active Period (Fallback): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
               // Use end of day UTC for countdown
               const endDateStr = formatDateAsUTC(end) + 'T23:59:59Z';
              // console.log('[Countdown] Calling updateCountdownTimer (Fallback) with:', endDateStr);
@@ -1017,7 +1017,7 @@ function filterPlayerTable() {
               end.setUTCDate(end.getUTCDate() + 6);
               startInput.value = formatDateAsUTC(start);
               endInput.value = formatDateAsUTC(end);
-              displayElement.textContent = `Viewing: Active Period (No Events): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+              displayElement.textContent = `Viewing: Active Period (No Events): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
               const endDateStr = formatDateAsUTC(end) + 'T23:59:59Z';
               console.log('[Countdown] Calling updateCountdownTimer (No Events) with:', endDateStr);
               updateCountdownTimer(endDateStr);
@@ -1062,7 +1062,7 @@ function filterPlayerTable() {
                 end.setUTCDate(end.getUTCDate() - 1); // Day before next period starts
                 startInput.value = formatDateAsUTC(start);
                 endInput.value = formatDateAsUTC(end);
-                displayElement.textContent = `Viewing: Active Period (Between Events): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+                displayElement.textContent = `Viewing: Active Period (Between Events): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
                 loadDashboard();
                 return;
               }
@@ -1076,7 +1076,7 @@ function filterPlayerTable() {
             const end = parseDateUTC(activePeriod.endDate);
             startInput.value = formatDateAsUTC(start);
             endInput.value = formatDateAsUTC(end);
-            displayElement.textContent = `Viewing: Active Period (${activePeriod.eventName}): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+            displayElement.textContent = `Viewing: Active Period (${activePeriod.eventName}): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
             const endDateStr = formatDateAsUTC(end) + 'T23:59:59Z';
        //     console.log('[Countdown] Calling updateCountdownTimer (Active Period) with:', endDateStr);
             updateCountdownTimer(endDateStr);
@@ -1092,7 +1092,7 @@ function filterPlayerTable() {
             end.setUTCDate(end.getUTCDate() + 6);
             startInput.value = formatDateAsUTC(start);
             endInput.value = formatDateAsUTC(end);
-            displayElement.textContent = `Viewing: Active Period (Error): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+            displayElement.textContent = `Viewing: Active Period (Error): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
             const endDateStr = formatDateAsUTC(end) + 'T23:59:59Z';
             console.log('[Countdown] Calling updateCountdownTimer (Error) with:', endDateStr);
             updateCountdownTimer(endDateStr);
@@ -1119,7 +1119,7 @@ function filterPlayerTable() {
               end.setUTCDate(end.getUTCDate() + 6);
               startInput.value = formatDateAsUTC(start);
               endInput.value = formatDateAsUTC(end);
-              displayElement.textContent = `Viewing: Previous Period (Fallback): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+              displayElement.textContent = `Viewing: Previous Period (Fallback): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
               loadDashboard();
               return;
             }
@@ -1139,7 +1139,7 @@ function filterPlayerTable() {
               end.setUTCDate(end.getUTCDate() + 6);
               startInput.value = formatDateAsUTC(start);
               endInput.value = formatDateAsUTC(end);
-              displayElement.textContent = `Viewing: Previous Period (No Events): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+              displayElement.textContent = `Viewing: Previous Period (No Events): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
               loadDashboard();
               return;
             }
@@ -1190,7 +1190,7 @@ function filterPlayerTable() {
               end.setUTCDate(end.getUTCDate() + 6);
               startInput.value = formatDateAsUTC(start);
               endInput.value = formatDateAsUTC(end);
-              displayElement.textContent = `Viewing: Previous Period (Fallback): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+              displayElement.textContent = `Viewing: Previous Period (Fallback): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
               loadDashboard();
               return;
             }
@@ -1200,7 +1200,7 @@ function filterPlayerTable() {
             const end = parseDateUTC(previousPeriod.endDate);
             startInput.value = formatDateAsUTC(start);
             endInput.value = formatDateAsUTC(end);
-            displayElement.textContent = `Viewing: Previous Period (${previousPeriod.eventName}): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+            displayElement.textContent = `Viewing: Previous Period (${previousPeriod.eventName}): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
             loadDashboard();
           })
           .catch(error => {
@@ -1213,7 +1213,7 @@ function filterPlayerTable() {
             end.setUTCDate(end.getUTCDate() + 6);
             startInput.value = formatDateAsUTC(start);
             endInput.value = formatDateAsUTC(end);
-            displayElement.textContent = `Viewing: Previous Period (Error): ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+            displayElement.textContent = `Viewing: Previous Period (Error): ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
             loadDashboard();
           });
         return;
@@ -1224,7 +1224,7 @@ function filterPlayerTable() {
         const end = getUTCEndOfDay(endUTC.year, endUTC.month + 1, 0);
         startInput.value = formatDateAsUTC(start);
         endInput.value = formatDateAsUTC(end);
-        displayElement.textContent = `Viewing: Current Month: ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+        displayElement.textContent = `Viewing: Current Month: ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
         loadDashboard();
         return;
       }
@@ -1237,7 +1237,7 @@ function filterPlayerTable() {
         const end = getUTCEndOfDay(endUtc.year, endUtc.month + 1, 0);
         startInput.value = formatDateAsUTC(start);
         endInput.value = formatDateAsUTC(end);
-        displayElement.textContent = `Viewing: Last Month: ${formatDisplayDate(start)} â€“ ${formatDisplayDate(end)}`;
+        displayElement.textContent = `Viewing: Last Month: ${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
         loadDashboard();
         return;
       }
@@ -1373,12 +1373,12 @@ function filterPlayerTable() {
       const sortedTypes = Object.entries(typeData).sort((a,b)=>b[1].total-a[1].total).map(([name,data])=>({ name, levels: Array.from(data.levels).map(l=>parseInt(l)).sort((a,b)=>a-b) }));
       let headerHtml = '<div class="table-header">';
       // Add sort icons and tooltips to sortable headers
-      const sortIcon = (col, dir) => `<span class="sort-icon" style="font-size:13px;vertical-align:middle;user-select:none;">${dir === 'asc' ? 'â–²' : dir === 'desc' ? 'â–¼' : 'â–²â–¼'}</span>`;
+      const sortIcon = (col, dir) => `<span class="sort-icon" style="font-size:13px;vertical-align:middle;user-select:none;">${dir === 'asc' ? '▲' : dir === 'desc' ? '▼' : '▲▼'}</span>`;
       headerHtml += `<div class="header-cell rank-col sortable" data-sort="rank">Rank ${sortIcon('rank')}</div>`;
       headerHtml += `<div class="header-cell sortable" data-sort="player">Player ${sortIcon('player')}</div>`;
       headerHtml += `<div class="header-cell sortable" data-sort="pts">Pts ${sortIcon('pts')}</div>`;
       headerHtml += `<div class="header-cell sortable" data-sort="total">Total ${sortIcon('total')}</div>`;
-      sortedTypes.forEach(type=>{ headerHtml += `<div class="header-cell type-total-header" onclick="toggleType('${type.name}')" data-type="${type.name}"><span class="toggle-icon">â–¶</span>${type.name}</div>`; type.levels.forEach(level=>{ headerHtml += `<div class="header-cell level-header" data-type="${type.name}" data-level="${level}">Lvl ${level}</div>`;}); });
+      sortedTypes.forEach(type=>{ headerHtml += `<div class="header-cell type-total-header" onclick="toggleType('${type.name}')" data-type="${type.name}"><span class="toggle-icon">▶</span>${type.name}</div>`; type.levels.forEach(level=>{ headerHtml += `<div class="header-cell level-header" data-type="${type.name}" data-level="${level}">Lvl ${level}</div>`;}); });
       headerHtml += '</div>';
       let rowsHtml = '';
       playerArray.forEach((player,idx)=>{
@@ -1447,10 +1447,10 @@ function addPlayerTableSortHandlers() {
       // Update sort icons
       headers.forEach(h => {
         const icon = h.querySelector('.sort-icon');
-        if (icon) icon.textContent = 'â–²â–¼';
+        if (icon) icon.textContent = '▲▼';
       });
       const icon = header.querySelector('.sort-icon');
-      if (icon) icon.textContent = dir === 'asc' ? 'â–²' : 'â–¼';
+      if (icon) icon.textContent = dir === 'asc' ? '▲' : '▼';
     };
   });
 }
@@ -1533,4 +1533,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 </html>
-
