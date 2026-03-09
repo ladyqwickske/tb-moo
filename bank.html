@@ -545,6 +545,10 @@
     window.addEventListener('DOMContentLoaded', function() {
       const token = (() => { try { return localStorage.getItem(AUTH_KEY); } catch (e) { return null; } })();
       const email = (() => { try { return localStorage.getItem(AUTH_EMAIL_KEY); } catch (e) { return null; } })();
+      if (!token || !email) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
 
       const nav = document.querySelector('.tab-nav-container');
 
